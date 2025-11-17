@@ -1,0 +1,762 @@
+---
+alwaysApply: true
+---
+# Product Requirements Document (PRD)
+## Insurance Back Office Platform
+### Valor Financial Specialists
+
+**Version:** 1.0  
+**Last Updated:** November 2025  
+**Status:** Draft  
+**Author:** BotMakers, Inc.
+
+---
+
+## Table of Contents
+1. [Product Overview](#1-product-overview)
+2. [User Personas](#2-user-personas)
+3. [Functional Requirements](#3-functional-requirements)
+4. [Technical Requirements](#4-technical-requirements)
+5. [User Interface Requirements](#5-user-interface-requirements)
+6. [Integration Requirements](#6-integration-requirements)
+7. [Data Requirements](#7-data-requirements)
+8. [Security Requirements](#8-security-requirements)
+9. [Performance Requirements](#9-performance-requirements)
+10. [User Stories](#10-user-stories)
+11. [Success Metrics](#11-success-metrics)
+12. [Appendices](#12-appendices)
+
+---
+
+## 1. Product Overview
+
+### 1.1 Product Vision
+Create a unified, branded insurance back office platform that consolidates multiple third-party systems into a single, intuitive interface, empowering agents to efficiently manage their business while providing Valor Financial Specialists with comprehensive visibility into organizational performance.
+
+### 1.2 Product Goals
+- **Unification:** Single access point for all agent operations
+- **Efficiency:** Reduce time spent on administrative tasks by 40%
+- **Visibility:** Real-time production tracking and analytics
+- **Scalability:** Support 10x growth without platform changes
+- **Brand Control:** Consistent Valor Financial Specialists experience
+
+### 1.3 Problem Statement
+Insurance agents currently navigate 5+ disparate systems with separate logins, inconsistent interfaces, and disconnected workflows. This fragmentation leads to:
+- Lost productivity (average 2 hours/day navigating systems)
+- Missed business opportunities
+- Poor visibility into performance metrics
+- Inconsistent user experience
+- Limited organizational control
+
+### 1.4 Solution Overview
+A modern web platform that aggregates and streamlines access to all essential insurance operations tools, providing:
+- Single Sign-On across all integrated systems
+- Unified dashboard with real-time metrics
+- Streamlined workflows for common tasks
+- Hierarchical visibility and permissions
+- Integrated training and support resources
+
+---
+
+## 2. User Personas
+
+### 2.1 Primary Personas
+
+#### Insurance Agent "Alex"
+- **Role:** Independent insurance agent
+- **Experience:** 2-10 years in insurance
+- **Tech Savvy:** Moderate
+- **Goals:**
+  - Quickly submit business
+  - Track commission earnings
+  - Access training resources
+  - Monitor pending cases
+- **Pain Points:**
+  - Multiple system logins
+  - Unclear commission structures
+  - Difficulty tracking case status
+  - Time-consuming quote comparisons
+
+#### Agency Manager "Michael"
+- **Role:** Managing General Agent (MGA)
+- **Experience:** 10+ years
+- **Tech Savvy:** Moderate to High
+- **Goals:**
+  - Monitor team production
+  - Track agent performance
+  - Identify growth opportunities
+  - Manage downline contracts
+- **Pain Points:**
+  - Manual report generation
+  - Limited visibility into team metrics
+  - Inefficient communication channels
+  - Complex hierarchy management
+
+#### Executive "Phil"
+- **Role:** Organization Owner/Executive
+- **Experience:** 15+ years
+- **Tech Savvy:** Variable
+- **Goals:**
+  - Organizational performance overview
+  - Strategic decision making
+  - Compliance monitoring
+  - Revenue optimization
+- **Pain Points:**
+  - Lack of real-time insights
+  - Dependency on IT for reports
+  - Fragmented data sources
+  - Limited predictive analytics
+
+### 2.2 Secondary Personas
+
+#### Administrator "Sarah"
+- **Role:** System Administrator
+- **Responsibilities:** User management, system configuration, troubleshooting
+- **Needs:** Comprehensive admin tools, audit logs, bulk operations
+
+#### Compliance Officer "David"
+- **Role:** Compliance and Training Manager
+- **Responsibilities:** Training deployment, compliance tracking, documentation
+- **Needs:** Training metrics, certification tracking, audit reports
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 User Management
+
+#### FR-001: Authentication System
+- **Priority:** P0 (Critical)
+- **Description:** Secure authentication with Single Sign-On capability
+- **Acceptance Criteria:**
+  - Support email/password authentication
+  - Google OAuth integration
+  - Multi-factor authentication option
+  - Password reset functionality
+  - Session management (timeout, concurrent sessions)
+
+#### FR-002: Role-Based Access Control
+- **Priority:** P0 (Critical)
+- **Description:** Hierarchical permission system
+- **Acceptance Criteria:**
+  - Define roles: Agent, Manager, Administrator, Executive
+  - Granular permission controls
+  - Role inheritance support
+  - Bulk role assignment
+  - Audit trail for permission changes
+
+#### FR-003: User Profile Management
+- **Priority:** P1 (High)
+- **Description:** User profile creation and management
+- **Acceptance Criteria:**
+  - Profile creation/editing
+  - Contact information management
+  - License/certification tracking
+  - Notification preferences
+  - Profile photo upload
+
+### 3.2 Dashboard & Analytics
+
+#### FR-004: Personalized Dashboard
+- **Priority:** P0 (Critical)
+- **Description:** Role-specific dashboard with key metrics
+- **Acceptance Criteria:**
+  - Customizable widget layout
+  - Real-time data updates
+  - Quick action buttons
+  - Notification center
+  - Mobile-responsive design
+
+#### FR-005: Production Tracking
+- **Priority:** P0 (Critical)
+- **Description:** Real-time production metrics and tracking
+- **Acceptance Criteria:**
+  - Individual production metrics
+  - Team/hierarchy production views
+  - YTD, MTD, QTD summaries
+  - Comparison to goals
+  - Trend analysis
+
+#### FR-006: Commission Tracking
+- **Priority:** P1 (High)
+- **Description:** Commission calculation and tracking
+- **Acceptance Criteria:**
+  - Pending commission display
+  - Paid commission history
+  - Commission statements
+  - Hierarchy commission splits
+  - Export functionality
+
+### 3.3 Contract Management
+
+#### FR-007: Contract Request System
+- **Priority:** P0 (Critical)
+- **Description:** Unified contract request across all carriers
+- **Acceptance Criteria:**
+  - Single form for all carriers
+  - Auto-population of agent data
+  - Document upload capability
+  - Status tracking
+  - Email notifications
+
+#### FR-008: Contract Visibility
+- **Priority:** P1 (High)
+- **Description:** View active contracts and commission levels
+- **Acceptance Criteria:**
+  - List all active contracts
+  - Display commission percentages
+  - Contract effective dates
+  - Pending contract requests
+  - Contract document storage
+
+### 3.4 Quoting Engine
+
+#### FR-009: Life Insurance Quotes
+- **Priority:** P0 (Critical)
+- **Description:** Integration with WinFlex for life insurance illustrations
+- **Acceptance Criteria:**
+  - Client data input forms
+  - Multi-carrier comparisons
+  - Save/retrieve quotes
+  - PDF generation
+  - Email quote delivery
+
+#### FR-010: Term Insurance Quotes
+- **Priority:** P0 (Critical)
+- **Description:** iPipeline term quote integration
+- **Acceptance Criteria:**
+  - Quick quote entry
+  - Side-by-side comparisons
+  - Apply directly from quote
+  - Quote history
+  - Share quotes with clients
+
+#### FR-011: Annuity Quotes
+- **Priority:** P1 (High)
+- **Description:** Annuity RateWatch integration
+- **Acceptance Criteria:**
+  - Fixed and indexed products
+  - Rate comparisons
+  - Illustration generation
+  - Product details
+  - Carrier highlights
+
+### 3.5 Business Submission
+
+#### FR-012: Electronic Applications
+- **Priority:** P0 (Critical)
+- **Description:** iGo eApp form submission
+- **Acceptance Criteria:**
+  - Pre-fill from quotes
+  - Multi-carrier support
+  - E-signature integration
+  - Document attachment
+  - Submission confirmation
+
+#### FR-013: Annuity Submissions
+- **Priority:** P1 (High)
+- **Description:** Firelight platform integration
+- **Acceptance Criteria:**
+  - Unified annuity submissions
+  - Suitability forms
+  - Transfer/rollover tracking
+  - Status monitoring
+  - Case notes
+
+#### FR-014: Case Management
+- **Priority:** P0 (Critical)
+- **Description:** Track and manage submitted cases
+- **Acceptance Criteria:**
+  - Case status tracking
+  - Requirement monitoring
+  - Case notes/communication
+  - Document management
+  - Automated alerts
+
+### 3.6 Underwriting Tools
+
+#### FR-015: Pre-Screening Tool
+- **Priority:** P1 (High)
+- **Description:** X-Ray underwriting integration
+- **Acceptance Criteria:**
+  - Medical history input
+  - Tentative offer requests
+  - Carrier recommendations
+  - Save assessments
+  - Share with case managers
+
+#### FR-016: Underwriting Guidelines
+- **Priority:** P2 (Medium)
+- **Description:** Carrier underwriting guide repository
+- **Acceptance Criteria:**
+  - Searchable guidelines
+  - Quick reference cards
+  - Build charts
+  - Update notifications
+  - Bookmark favorites
+
+### 3.7 Training & Resources
+
+#### FR-017: Learning Management System
+- **Priority:** P1 (High)
+- **Description:** GoCollab training integration
+- **Acceptance Criteria:**
+  - Course enrollment
+  - Progress tracking
+  - Certification management
+  - Video content
+  - Quiz/assessment tools
+
+#### FR-018: Resource Library
+- **Priority:** P2 (Medium)
+- **Description:** Marketing and sales resources
+- **Acceptance Criteria:**
+  - Document library
+  - Marketing materials
+  - Product information
+  - Forms repository
+  - Search functionality
+
+### 3.8 Reporting
+
+#### FR-019: Custom Report Builder
+- **Priority:** P1 (High)
+- **Description:** Create custom reports
+- **Acceptance Criteria:**
+  - Drag-drop report builder
+  - Multiple data sources
+  - Scheduled reports
+  - Export formats (PDF, Excel, CSV)
+  - Report sharing
+
+#### FR-020: Hierarchical Reporting
+- **Priority:** P0 (Critical)
+- **Description:** Multi-level organizational reports
+- **Acceptance Criteria:**
+  - Drill-down capabilities
+  - Permission-based visibility
+  - Performance comparisons
+  - Ranking/leaderboards
+  - Trend analysis
+
+---
+
+## 4. Technical Requirements
+
+### 4.1 Architecture
+
+#### TR-001: Platform Architecture
+- **Type:** Web-based SaaS application
+- **Frontend:** Next.js 14+ with TypeScript
+- **Backend:** Node.js with Express/Fastify
+- **Database:** PostgreSQL with Prisma ORM
+- **Cache:** Redis for session and data caching
+- **Queue:** Bull/BullMQ for job processing
+
+#### TR-002: API Architecture
+- **Primary:** RESTful API with OpenAPI specification
+- **Real-time:** WebSocket/Socket.io for live updates
+- **GraphQL:** Optional for complex queries
+- **Rate Limiting:** API throttling per user/IP
+- **Versioning:** Semantic versioning support
+
+### 4.2 Infrastructure
+
+#### TR-003: Hosting Requirements
+- **Primary:** AWS or Azure cloud hosting
+- **CDN:** CloudFlare or AWS CloudFront
+- **Storage:** S3-compatible object storage
+- **Compute:** Auto-scaling container instances
+- **Region:** Multi-region support for DR
+
+#### TR-004: Development Environment
+- **Version Control:** Git with GitHub/GitLab
+- **CI/CD:** GitHub Actions or Jenkins
+- **Environments:** Dev, Staging, UAT, Production
+- **Monitoring:** DataDog or New Relic
+- **Logging:** Centralized with ELK stack
+
+### 4.3 Integration Architecture
+
+#### TR-005: Integration Patterns
+- **API Gateway:** Centralized API management
+- **Service Mesh:** Optional for microservices
+- **Message Queue:** For async processing
+- **ETL Pipeline:** For data synchronization
+- **Webhook Support:** For real-time updates
+
+---
+
+## 5. User Interface Requirements
+
+### 5.1 Design Principles
+
+#### UI-001: Brand Consistency
+- **Colors:** Valor Financial Specialists brand colors
+- **Typography:** Consistent font hierarchy
+- **Logo:** Prominent brand placement
+- **Imagery:** Professional, insurance-focused
+- **Tone:** Professional yet approachable
+
+#### UI-002: Responsive Design
+- **Desktop:** Full functionality (1920x1080 baseline)
+- **Tablet:** Core features (768px-1024px)
+- **Mobile:** Essential features (320px-767px)
+- **Print:** Optimized print stylesheets
+- **Accessibility:** WCAG 2.1 AA compliance
+
+### 5.2 Navigation Structure
+
+#### UI-003: Main Navigation
+- **Structure:** Top navigation with sidebar
+- **Categories:**
+  - Dashboard
+  - Contracts
+  - Quotes
+  - Applications
+  - Cases
+  - Reports
+  - Training
+  - Settings
+
+#### UI-004: User Experience
+- **Load Time:** <3 seconds initial load
+- **Interactions:** <100ms response time
+- **Feedback:** Loading states, success/error messages
+- **Help:** Contextual help, tooltips
+- **Search:** Global search functionality
+
+---
+
+## 6. Integration Requirements
+
+### 6.1 Third-Party Systems
+
+#### INT-001: 3Mark Integration
+- **System:** Smart Office
+- **Method:** API + Web scraping
+- **Data:** Cases, hierarchies, contracts
+- **Sync:** Real-time + scheduled
+- **Authentication:** OAuth2 or API key
+
+#### INT-002: Zinnia Integration
+- **Systems:** WinFlex, Smart Office
+- **Method:** SSO + API
+- **Data:** Quotes, illustrations
+- **Sync:** On-demand
+- **Authentication:** SAML/OAuth2
+
+#### INT-003: iPipeline Integration
+- **Systems:** iGo, X-Ray, Term Quotes
+- **Method:** API + iFrame
+- **Data:** Applications, underwriting
+- **Sync:** Real-time
+- **Authentication:** GAID-based
+
+#### INT-004: SuranceBay Integration
+- **System:** Contract management
+- **Method:** API
+- **Data:** Contract requests
+- **Sync:** Real-time
+- **Authentication:** Multi-tenant SSO
+
+#### INT-005: Additional Integrations
+- **Firelight:** API for annuity submissions
+- **RateWatch:** API for annuity quotes
+- **Libra:** API for underwriting guides
+- **GoHighLevel:** API for training/community
+
+### 6.2 Data Synchronization
+
+#### INT-006: Sync Strategy
+- **Pattern:** Event-driven + scheduled polling
+- **Conflict Resolution:** Last-write-wins with audit
+- **Error Handling:** Retry with exponential backoff
+- **Monitoring:** Real-time sync status dashboard
+- **Recovery:** Manual sync triggers
+
+---
+
+## 7. Data Requirements
+
+### 7.1 Data Model
+
+#### DM-001: Core Entities
+- **Users:** Agents, managers, admins
+- **Organizations:** Hierarchical structure
+- **Contracts:** Carrier agreements
+- **Cases:** Insurance applications
+- **Quotes:** Insurance illustrations
+- **Commissions:** Earnings tracking
+- **Documents:** Files and attachments
+
+#### DM-002: Data Relationships
+- **User-Organization:** Many-to-many with roles
+- **Organization-Hierarchy:** Self-referential tree
+- **User-Cases:** One-to-many ownership
+- **Cases-Documents:** One-to-many attachments
+- **User-Commissions:** One-to-many earnings
+
+### 7.2 Data Management
+
+#### DM-003: Data Retention
+- **Active Data:** Immediate access (0-2 years)
+- **Archive Data:** Cold storage (2-7 years)
+- **Deletion:** Per compliance requirements
+- **Backup:** Daily incremental, weekly full
+- **Recovery:** RPO: 1 hour, RTO: 4 hours
+
+#### DM-004: Data Privacy
+- **PII Protection:** Encryption at rest/transit
+- **Access Control:** Role-based data access
+- **Audit Trail:** All data access logged
+- **Compliance:** HIPAA, state insurance laws
+- **Data Residency:** US-only storage
+
+---
+
+## 8. Security Requirements
+
+### 8.1 Authentication & Authorization
+
+#### SEC-001: Authentication
+- **Methods:** Username/password, OAuth2, MFA
+- **Session:** JWT with refresh tokens
+- **Timeout:** 30 minutes idle, 8 hours max
+- **Password:** Complexity rules, history
+- **Recovery:** Email-based reset
+
+#### SEC-002: Authorization
+- **Model:** Role-based (RBAC)
+- **Hierarchy:** Inherited permissions
+- **API Security:** Bearer token auth
+- **Rate Limiting:** Per-user and per-IP
+- **Audit:** All authorization decisions logged
+
+### 8.2 Data Security
+
+#### SEC-003: Encryption
+- **Transit:** TLS 1.3 minimum
+- **Storage:** AES-256 encryption
+- **Keys:** AWS KMS or Azure Key Vault
+- **Secrets:** Environment variables
+- **PII:** Field-level encryption
+
+#### SEC-004: Security Monitoring
+- **WAF:** Web application firewall
+- **DDoS:** Protection enabled
+- **IDS/IPS:** Intrusion detection
+- **Vulnerability:** Regular scanning
+- **Penetration:** Annual testing
+
+---
+
+## 9. Performance Requirements
+
+### 9.1 Response Times
+
+#### PERF-001: Page Load Performance
+- **Initial Load:** <3 seconds
+- **Subsequent:** <1 second
+- **API Calls:** <500ms average
+- **Database:** <100ms queries
+- **Search:** <2 seconds
+
+#### PERF-002: Throughput
+- **Concurrent Users:** 500 minimum
+- **Requests/Second:** 1000 RPS
+- **Data Transfer:** 10 Mbps per user
+- **Storage:** 1 TB initial capacity
+- **Growth:** 50% YoY capacity
+
+### 9.2 Reliability
+
+#### PERF-003: Availability
+- **Uptime SLA:** 99.9% (43 min/month)
+- **Maintenance:** Scheduled windows
+- **Failover:** Automatic regional
+- **Backup:** Automated daily
+- **Monitoring:** 24/7 alerting
+
+#### PERF-004: Scalability
+- **Horizontal:** Auto-scaling enabled
+- **Vertical:** Resource upgrades
+- **Database:** Read replicas
+- **Cache:** Distributed caching
+- **CDN:** Global distribution
+
+---
+
+## 10. User Stories
+
+### 10.1 Agent User Stories
+
+#### US-001: Quote Generation
+**As an** insurance agent  
+**I want to** generate quotes quickly  
+**So that** I can provide timely responses to prospects
+
+**Acceptance Criteria:**
+- Access quoting tool in <3 clicks
+- Auto-populate client data from CRM
+- Compare 5+ carriers simultaneously
+- Generate PDF quote in <10 seconds
+- Email quote directly to client
+
+#### US-002: Application Submission
+**As an** insurance agent  
+**I want to** submit applications electronically  
+**So that** I can reduce processing time
+
+**Acceptance Criteria:**
+- Pre-fill application from quote
+- E-signature capability
+- Document upload support
+- Submission confirmation
+- Track application status
+
+### 10.2 Manager User Stories
+
+#### US-003: Team Performance
+**As a** agency manager  
+**I want to** monitor team performance  
+**So that** I can identify coaching opportunities
+
+**Acceptance Criteria:**
+- Real-time production dashboard
+- Individual agent metrics
+- Comparative rankings
+- Trend analysis
+- Export reports
+
+#### US-004: Commission Management
+**As a** agency manager  
+**I want to** track commission splits  
+**So that** I can ensure accurate payments
+
+**Acceptance Criteria:**
+- View hierarchy splits
+- Pending commission reports
+- Override management
+- Adjustment capability
+- Audit trail
+
+### 10.3 Executive User Stories
+
+#### US-005: Business Intelligence
+**As an** executive  
+**I want to** access business intelligence  
+**So that** I can make strategic decisions
+
+**Acceptance Criteria:**
+- Executive dashboard
+- KPI tracking
+- Predictive analytics
+- Competitive analysis
+- Strategic reports
+
+---
+
+## 11. Success Metrics
+
+### 11.1 Business Metrics
+
+#### KPI-001: User Adoption
+- **Target:** 80% active users within 30 days
+- **Measurement:** Daily active users / Total users
+- **Tracking:** Google Analytics, Mixpanel
+- **Review:** Weekly during launch, monthly after
+
+#### KPI-002: Efficiency Gains
+- **Target:** 40% reduction in task completion time
+- **Measurement:** Time-to-complete key workflows
+- **Tracking:** User session analytics
+- **Review:** Monthly comparison reports
+
+#### KPI-003: Production Impact
+- **Target:** 20% increase in submissions
+- **Measurement:** Applications per agent
+- **Tracking:** System transaction logs
+- **Review:** Quarterly business reviews
+
+### 11.2 Technical Metrics
+
+#### KPI-004: System Performance
+- **Uptime:** >99.9% availability
+- **Response:** <3 second page loads
+- **Errors:** <0.1% error rate
+- **Satisfaction:** >4.0 CSAT score
+
+#### KPI-005: Integration Health
+- **Success Rate:** >99% sync success
+- **Latency:** <1 second average
+- **Data Quality:** >99% accuracy
+- **Recovery:** <5 minute MTTR
+
+---
+
+## 12. Appendices
+
+### Appendix A: Glossary
+
+| Term | Definition |
+|------|------------|
+| **MGA** | Managing General Agent - Insurance wholesaler |
+| **IMO** | Independent Marketing Organization |
+| **GAID** | General Agent ID - Unique identifier |
+| **eApp** | Electronic Application |
+| **SSO** | Single Sign-On |
+| **Hierarchy** | Multi-level agent organization structure |
+
+### Appendix B: Third-Party Systems
+
+| System | Vendor | Purpose |
+|--------|--------|---------|
+| **Smart Office** | Zinnia | Case management and hierarchy |
+| **WinFlex** | Zinnia | Life insurance illustrations |
+| **iGo** | iPipeline | Electronic applications |
+| **X-Ray** | iPipeline | Underwriting pre-screen |
+| **Firelight** | Firelight | Annuity submissions |
+| **RateWatch** | Annuity RateWatch | Annuity comparisons |
+
+### Appendix C: Compliance Requirements
+
+| Requirement | Standard | Applicability |
+|-------------|----------|---------------|
+| **Data Privacy** | HIPAA | Health information |
+| **Financial** | SEC/FINRA | Investment products |
+| **Insurance** | State DOI | All products |
+| **Security** | SOC 2 | Platform operations |
+| **Accessibility** | WCAG 2.1 | User interface |
+
+### Appendix D: Risk Register
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| **API Changes** | Medium | High | Version management, monitoring |
+| **Data Migration** | Low | High | Phased approach, validation |
+| **User Adoption** | Medium | High | Training, change management |
+| **Integration Limits** | Low | Medium | Alternative methods, caching |
+| **Scalability** | Low | Medium | Cloud architecture, monitoring |
+
+### Appendix E: Revision History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 0.1 | Nov 2025 | BotMakers | Initial draft |
+| 1.0 | Nov 2025 | BotMakers | Complete PRD |
+
+---
+
+**Document Status:** Ready for Review
+
+**Next Steps:**
+1. Stakeholder review and feedback
+2. Technical feasibility assessment
+3. Priority refinement
+4. Sprint planning
+5. Development kickoff
+
+---
+
+*This PRD represents the complete product requirements for the Valor Financial Specialists Insurance Back Office Platform. Updates will be managed through formal change control processes.*

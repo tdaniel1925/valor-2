@@ -1,0 +1,422 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+enum UserRole {
+  AGENT
+  MANAGER
+  ADMINISTRATOR
+  EXECUTIVE
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+model User {
+  id                String         @id @default(uuid())
+  email             String         @unique
+  firstName         String
+  lastName          String
+  phone             String?
+  profilePhoto      String?
+  role              UserRole       @default(AGENT)
+  status            UserStatus     @default(PENDING)
+  emailVerified     Boolean        @default(false)
+  mfaEnabled        Boolean        @default(false)
+  lastLoginAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relations
+  profile           UserProfile?
+  organizations     OrganizationMember[]
+  contracts         Contract[]
+  cases             Case[]
+  quotes            Quote[]
+  commissions       Commission[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+model UserProfile {
+  id                  String    @id @default(uuid())
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // License Information
+  licenseNumber       String?
+  licenseState        String?
+  licenseExpiration   DateTime?
+  npn                 String?   @unique // National Producer Number
+
+  // Professional Details
+  gaid                String?   @unique // General Agent ID
+  agencyName          String?
+  yearsOfExperience   Int?
+  specializations     String[]
+
+  // Notification Preferences
+  emailNotifications  Boolean   @default(true)
+  smsNotifications    Boolean   @default(false)
+  pushNotifications   Boolean   @default(true)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([npn])
+  @@index([gaid])
+  @@map("user_profiles")
+}
+
+// ============================================
+// ORGANIZATION HIERARCHY
+// ============================================
+
+model Organization {
+  id              String               @id @default(uuid())
+  name            String
+  type            String               // MGA, IMO, Agency, etc.
+  parentId        String?
+  parent          Organization?        @relation("OrganizationHierarchy", fields: [parentId], references: [id])
+  children        Organization[]       @relation("OrganizationHierarchy")
+
+  // Organization Details
+  ein             String?              @unique // Employer Identification Number
+  phone           String?
+  email           String?
+  address         String?
+  city            String?
+  state           String?
+  zipCode         String?
+
+  status          UserStatus           @default(ACTIVE)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relations
+  members         OrganizationMember[]
+  contracts       Contract[]
+
+  @@index([parentId])
+  @@index([type])
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id              String       @id @default(uuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role            UserRole     @default(AGENT)
+  commissionSplit Float?       // Percentage as decimal (e.g., 0.50 for 50%)
+  isActive        Boolean      @default(true)
+  joinedAt        DateTime     @default(now())
+  leftAt          DateTime?
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+// ============================================
+// CONTRACTS
+// ============================================
+
+enum ContractStatus {
+  PENDING
+  APPROVED
+  ACTIVE
+  INACTIVE
+  REJECTED
+}
+
+model Contract {
+  id                String         @id @default(uuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id])
+  organizationId    String?
+  organization      Organization?  @relation(fields: [organizationId], references: [id])
+
+  carrierName       String
+  productType       String         // Life, Annuity, Health, etc.
+  contractNumber    String?
+  commissionLevel   Float?         // Percentage as decimal
+  status            ContractStatus @default(PENDING)
+  effectiveDate     DateTime?
+  expirationDate    DateTime?
+
+  // Documents
+  documentUrls      String[]
+
+  requestedAt       DateTime       @default(now())
+  approvedAt        DateTime?
+  updatedAt         DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([carrierName])
+  @@map("contracts")
+}
+
+// ============================================
+// QUOTES & ILLUSTRATIONS
+// ============================================
+
+enum QuoteType {
+  TERM_LIFE
+  WHOLE_LIFE
+  UNIVERSAL_LIFE
+  INDEXED_UNIVERSAL_LIFE
+  VARIABLE_LIFE
+  FIXED_ANNUITY
+  INDEXED_ANNUITY
+  VARIABLE_ANNUITY
+}
+
+enum QuoteStatus {
+  DRAFT
+  GENERATED
+  SENT
+  APPLIED
+  EXPIRED
+}
+
+model Quote {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+
+  // Client Information
+  clientName      String
+  clientEmail     String?
+  clientPhone     String?
+  clientAge       Int
+  clientState     String
+
+  // Quote Details
+  type            QuoteType
+  carrier         String
+  productName     String
+  coverageAmount  Float?
+  premium         Float
+  term            Int?         // Term length in years
+
+  status          QuoteStatus  @default(DRAFT)
+  externalId      String?      // ID from third-party system (WinFlex, iPipeline, etc.)
+  pdfUrl          String?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  expiresAt       DateTime?
+
+  // Relations
+  cases           Case[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@map("quotes")
+}
+
+// ============================================
+// CASES & APPLICATIONS
+// ============================================
+
+enum CaseStatus {
+  DRAFT
+  SUBMITTED
+  PENDING_REQUIREMENTS
+  IN_UNDERWRITING
+  APPROVED
+  ISSUED
+  DECLINED
+  WITHDRAWN
+}
+
+model Case {
+  id                String       @id @default(uuid())
+  userId            String
+  user              User         @relation(fields: [userId], references: [id])
+  quoteId           String?
+  quote             Quote?       @relation(fields: [quoteId], references: [id])
+
+  // Client Information
+  clientName        String
+  clientEmail       String?
+  clientPhone       String?
+
+  // Case Details
+  carrier           String
+  productType       String
+  productName       String
+  applicationNumber String?
+  policyNumber      String?
+  coverageAmount    Float?
+  premium           Float?
+
+  status            CaseStatus   @default(DRAFT)
+  statusNotes       String?      @db.Text
+
+  // Requirements & Documents
+  pendingRequirements String[]
+  documentUrls        String[]
+
+  // External System References
+  externalId          String?    // ID from iGo, Firelight, etc.
+  externalSystem      String?    // iGo, Firelight, Smart Office, etc.
+
+  submittedAt       DateTime?
+  approvedAt        DateTime?
+  issuedAt          DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  notes             CaseNote[]
+  commissions       Commission[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([carrier])
+  @@map("cases")
+}
+
+model CaseNote {
+  id        String   @id @default(uuid())
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  content   String   @db.Text
+  isInternal Boolean @default(false)
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@index([caseId])
+  @@map("case_notes")
+}
+
+// ============================================
+// COMMISSIONS
+// ============================================
+
+enum CommissionStatus {
+  PENDING
+  PAID
+  ADJUSTED
+  DISPUTED
+}
+
+enum CommissionType {
+  FIRST_YEAR
+  RENEWAL
+  OVERRIDE
+  BONUS
+  TRAIL
+}
+
+model Commission {
+  id              String           @id @default(uuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  caseId          String?
+  case            Case?            @relation(fields: [caseId], references: [id])
+
+  type            CommissionType
+  status          CommissionStatus @default(PENDING)
+
+  carrier         String
+  policyNumber    String?
+
+  amount          Float
+  percentage      Float?
+  splitAmount     Float?           // Amount after hierarchy splits
+
+  periodStart     DateTime
+  periodEnd       DateTime
+
+  paidAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([caseId])
+  @@map("commissions")
+}
+
+// ============================================
+// NOTIFICATIONS & AUDIT
+// ============================================
+
+enum NotificationType {
+  CASE_UPDATE
+  CONTRACT_UPDATE
+  COMMISSION_PAID
+  TRAINING_ASSIGNED
+  SYSTEM_ALERT
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  link      String?
+
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action      String   // LOGIN, CREATE_CASE, UPDATE_CONTRACT, etc.
+  entityType  String?  // User, Case, Contract, etc.
+  entityId    String?
+
+  changes     Json?    // Store before/after values
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

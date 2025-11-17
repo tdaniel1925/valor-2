@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"c:\\dev\\valor-2\")",
+      "Bash(npx create-next-app:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx prisma init)",
+      "Bash(npx prisma generate)",
+      "Bash(npx prisma migrate dev --name initial_schema)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(del /F /Q middleware.ts 2)",
+      "Bash(nul)",
+      "Bash(del /F /Q tailwind.config.ts 2)",
+      "Bash(npm uninstall:*)",
+      "Bash(cat:*)",
+      "Bash(postcss.config.mjs)",
+      "Bash(docker:*)",
+      "Bash(npx supabase:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(node test-db.js:*)",
+      "Bash(dir /b:*)",
+      "Bash(printenv:*)",
+      "Bash(unset:*)",
+      "Bash(export DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\")",
+      "Bash(export DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\")",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" npm run db:seed:*)",
+      "Bash(del /F /Q test-db.js 2)",
+      "Bash(curl:*)",
+      "Bash(move middleware.ts middleware.ts.backup)",
+      "Bash(ren middleware.ts middleware.ts.backup)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
