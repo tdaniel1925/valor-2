@@ -122,13 +122,13 @@ export async function uploadDocument(
     where: { id: caseId },
   });
 
-  const documentUrls = (currentCase?.documentUrls as DocumentMetadata[]) || [];
+  const documentUrls = (currentCase?.documentUrls as unknown as DocumentMetadata[]) || [];
   documentUrls.push(documentMetadata);
 
   await prisma.case.update({
     where: { id: caseId },
     data: {
-      documentUrls,
+      documentUrls: documentUrls as any,
     },
   });
 
@@ -166,7 +166,7 @@ export async function getCaseDocuments(
     throw new Error("Case not found");
   }
 
-  return (caseData.documentUrls as DocumentMetadata[]) || [];
+  return (caseData.documentUrls as unknown as DocumentMetadata[]) || [];
 }
 
 /**
@@ -185,7 +185,7 @@ export async function deleteDocument(
     throw new Error("Case not found");
   }
 
-  const documentUrls = (caseData.documentUrls as DocumentMetadata[]) || [];
+  const documentUrls = (caseData.documentUrls as unknown as DocumentMetadata[]) || [];
   const documentToDelete = documentUrls.find((doc) => doc.id === documentId);
 
   if (!documentToDelete) {
@@ -212,7 +212,7 @@ export async function deleteDocument(
   await prisma.case.update({
     where: { id: caseId },
     data: {
-      documentUrls: updatedDocuments,
+      documentUrls: updatedDocuments as any,
     },
   });
 
@@ -260,7 +260,7 @@ export async function updateDocumentMetadata(
     throw new Error("Case not found");
   }
 
-  const documentUrls = (caseData.documentUrls as DocumentMetadata[]) || [];
+  const documentUrls = (caseData.documentUrls as unknown as DocumentMetadata[]) || [];
   const documentIndex = documentUrls.findIndex((doc) => doc.id === documentId);
 
   if (documentIndex === -1) {
@@ -276,7 +276,7 @@ export async function updateDocumentMetadata(
   await prisma.case.update({
     where: { id: caseId },
     data: {
-      documentUrls,
+      documentUrls: documentUrls as any,
     },
   });
 
