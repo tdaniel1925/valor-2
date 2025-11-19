@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const activeAgents = new Set(ytdCases.map((c) => c.agentId)).size;
+    const activeAgents = new Set(ytdCases.map((c) => c.userId)).size;
 
     // Pipeline analysis
     const pipelineByStatus = ytdCases.reduce((acc: any, c) => {
@@ -185,12 +185,12 @@ export async function GET(request: NextRequest) {
 
     // Top performers
     const agentPerformance = ytdCases.reduce((acc: any, c) => {
-      if (!c.agent) return acc;
+      if (!c.user) return acc;
 
-      const agentId = c.agent.id;
+      const agentId = c.user.id;
       if (!acc[agentId]) {
         acc[agentId] = {
-          agent: c.agent,
+          agent: c.user,
           cases: 0,
           premium: 0,
           commission: 0,
