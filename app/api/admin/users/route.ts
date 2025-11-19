@@ -1,128 +1,133 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "@/lib/admin/user-management";
+import { getUserIdOrDemo } from "@/lib/auth/supabase";
 
-// GET /api/admin/users - Get all users (admin only)
+/**
+ * GET /api/admin/users
+ * Get all users with filters (admin only)
+ */
 export async function GET(request: NextRequest) {
   try {
     // TODO: Add admin role check from Supabase auth
-    // For now, demo purposes only
-
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get("role");
-    const status = searchParams.get("status");
-    const search = searchParams.get("search");
 
-    const where: any = {};
-
-    if (role) {
-      where.role = role;
-    }
-
-    if (status) {
-      where.status = status;
-    }
-
-    if (search) {
-      where.OR = [
-        { firstName: { contains: search, mode: "insensitive" } },
-        { lastName: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    const users = await prisma.user.findMany({
-      where,
-      include: {
-        profile: {
-          select: {
-            licenseNumber: true,
-            licenseState: true,
-            agencyName: true,
-            photoUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            cases: true,
-            contracts: true,
-            commissions: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
+    const result = await getUsers({
+      role: searchParams.get("role") as any,
+      status: searchParams.get("status") as any,
+      search: searchParams.get("search") || undefined,
+      organizationId: searchParams.get("organizationId") || undefined,
+      limit: searchParams.get("limit")
+        ? parseInt(searchParams.get("limit")!)
+        : undefined,
+      offset: searchParams.get("offset")
+        ? parseInt(searchParams.get("offset")!)
+        : undefined,
     });
 
-    return NextResponse.json({ users });
-  } catch (error) {
-    console.error("Error fetching users:", error);
+    return NextResponse.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Get users error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      { error: error.message || "Failed to get users" },
       { status: 500 }
     );
   }
 }
 
-// PUT /api/admin/users - Update user (admin only)
-export async function PUT(request: NextRequest) {
+/**
+ * POST /api/admin/users
+ * Create a new user (admin only)
+ */
+export async function POST(request: NextRequest) {
   try {
-    // TODO: Add admin role check from Supabase auth
-
+    // TODO: Add admin role check
     const body = await request.json();
-    const { userId, role, status } = body;
+    const adminId = await getUserIdOrDemo();
+
+    const user = await createUser(body, adminId);
+
+    return NextResponse.json({
+      success: true,
+      data: user,
+    });
+  } catch (error: any) {
+    console.error("Create user error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to create user" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/admin/users
+ * Update a user (admin only)
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    // TODO: Add admin role check
+    const body = await request.json();
+    const { userId, ...updates } = body;
 
     if (!userId) {
       return NextResponse.json(
-        { error: "User ID is required" },
+        { error: "userId is required" },
         { status: 400 }
       );
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...(role && { role }),
-        ...(status && { status }),
-        updatedAt: new Date(),
-      },
-      include: {
-        profile: true,
-      },
-    });
+    const adminId = await getUserIdOrDemo();
+    const user = await updateUser(userId, updates, adminId);
 
-    return NextResponse.json({ user: updatedUser });
-  } catch (error) {
-    console.error("Error updating user:", error);
+    return NextResponse.json({
+      success: true,
+      data: user,
+    });
+  } catch (error: any) {
+    console.error("Update user error:", error);
     return NextResponse.json(
-      { error: "Failed to update user" },
+      { error: error.message || "Failed to update user" },
       { status: 500 }
     );
   }
 }
 
-// DELETE /api/admin/users - Delete user (admin only)
+/**
+ * DELETE /api/admin/users
+ * Delete a user (soft delete) (admin only)
+ */
 export async function DELETE(request: NextRequest) {
   try {
-    // TODO: Add admin role check from Supabase auth
-
+    // TODO: Add admin role check
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 
     if (!userId) {
       return NextResponse.json(
-        { error: "User ID is required" },
+        { error: "userId is required" },
         { status: 400 }
       );
     }
 
-    await prisma.user.delete({
-      where: { id: userId },
-    });
+    const adminId = await getUserIdOrDemo();
+    await deleteUser(userId, adminId);
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting user:", error);
+    return NextResponse.json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error: any) {
+    console.error("Delete user error:", error);
     return NextResponse.json(
-      { error: "Failed to delete user" },
+      { error: error.message || "Failed to delete user" },
       { status: 500 }
     );
   }
