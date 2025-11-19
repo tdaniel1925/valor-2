@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     };
 
     if (agentId && !teamView) {
-      where.agentId = agentId;
+      where.userId = agentId;
     }
 
     // Fetch cases
@@ -144,15 +144,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Team rankings (if team view)
-    let agentRankings = [];
+    let agentRankings: any[] = [];
     if (teamView) {
       const agentStats = cases.reduce((acc: any, c) => {
-        if (!c.agent) return acc;
+        if (!c.user) return acc;
 
-        const agentId = c.agent.id;
+        const agentId = c.user.id;
         if (!acc[agentId]) {
           acc[agentId] = {
-            agent: c.agent,
+            agent: c.user,
             cases: 0,
             premium: 0,
             commission: 0,

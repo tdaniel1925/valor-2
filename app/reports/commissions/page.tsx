@@ -351,7 +351,7 @@ export default function CommissionsReportPage() {
                         cx="50%"
                         cy="50%"
                         outerRadius={100}
-                        label={(entry) => `${entry.name}: ${formatCurrency(entry.amount)}`}
+                        label={(entry: any) => `${entry.name}: ${formatCurrency(entry.amount)}`}
                       >
                         {carrierChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

@@ -61,7 +61,15 @@
       "Bash(cmd /c:*)",
       "Bash(npx tsc:*)",
       "Bash(app/globals.css)",
-      "Bash(del /F /Q nul 2)"
+      "Bash(del /F /Q nul 2)",
+      "Bash(set DATABASE_URL=postgresql://postgres:ttandSellaBella1234@db.buteoznuikfowbwofabs.supabase.co:5432/postgres)",
+      "Bash(set DIRECT_URL=postgresql://postgres:ttandSellaBella1234@db.buteoznuikfowbwofabs.supabase.co:6543/postgres)",
+      "Bash(npx prisma db push:*)",
+      "Bash(ren:*)",
+      "Bash(ren .env.production.local .env)",
+      "Bash(npx prisma migrate diff:*)",
+      "Bash(schema.sql)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

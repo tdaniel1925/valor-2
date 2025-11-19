@@ -485,7 +485,7 @@ export default function ExecutiveDashboardPage() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={(entry) => `${entry.name} (${entry.percentage.toFixed(1)}%)`}
+                        label={(entry: any) => `${entry.name} (${entry.percentage.toFixed(1)}%)`}
                         outerRadius={120}
                         fill="#8884d8"
                         dataKey="value"
