@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     const contracts = await prisma.contract.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { requestedAt: "desc" },
       include: {
         organization: {
           select: {

@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview focusing on the insurance quote generation platform, core components, and high-level architecture"
+  },
+  {
+    "fileName": "insurance-data-models.mdc",
+    "description": "Detailed documentation of insurance-specific data models including quote structures, commission hierarchies, organization relationships, and contract models"
+  },
+  {
+    "fileName": "quote-calculation-algorithms.mdc",
+    "description": "Technical details of premium calculation algorithms, health class determination, rate adjustments, and quote aggregation logic across carriers"
+  },
+  {
+    "fileName": "commission-hierarchy-flow.mdc",
+    "description": "Documentation of commission distribution algorithms, hierarchical splits, and organization-based commission calculations"
+  },
+  {
+    "fileName": "integration-patterns.mdc",
+    "description": "Detailed documentation of carrier integration patterns, quote normalization processes, and provider-specific data transformations"
+  }
+]

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, Badge } from "@/components/ui";
+import ProfilePhotoUpload from "@/components/profile/ProfilePhotoUpload";
+import AppLayout from "@/components/layout/AppLayout";
 
 interface UserProfile {
   id: string;
@@ -13,6 +15,7 @@ interface UserProfile {
   role: string;
   status: string;
   profile?: {
+    photoUrl?: string;
     licenseNumber?: string;
     licenseState?: string;
     licenseExpiration?: string;
@@ -61,59 +64,61 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
+      <AppLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center">
-            <p className="text-red-600">Failed to load profile</p>
-            <Button onClick={() => window.location.reload()} className="mt-4">
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AppLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-12">
+            <Card className="max-w-md mx-auto">
+              <CardContent className="p-6 text-center">
+                <p className="text-red-600 dark:text-red-400">Failed to load profile</p>
+                <Button onClick={() => window.location.reload()} className="mt-4">
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">User Profile</h1>
-          <div className="flex items-center gap-4">
-            <a href="/dashboard" className="text-sm text-blue-600 hover:text-blue-700">
-              ← Back to Dashboard
-            </a>
-          </div>
+    <AppLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Profile</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            Manage your account settings and preferences
+          </p>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Overview Card */}
           <div className="lg:col-span-1">
             <Card>
               <CardContent className="p-6 text-center">
-                <div className="w-24 h-24 bg-blue-100 rounded-full mx-auto flex items-center justify-center">
-                  <span className="text-3xl font-bold text-blue-600">
-                    {user.firstName[0]}{user.lastName[0]}
-                  </span>
+                <div className="flex justify-center mb-4">
+                  <ProfilePhotoUpload
+                    userId={user.id}
+                    currentPhotoUrl={user.profile?.photoUrl}
+                    onUploadComplete={() => queryClient.invalidateQueries({ queryKey: ["profile"] })}
+                  />
                 </div>
-                <h2 className="mt-4 text-xl font-bold text-gray-900">
+                <h2 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
                   {user.firstName} {user.lastName}
                 </h2>
-                <p className="text-gray-600">{user.email}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
                 <div className="mt-4 flex justify-center gap-2">
                   <Badge variant="info">{user.role}</Badge>
                   <Badge variant={user.status === "ACTIVE" ? "success" : "warning"}>
@@ -138,7 +143,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="First Name"
@@ -174,7 +179,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle>License & Certification</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="License Number"
@@ -209,7 +214,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle>Professional Details</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="GAID (General Agent ID)"
@@ -239,7 +244,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="space-y-4">
                   <label className="flex items-center">
                     <input
@@ -248,7 +253,7 @@ export default function ProfilePage() {
                       disabled={!isEditing}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       Email notifications
                     </span>
                   </label>
@@ -259,7 +264,7 @@ export default function ProfilePage() {
                       disabled={!isEditing}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       SMS notifications
                     </span>
                   </label>
@@ -270,7 +275,7 @@ export default function ProfilePage() {
                       disabled={!isEditing}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       Push notifications
                     </span>
                   </label>
@@ -279,7 +284,7 @@ export default function ProfilePage() {
             </Card>
 
             {isEditing && (
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-2">
                 <Button
                   variant="secondary"
                   onClick={() => setIsEditing(false)}
@@ -299,7 +304,7 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -3,8 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Badge } from "@/components/ui";
+import { Badge, Button, Card, CardContent } from "@/components/ui";
 import AppLayout from "@/components/layout/AppLayout";
+import PerformanceCharts from "@/components/dashboard/PerformanceCharts";
 
 interface DashboardData {
   user: {
@@ -82,10 +83,10 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -93,15 +94,12 @@ export default function DashboardPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Failed to load dashboard data</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
+          <p className="text-red-600 dark:text-red-400">Failed to load dashboard data</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -115,11 +113,11 @@ export default function DashboardPage() {
     <AppLayout user={data.user}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Welcome back, {data.user.firstName} {data.user.lastName}!
-          </h2>
-          <p className="text-gray-600">
+          </h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Here's what's happening with your insurance business today.
           </p>
         </div>
@@ -127,378 +125,404 @@ export default function DashboardPage() {
         {/* Period Summaries - MTD/QTD/YTD */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* MTD Summary */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg shadow-lg p-6 border border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Month-to-Date</h3>
-              <div className="bg-white bg-opacity-20 rounded-full p-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">Month-to-Date</h3>
+              <div className="bg-blue-200 dark:bg-blue-800 bg-opacity-50 dark:bg-opacity-50 rounded-full p-2">
+                <svg className="w-6 h-6 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-blue-100 text-sm">Commissions</p>
-                <p className="text-3xl font-bold">{formatCurrency(data.periodSummaries.mtd.commissions)}</p>
-                <p className="text-blue-100 text-xs mt-1">{data.periodSummaries.mtd.commissionsCount} payments</p>
+                <p className="text-blue-700 dark:text-blue-300 text-sm">Commissions</p>
+                <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{formatCurrency(data.periodSummaries.mtd.commissions)}</p>
+                <p className="text-blue-700 dark:text-blue-300 text-xs mt-1">{data.periodSummaries.mtd.commissionsCount} payments</p>
               </div>
-              <div className="pt-3 border-t border-blue-400">
-                <p className="text-blue-100 text-sm">Cases</p>
-                <p className="text-2xl font-bold">{data.periodSummaries.mtd.cases}</p>
+              <div className="pt-3 border-t border-blue-300 dark:border-blue-700">
+                <p className="text-blue-700 dark:text-blue-300 text-sm">Cases</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{data.periodSummaries.mtd.cases}</p>
               </div>
             </div>
           </div>
 
           {/* QTD Summary */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+          <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg shadow-lg p-6 border border-purple-200 dark:border-purple-800">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Quarter-to-Date</h3>
-              <div className="bg-white bg-opacity-20 rounded-full p-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100">Quarter-to-Date</h3>
+              <div className="bg-purple-200 dark:bg-purple-800 bg-opacity-50 dark:bg-opacity-50 rounded-full p-2">
+                <svg className="w-6 h-6 text-purple-700 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-purple-100 text-sm">Commissions</p>
-                <p className="text-3xl font-bold">{formatCurrency(data.periodSummaries.qtd.commissions)}</p>
-                <p className="text-purple-100 text-xs mt-1">{data.periodSummaries.qtd.commissionsCount} payments</p>
+                <p className="text-purple-700 dark:text-purple-300 text-sm">Commissions</p>
+                <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{formatCurrency(data.periodSummaries.qtd.commissions)}</p>
+                <p className="text-purple-700 dark:text-purple-300 text-xs mt-1">{data.periodSummaries.qtd.commissionsCount} payments</p>
               </div>
-              <div className="pt-3 border-t border-purple-400">
-                <p className="text-purple-100 text-sm">Cases</p>
-                <p className="text-2xl font-bold">{data.periodSummaries.qtd.cases}</p>
+              <div className="pt-3 border-t border-purple-300 dark:border-purple-700">
+                <p className="text-purple-700 dark:text-purple-300 text-sm">Cases</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{data.periodSummaries.qtd.cases}</p>
               </div>
             </div>
           </div>
 
           {/* YTD Summary */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+          <div className="bg-green-50 dark:bg-green-900/30 rounded-lg shadow-lg p-6 border border-green-200 dark:border-green-800">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Year-to-Date</h3>
-              <div className="bg-white bg-opacity-20 rounded-full p-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">Year-to-Date</h3>
+              <div className="bg-green-200 dark:bg-green-800 bg-opacity-50 dark:bg-opacity-50 rounded-full p-2">
+                <svg className="w-6 h-6 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-green-100 text-sm">Commissions</p>
-                <p className="text-3xl font-bold">{formatCurrency(data.periodSummaries.ytd.commissions)}</p>
-                <p className="text-green-100 text-xs mt-1">{data.periodSummaries.ytd.commissionsCount} payments</p>
+                <p className="text-green-700 dark:text-green-300 text-sm">Commissions</p>
+                <p className="text-3xl font-bold text-green-900 dark:text-green-100">{formatCurrency(data.periodSummaries.ytd.commissions)}</p>
+                <p className="text-green-700 dark:text-green-300 text-xs mt-1">{data.periodSummaries.ytd.commissionsCount} payments</p>
               </div>
-              <div className="pt-3 border-t border-green-400">
-                <p className="text-green-100 text-sm">Cases</p>
-                <p className="text-2xl font-bold">{data.periodSummaries.ytd.cases}</p>
+              <div className="pt-3 border-t border-green-300 dark:border-green-700">
+                <p className="text-green-700 dark:text-green-300 text-sm">Cases</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">{data.periodSummaries.ytd.cases}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Cases</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.stats.casesTotal}
-                </p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Cases</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                    {data.stats.casesTotal}
+                  </p>
+                </div>
+                <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                  <svg
+                    className="w-8 h-8 text-blue-600 dark:text-blue-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">All time</p>
-          </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">All time</p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Pending Commissions
-                </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {formatCurrency(pendingCommissions)}
-                </p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Pending Commissions
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                    {formatCurrency(pendingCommissions)}
+                  </p>
+                </div>
+                <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+                  <svg
+                    className="w-8 h-8 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Total: {formatCurrency(data.stats.commissionsTotal)}
-            </p>
-          </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Total: {formatCurrency(data.stats.commissionsTotal)}
+              </p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Quotes
-                </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.stats.quotesTotal}
-                </p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Total Quotes
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                    {data.stats.quotesTotal}
+                  </p>
+                </div>
+                <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
+                  <svg
+                    className="w-8 h-8 text-purple-600 dark:text-purple-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-purple-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">All time</p>
-          </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">All time</p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Active Contracts
-                </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.stats.contractsTotal}
-                </p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Active Contracts
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                    {data.stats.contractsTotal}
+                  </p>
+                </div>
+                <div className="bg-indigo-100 dark:bg-indigo-900 p-3 rounded-full">
+                  <svg
+                    className="w-8 h-8 text-indigo-600 dark:text-indigo-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-indigo-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-indigo-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">Across all carriers</p>
-          </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Across all carriers</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Recent Cases - 2 columns */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Recent Cases
-              </h3>
-              <Link
-                href="/cases"
-                className="text-sm text-blue-600 hover:text-blue-700"
-              >
-                View all →
-              </Link>
-            </div>
-            {data.recentActivity.cases.length > 0 ? (
-              <div className="space-y-4">
-                {data.recentActivity.cases.map((case_) => (
-                  <div
-                    key={case_.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Recent Cases
+                  </h3>
+                  <Link
+                    href="/cases"
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-gray-900">
-                          {case_.clientName}
-                        </p>
-                        <Badge
-                          variant={
-                            case_.status === "ISSUED"
-                              ? "success"
-                              : case_.status === "DECLINED"
-                              ? "danger"
-                              : "default"
-                          }
-                        >
-                          {case_.status.replace("_", " ")}
-                        </Badge>
+                    View all →
+                  </Link>
+                </div>
+                {data.recentActivity.cases.length > 0 ? (
+                  <div className="space-y-4">
+                    {data.recentActivity.cases.map((case_) => (
+                      <div
+                        key={case_.id}
+                        className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900 dark:text-gray-100">
+                              {case_.clientName}
+                            </p>
+                            <Badge
+                              variant={
+                                case_.status === "ISSUED"
+                                  ? "success"
+                                  : case_.status === "DECLINED"
+                                  ? "danger"
+                                  : "default"
+                              }
+                            >
+                              {case_.status.replace("_", " ")}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {case_.productType} • {case_.carrier}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {case_.premium
+                              ? formatCurrency(case_.premium)
+                              : "TBD"}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatDate(case_.createdAt)}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {case_.productType} • {case_.carrier}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        {case_.premium
-                          ? formatCurrency(case_.premium)
-                          : "TBD"}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(case_.createdAt)}
-                      </p>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No cases yet</p>
-              </div>
-            )}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Notifications - 1 column */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Notifications
-              </h3>
-              {data.notifications.filter((n) => n.isNew).length > 0 && (
-                <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full">
-                  {data.notifications.filter((n) => n.isNew).length}
-                </span>
-              )}
-            </div>
-            {data.notifications.length > 0 ? (
-              <div className="space-y-3">
-                {data.notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`p-3 rounded-lg ${
-                      notification.isNew ? "bg-blue-50" : "bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-gray-600 mt-1">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formatDate(notification.createdAt)}
-                        </p>
+          <div>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Notifications
+                  </h3>
+                  {data.notifications.filter((n) => n.isNew).length > 0 && (
+                    <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full">
+                      {data.notifications.filter((n) => n.isNew).length}
+                    </span>
+                  )}
+                </div>
+                {data.notifications.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`p-3 rounded-lg ${
+                          notification.isNew ? "bg-blue-50 dark:bg-blue-900/30" : "bg-gray-50 dark:bg-gray-800"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {notification.title}
+                            </p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {formatDate(notification.createdAt)}
+                            </p>
+                          </div>
+                          {notification.isNew && (
+                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                          )}
+                        </div>
                       </div>
-                      {notification.isNew && (
-                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                      )}
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 text-sm">No notifications</p>
-              </div>
-            )}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
 
         {/* Recent Commissions */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Recent Commissions
-            </h3>
-            <Link
-              href="/commissions"
-              className="text-sm text-blue-600 hover:text-blue-700"
-            >
-              View all →
-            </Link>
-          </div>
-          {data.recentActivity.commissions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Carrier
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Paid Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.recentActivity.commissions.map((commission) => (
-                    <tr key={commission.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {commission.carrier}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {commission.type.replace("_", " ")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                        {formatCurrency(commission.amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge
-                          variant={
-                            commission.status === "PAID"
-                              ? "success"
-                              : "warning"
-                          }
-                        >
-                          {commission.status}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {commission.paidAt
-                          ? formatDate(commission.paidAt)
-                          : "Pending"}
-                      </td>
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Recent Commissions
+              </h3>
+              <Link
+                href="/commissions"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              >
+                View all →
+              </Link>
+            </div>
+            {data.recentActivity.commissions.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Carrier
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Paid Date
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No commissions yet</p>
-            </div>
-          )}
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.recentActivity.commissions.map((commission) => (
+                      <tr key={commission.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {commission.carrier}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                          {commission.type.replace("_", " ")}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-gray-100">
+                          {formatCurrency(commission.amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge
+                            variant={
+                              commission.status === "PAID"
+                                ? "success"
+                                : "warning"
+                            }
+                          >
+                            {commission.status}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                          {commission.paidAt
+                            ? formatDate(commission.paidAt)
+                            : "Pending"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500 dark:text-gray-400">No commissions yet</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Performance Charts Section */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Performance Analytics
+          </h2>
+          <PerformanceCharts />
         </div>
       </div>
     </AppLayout>

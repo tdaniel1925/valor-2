@@ -32,6 +32,13 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.production
+
+# Windows reserved files
+nul
+CON
+PRN
+AUX
 
 # vercel
 .vercel

@@ -48,11 +48,19 @@ model User {
   profile           UserProfile?
   organizations     OrganizationMember[]
   contracts         Contract[]
+  instructorCourses Course[]       @relation("InstructorCourses")
+  enrollments       Enrollment[]   @relation("UserEnrollments")
+  certifications    Certification[] @relation("UserCertifications")
+  instructorEvents  TrainingEvent[] @relation("InstructorEvents")
+  eventAttendances  EventAttendee[] @relation("EventAttendances")
+  uploadedResources Resource[]     @relation("UploadedResources")
+  favoriteResources ResourceFavorite[] @relation("FavoriteResources")
   cases             Case[]
   quotes            Quote[]
   commissions       Commission[]
   notifications     Notification[]
   auditLogs         AuditLog[]
+  goals             Goal[]
 
   @@index([email])
   @@index([role])
@@ -76,6 +84,7 @@ model UserProfile {
   agencyName          String?
   yearsOfExperience   Int?
   specializations     String[]
+  photoUrl            String?   // Profile photo URL from Supabase Storage
 
   // Notification Preferences
   emailNotifications  Boolean   @default(true)
@@ -133,6 +142,7 @@ model OrganizationMember {
 
   role            UserRole     @default(AGENT)
   commissionSplit Float?       // Percentage as decimal (e.g., 0.50 for 50%)
+  permissions     String[]     @default([]) // Custom permissions for this user in this organization
   isActive        Boolean      @default(true)
   joinedAt        DateTime     @default(now())
   leftAt          DateTime?
@@ -419,4 +429,352 @@ model AuditLog {
   @@index([entityType])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ============================================
+// GOALS & PERFORMANCE TRACKING
+// ============================================
+
+enum GoalType {
+  COMMISSION
+  CASES
+  PRODUCTION
+}
+
+model Goal {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  type        GoalType
+  target      Float     // Target amount or count
+  startDate   DateTime
+  endDate     DateTime
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("goals")
+}
+
+// ============================================
+// LEARNING MANAGEMENT SYSTEM (LMS)
+// ============================================
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonType {
+  VIDEO
+  ARTICLE
+  QUIZ
+  ASSIGNMENT
+  LIVE_SESSION
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  DROPPED
+}
+
+model Course {
+  id              String        @id @default(uuid())
+  title           String
+  description     String        @db.Text
+  thumbnail       String?
+  level           CourseLevel   @default(BEGINNER)
+  status          CourseStatus  @default(DRAFT)
+  category        String
+  tags            String[]
+  duration        Int?          // In minutes
+  requiredScore   Int           @default(70) // Percentage to pass
+
+  instructorId    String
+  instructor      User          @relation("InstructorCourses", fields: [instructorId], references: [id])
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  publishedAt     DateTime?
+
+  // Relations
+  lessons         Lesson[]
+  enrollments     Enrollment[]
+  certifications  Certification[]
+
+  @@index([status])
+  @@index([category])
+  @@index([instructorId])
+  @@map("courses")
+}
+
+model Lesson {
+  id              String      @id @default(uuid())
+  courseId        String
+  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String?     @db.Text
+  type            LessonType
+  order           Int
+  duration        Int?        // In minutes
+
+  // Content
+  videoUrl        String?
+  articleContent  String?     @db.Text
+  attachments     String[]    // URLs to files
+
+  // Quiz data (if type is QUIZ)
+  quizData        Json?
+
+  isRequired      Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  progress        LessonProgress[]
+
+  @@index([courseId])
+  @@index([type])
+  @@map("lessons")
+}
+
+model Enrollment {
+  id              String            @id @default(uuid())
+  userId          String
+  user            User              @relation("UserEnrollments", fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  status          EnrollmentStatus  @default(ENROLLED)
+  progress        Int               @default(0) // Percentage
+  score           Int?              // Final score percentage
+
+  enrolledAt      DateTime          @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+  certificateId   String?           @unique
+  certificate     Certification?    @relation(fields: [certificateId], references: [id])
+
+  // Relations
+  lessonProgress  LessonProgress[]
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id              String      @id @default(uuid())
+  enrollmentId    String
+  enrollment      Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId        String
+  lesson          Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  completed       Boolean     @default(false)
+  score           Int?        // For quizzes
+  timeSpent       Int?        // In seconds
+  attempts        Int         @default(0)
+
+  startedAt       DateTime    @default(now())
+  completedAt     DateTime?
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+model Certification {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation("UserCertifications", fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course      @relation(fields: [courseId], references: [id])
+
+  certificateNumber String    @unique
+  title           String
+  issueDate       DateTime    @default(now())
+  expiryDate      DateTime?
+  score           Int
+
+  pdfUrl          String?
+  verificationUrl String?
+
+  enrollment      Enrollment?
+
+  @@index([userId])
+  @@index([courseId])
+  @@map("certifications")
+}
+
+model TrainingEvent {
+  id              String      @id @default(uuid())
+  title           String
+  description     String?     @db.Text
+  courseId        String?
+
+  startDate       DateTime
+  endDate         DateTime
+  location        String?     // "Virtual" or physical address
+  meetingUrl      String?
+  capacity        Int?
+
+  instructorId    String
+  instructor      User        @relation("InstructorEvents", fields: [instructorId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  attendees       EventAttendee[]
+
+  @@index([startDate])
+  @@index([instructorId])
+  @@map("training_events")
+}
+
+model EventAttendee {
+  id              String        @id @default(uuid())
+  eventId         String
+  event           TrainingEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation("EventAttendances", fields: [userId], references: [id], onDelete: Cascade)
+
+  registered      Boolean       @default(true)
+  attended        Boolean       @default(false)
+  registeredAt    DateTime      @default(now())
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_attendees")
+}
+
+// ============================================
+// RESOURCE LIBRARY
+// ============================================
+
+enum ResourceType {
+  MARKETING_MATERIAL
+  PRODUCT_INFO
+  FORM
+  TRAINING_DOC
+  POLICY_TEMPLATE
+  PRESENTATION
+  OTHER
+}
+
+enum ResourceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Resource {
+  id              String          @id @default(uuid())
+  title           String
+  description     String?         @db.Text
+  type            ResourceType
+  status          ResourceStatus  @default(PUBLISHED)
+  category        String
+  tags            String[]
+
+  // File info
+  fileUrl         String
+  fileName        String
+  fileSize        Int             // In bytes
+  mimeType        String
+
+  // Version control
+  version         Int             @default(1)
+  previousVersionId String?       @unique
+  previousVersion   Resource?     @relation("ResourceVersions", fields: [previousVersionId], references: [id])
+  nextVersion       Resource?     @relation("ResourceVersions")
+
+  // Metadata
+  uploadedBy      String
+  uploader        User            @relation("UploadedResources", fields: [uploadedBy], references: [id])
+
+  views           Int             @default(0)
+  downloads       Int             @default(0)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  favorites       ResourceFavorite[]
+
+  @@index([type])
+  @@index([status])
+  @@index([category])
+  @@index([uploadedBy])
+  @@map("resources")
+}
+
+model ResourceFavorite {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation("FavoriteResources", fields: [userId], references: [id], onDelete: Cascade)
+  resourceId      String
+  resource        Resource    @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime    @default(now())
+
+  @@unique([userId, resourceId])
+  @@index([userId])
+  @@index([resourceId])
+  @@map("resource_favorites")
+}
+
+model ProductInfo {
+  id              String      @id @default(uuid())
+  carrier         String
+  productName     String
+  productType     String      // TERM_LIFE, WHOLE_LIFE, ANNUITY, etc.
+
+  description     String      @db.Text
+  features        String[]
+  benefits        String[]
+  riders          String[]
+
+  minAge          Int?
+  maxAge          Int?
+  minCoverage     Float?
+  maxCoverage     Float?
+
+  commissionRates Json?       // Structure: { first_year: 90, renewal: 5 }
+  underwritingRequirements Json?
+
+  brochureUrl     String?
+  illustrationUrl String?
+  applicationUrl  String?
+
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([carrier])
+  @@index([productType])
+  @@index([isActive])
+  @@map("product_info")
 }

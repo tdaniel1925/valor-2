@@ -1,0 +1,900 @@
+'use client';
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
+import {
+  User,
+  Heart,
+  DollarSign,
+  Users,
+  FileText,
+  CheckCircle2,
+  ChevronRight,
+  ChevronLeft,
+  Loader2,
+} from 'lucide-react';
+import type {
+  IGoApplicationRequest,
+  IGoApplicant,
+  IgoBeneficiary,
+  IgoPayment,
+  ApplicationType,
+} from '@/lib/integrations/igo/types';
+
+const STEPS = [
+  { id: 1, title: 'Personal Info', icon: User },
+  { id: 2, title: 'Health Info', icon: Heart },
+  { id: 3, title: 'Beneficiaries', icon: Users },
+  { id: 4, title: 'Payment', icon: DollarSign },
+  { id: 5, title: 'Review', icon: FileText },
+];
+
+const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+];
+
+interface LifeInsuranceApplicationFormProps {
+  quoteId?: string;
+  carrierId?: string;
+  carrierName?: string;
+  productId?: string;
+  productName?: string;
+  faceAmount?: number;
+  agentId: string;
+  onSubmit: (application: IGoApplicationRequest) => Promise<void>;
+  onSaveDraft?: (application: Partial<IGoApplicationRequest>) => Promise<void>;
+}
+
+export function LifeInsuranceApplicationForm({
+  quoteId,
+  carrierId = 'CARRIER-001',
+  carrierName = 'Sample Life Insurance Company',
+  productId = 'TERM-20',
+  productName = '20 Year Term Life',
+  faceAmount = 500000,
+  agentId,
+  onSubmit,
+  onSaveDraft,
+}: LifeInsuranceApplicationFormProps) {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<Partial<IGoApplicationRequest>>({
+    carrierId,
+    carrierName,
+    productId,
+    productName,
+    productType: 'TERM_LIFE' as ApplicationType,
+    faceAmount,
+    quoteId,
+    agentId,
+    applicant: {
+      firstName: '',
+      lastName: '',
+      middleName: '',
+      ssn: '',
+      dateOfBirth: '',
+      gender: 'Male',
+      email: '',
+      phone: '',
+      address: {
+        street1: '',
+        street2: '',
+        city: '',
+        state: '',
+        zipCode: '',
+      },
+      occupation: '',
+      employer: '',
+      employmentStatus: 'Employed',
+      height: {
+        feet: 5,
+        inches: 10,
+      },
+      weight: 180,
+      tobacco: 'Never',
+    } as Partial<IGoApplicant>,
+    beneficiaries: [],
+    payment: {
+      mode: 'Monthly',
+      method: 'ACH',
+      modalPremium: 0,
+      annualPremium: 0,
+    } as Partial<IgoPayment>,
+    hipaaAuthorization: false,
+    electronicConsent: false,
+  });
+
+  const [beneficiary, setBeneficiary] = useState<Partial<IgoBeneficiary>>({
+    type: 'Primary',
+    relationship: '',
+    firstName: '',
+    lastName: '',
+    percentage: 100,
+  });
+
+  const updateFormData = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const updateApplicant = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      applicant: {
+        ...prev.applicant,
+        [field]: value,
+      },
+    }));
+  };
+
+  const updateApplicantAddress = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      applicant: {
+        ...prev.applicant,
+        address: {
+          ...prev.applicant?.address,
+          [field]: value,
+        },
+      },
+    }));
+  };
+
+  const updatePayment = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      payment: {
+        ...prev.payment,
+        [field]: value,
+      },
+    }));
+  };
+
+  const addBeneficiary = () => {
+    if (!beneficiary.firstName || !beneficiary.lastName || !beneficiary.relationship) {
+      setError('Please fill in all beneficiary fields');
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      beneficiaries: [...(prev.beneficiaries || []), beneficiary as IgoBeneficiary],
+    }));
+
+    setBeneficiary({
+      type: 'Primary',
+      relationship: '',
+      firstName: '',
+      lastName: '',
+      percentage: 100,
+    });
+    setError(null);
+  };
+
+  const removeBeneficiary = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      beneficiaries: prev.beneficiaries?.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleNext = () => {
+    if (currentStep < STEPS.length) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    if (onSaveDraft) {
+      setLoading(true);
+      try {
+        await onSaveDraft(formData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to save draft');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onSubmit(formData as IGoApplicationRequest);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit application');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const progress = (currentStep / STEPS.length) * 100;
+
+  return (
+    <div className="space-y-6">
+      {/* Progress Bar */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Life Insurance Application</CardTitle>
+          <CardDescription>
+            {carrierName} - {productName} - {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(faceAmount)}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Progress value={progress} className="h-2" />
+            <div className="flex justify-between">
+              {STEPS.map((step) => {
+                const Icon = step.icon;
+                const isActive = currentStep === step.id;
+                const isCompleted = currentStep > step.id;
+
+                return (
+                  <div
+                    key={step.id}
+                    className={`flex flex-col items-center gap-2 ${
+                      isActive ? 'text-primary' : isCompleted ? 'text-green-600' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                        isActive
+                          ? 'border-primary bg-primary text-white'
+                          : isCompleted
+                          ? 'border-green-600 bg-green-600 text-white'
+                          : 'border-muted-foreground'
+                      }`}
+                    >
+                      {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                    </div>
+                    <div className="text-xs font-medium text-center hidden sm:block">{step.title}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Form Steps */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {React.createElement(STEPS[currentStep - 1].icon, { className: 'h-5 w-5' })}
+            {STEPS[currentStep - 1].title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Step 1: Personal Information */}
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    value={formData.applicant?.firstName}
+                    onChange={(e) => updateApplicant('firstName', e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="middleName">Middle Name</Label>
+                  <Input
+                    id="middleName"
+                    value={formData.applicant?.middleName}
+                    onChange={(e) => updateApplicant('middleName', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.applicant?.lastName}
+                    onChange={(e) => updateApplicant('lastName', e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ssn">Social Security Number *</Label>
+                  <Input
+                    id="ssn"
+                    type="password"
+                    value={formData.applicant?.ssn}
+                    onChange={(e) => updateApplicant('ssn', e.target.value)}
+                    placeholder="XXX-XX-XXXX"
+                    maxLength={11}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                  <Input
+                    id="dateOfBirth"
+                    type="date"
+                    value={formData.applicant?.dateOfBirth}
+                    onChange={(e) => updateApplicant('dateOfBirth', e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gender *</Label>
+                  <Select
+                    value={formData.applicant?.gender}
+                    onValueChange={(value) => updateApplicant('gender', value)}
+                  >
+                    <SelectTrigger id="gender">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.applicant?.email}
+                    onChange={(e) => updateApplicant('email', e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.applicant?.phone}
+                  onChange={(e) => updateApplicant('phone', e.target.value)}
+                  placeholder="(555) 555-5555"
+                  required
+                />
+              </div>
+
+              <Separator />
+
+              <h3 className="font-semibold">Address</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="street1">Street Address *</Label>
+                  <Input
+                    id="street1"
+                    value={formData.applicant?.address?.street1}
+                    onChange={(e) => updateApplicantAddress('street1', e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="street2">Apartment, Suite, etc.</Label>
+                  <Input
+                    id="street2"
+                    value={formData.applicant?.address?.street2}
+                    onChange={(e) => updateApplicantAddress('street2', e.target.value)}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      value={formData.applicant?.address?.city}
+                      onChange={(e) => updateApplicantAddress('city', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State *</Label>
+                    <Select
+                      value={formData.applicant?.address?.state}
+                      onValueChange={(value) => updateApplicantAddress('state', value)}
+                    >
+                      <SelectTrigger id="state">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {US_STATES.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="zipCode">ZIP Code *</Label>
+                    <Input
+                      id="zipCode"
+                      value={formData.applicant?.address?.zipCode}
+                      onChange={(e) => updateApplicantAddress('zipCode', e.target.value)}
+                      maxLength={10}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <h3 className="font-semibold">Employment</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="occupation">Occupation</Label>
+                  <Input
+                    id="occupation"
+                    value={formData.applicant?.occupation}
+                    onChange={(e) => updateApplicant('occupation', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employer">Employer</Label>
+                  <Input
+                    id="employer"
+                    value={formData.applicant?.employer}
+                    onChange={(e) => updateApplicant('employer', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="employmentStatus">Employment Status</Label>
+                <Select
+                  value={formData.applicant?.employmentStatus}
+                  onValueChange={(value) => updateApplicant('employmentStatus', value)}
+                >
+                  <SelectTrigger id="employmentStatus">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Employed">Employed</SelectItem>
+                    <SelectItem value="Self-Employed">Self-Employed</SelectItem>
+                    <SelectItem value="Retired">Retired</SelectItem>
+                    <SelectItem value="Unemployed">Unemployed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Health Information */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="heightFeet">Height (Feet) *</Label>
+                  <Select
+                    value={formData.applicant?.height?.feet?.toString()}
+                    onValueChange={(value) =>
+                      updateApplicant('height', { ...formData.applicant?.height, feet: parseInt(value) })
+                    }
+                  >
+                    <SelectTrigger id="heightFeet">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[4, 5, 6, 7].map((feet) => (
+                        <SelectItem key={feet} value={feet.toString()}>
+                          {feet} ft
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="heightInches">Height (Inches) *</Label>
+                  <Select
+                    value={formData.applicant?.height?.inches?.toString()}
+                    onValueChange={(value) =>
+                      updateApplicant('height', { ...formData.applicant?.height, inches: parseInt(value) })
+                    }
+                  >
+                    <SelectTrigger id="heightInches">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => i).map((inches) => (
+                        <SelectItem key={inches} value={inches.toString()}>
+                          {inches} in
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="weight">Weight (lbs) *</Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    min="50"
+                    max="500"
+                    value={formData.applicant?.weight}
+                    onChange={(e) => updateApplicant('weight', parseInt(e.target.value) || 0)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tobacco">Tobacco Use *</Label>
+                <Select
+                  value={formData.applicant?.tobacco}
+                  onValueChange={(value) => updateApplicant('tobacco', value)}
+                >
+                  <SelectTrigger id="tobacco">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Never">Never</SelectItem>
+                    <SelectItem value="Former">Former (quit more than 12 months ago)</SelectItem>
+                    <SelectItem value="Current">Current</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {formData.applicant?.tobacco === 'Former' && (
+                <div className="space-y-2">
+                  <Label htmlFor="tobaccoYearsSince">Years Since Quitting</Label>
+                  <Input
+                    id="tobaccoYearsSince"
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={formData.applicant?.tobaccoYearsSince || ''}
+                    onChange={(e) => updateApplicant('tobaccoYearsSince', parseInt(e.target.value) || undefined)}
+                  />
+                </div>
+              )}
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-semibold text-blue-900 mb-2">Medical Examination</h4>
+                <p className="text-sm text-blue-800">
+                  Based on your application, a paramedical examination may be required. We will contact you to schedule
+                  an appointment at your convenience.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Beneficiaries - continuing in next message due to length */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-4">Add Beneficiaries</h3>
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="beneficiaryType">Type</Label>
+                      <Select
+                        value={beneficiary.type}
+                        onValueChange={(value) =>
+                          setBeneficiary({ ...beneficiary, type: value as 'Primary' | 'Contingent' })
+                        }
+                      >
+                        <SelectTrigger id="beneficiaryType">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Primary">Primary</SelectItem>
+                          <SelectItem value="Contingent">Contingent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="relationship">Relationship *</Label>
+                      <Input
+                        id="relationship"
+                        value={beneficiary.relationship}
+                        onChange={(e) => setBeneficiary({ ...beneficiary, relationship: e.target.value })}
+                        placeholder="e.g., Spouse, Child, etc."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="beneficiaryFirstName">First Name *</Label>
+                      <Input
+                        id="beneficiaryFirstName"
+                        value={beneficiary.firstName}
+                        onChange={(e) => setBeneficiary({ ...beneficiary, firstName: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="beneficiaryLastName">Last Name *</Label>
+                      <Input
+                        id="beneficiaryLastName"
+                        value={beneficiary.lastName}
+                        onChange={(e) => setBeneficiary({ ...beneficiary, lastName: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="percentage">Percentage *</Label>
+                    <Input
+                      id="percentage"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={beneficiary.percentage}
+                      onChange={(e) => setBeneficiary({ ...beneficiary, percentage: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+
+                  <Button type="button" onClick={addBeneficiary} variant="outline" className="w-full">
+                    Add Beneficiary
+                  </Button>
+                </div>
+              </div>
+
+              {formData.beneficiaries && formData.beneficiaries.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-4">Beneficiaries Added</h3>
+                  <div className="space-y-2">
+                    {formData.beneficiaries.map((ben, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-medium">
+                            {ben.firstName} {ben.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {ben.relationship} - {ben.type} - {ben.percentage}%
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => removeBeneficiary(index)}>
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 4: Payment */}
+          {currentStep === 4 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="paymentMode">Payment Frequency *</Label>
+                  <Select
+                    value={formData.payment?.mode}
+                    onValueChange={(value) => updatePayment('mode', value)}
+                  >
+                    <SelectTrigger id="paymentMode">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Monthly">Monthly</SelectItem>
+                      <SelectItem value="Quarterly">Quarterly</SelectItem>
+                      <SelectItem value="Semi-Annual">Semi-Annual</SelectItem>
+                      <SelectItem value="Annual">Annual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paymentMethod">Payment Method *</Label>
+                  <Select
+                    value={formData.payment?.method}
+                    onValueChange={(value) => updatePayment('method', value)}
+                  >
+                    <SelectTrigger id="paymentMethod">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ACH">Bank Account (ACH)</SelectItem>
+                      <SelectItem value="Credit Card">Credit Card</SelectItem>
+                      <SelectItem value="Check">Check</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {formData.payment?.method === 'ACH' && (
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Bank Account Information</h4>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="bankName">Bank Name</Label>
+                      <Input
+                        id="bankName"
+                        value={formData.payment?.bankName || ''}
+                        onChange={(e) => updatePayment('bankName', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="accountType">Account Type</Label>
+                      <Select
+                        value={formData.payment?.accountType}
+                        onValueChange={(value) => updatePayment('accountType', value)}
+                      >
+                        <SelectTrigger id="accountType">
+                          <SelectValue placeholder="Select account type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Checking">Checking</SelectItem>
+                          <SelectItem value="Savings">Savings</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="routingNumber">Routing Number</Label>
+                        <Input
+                          id="routingNumber"
+                          value={formData.payment?.routingNumber || ''}
+                          onChange={(e) => updatePayment('routingNumber', e.target.value)}
+                          maxLength={9}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Account Number</Label>
+                        <Input
+                          id="accountNumber"
+                          type="password"
+                          value={formData.payment?.accountNumber || ''}
+                          onChange={(e) => updatePayment('accountNumber', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 5: Review & Submit */}
+          {currentStep === 5 && (
+            <div className="space-y-6">
+              <div className="p-4 bg-muted rounded-lg space-y-4">
+                <h3 className="font-semibold">Application Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-muted-foreground">Applicant</div>
+                    <div className="font-medium">
+                      {formData.applicant?.firstName} {formData.applicant?.lastName}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Product</div>
+                    <div className="font-medium">{productName}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Face Amount</div>
+                    <div className="font-medium">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(faceAmount)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Beneficiaries</div>
+                    <div className="font-medium">{formData.beneficiaries?.length || 0} added</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="hipaa"
+                    checked={formData.hipaaAuthorization}
+                    onCheckedChange={(checked) => updateFormData('hipaaAuthorization', checked)}
+                  />
+                  <Label htmlFor="hipaa" className="text-sm leading-relaxed cursor-pointer">
+                    I authorize the release of my medical information as required for underwriting this application
+                  </Label>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="consent"
+                    checked={formData.electronicConsent}
+                    onCheckedChange={(checked) => updateFormData('electronicConsent', checked)}
+                  />
+                  <Label htmlFor="consent" className="text-sm leading-relaxed cursor-pointer">
+                    I consent to conduct business electronically and agree to the terms and conditions
+                  </Label>
+                </div>
+              </div>
+
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+                <p className="font-semibold text-yellow-900 mb-2">Before You Submit</p>
+                <ul className="list-disc list-inside space-y-1 text-yellow-800">
+                  <li>Review all information for accuracy</li>
+                  <li>Ensure all required fields are completed</li>
+                  <li>You will receive a confirmation email after submission</li>
+                  <li>A medical examination may be required</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-4 bg-destructive/10 text-destructive rounded-lg text-sm">{error}</div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          {currentStep > 1 && (
+            <Button variant="outline" onClick={handlePrevious} disabled={loading}>
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          {onSaveDraft && (
+            <Button variant="outline" onClick={handleSaveDraft} disabled={loading}>
+              Save Draft
+            </Button>
+          )}
+
+          {currentStep < STEPS.length && (
+            <Button onClick={handleNext} disabled={loading}>
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          )}
+
+          {currentStep === STEPS.length && (
+            <Button
+              onClick={handleSubmit}
+              disabled={loading || !formData.hipaaAuthorization || !formData.electronicConsent}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  Submit Application
+                  <CheckCircle2 className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
