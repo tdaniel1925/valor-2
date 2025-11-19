@@ -40,7 +40,7 @@ export default function CommissionsPage() {
     queryFn: async () => {
       const res = await fetch("/api/commissions");
       if (!res.ok) throw new Error("Failed to fetch commissions");
-      return res.json();
+      const json = await res.json(); return json.data;
     },
   });
 
