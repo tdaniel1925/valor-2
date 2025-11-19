@@ -1,125 +1,106 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import { prisma } from "@/lib/db/prisma";
+import { calculateUserGoals, calculateGoalProgress } from "@/lib/goals/calculator";
 
-// GET /api/goals - Get user's goals
+/**
+ * GET /api/goals - Get user's goals with progress
+ */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Replace with actual user ID from Supabase auth
-    const userId = "demo-user-id";
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId") || "demo-user-id";
 
+    // Calculate progress for all user goals
+    const goalsWithProgress = await calculateUserGoals(userId);
+
+    // Get full goal details
     const goals = await prisma.goal.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
 
-    // Calculate progress for each goal
-    const goalsWithProgress = await Promise.all(
-      goals.map(async (goal) => {
-        let current = 0;
+    // Merge progress data with goal details
+    const enrichedGoals = goals.map((goal) => {
+      const progress = goalsWithProgress.find((p) => p.goalId === goal.id);
+      return {
+        ...goal,
+        progress: progress || null,
+      };
+    });
 
-        if (goal.type === "COMMISSION") {
-          const result = await prisma.commission.aggregate({
-            where: {
-              userId,
-              status: "PAID",
-              paidAt: {
-                gte: goal.startDate,
-                lte: goal.endDate,
-              },
-            },
-            _sum: { amount: true },
-          });
-          current = result._sum.amount || 0;
-        } else if (goal.type === "CASES") {
-          const count = await prisma.case.count({
-            where: {
-              userId: userId,
-              status: "APPROVED",
-              createdAt: {
-                gte: goal.startDate,
-                lte: goal.endDate,
-              },
-            },
-          });
-          current = count;
-        } else if (goal.type === "PRODUCTION") {
-          const result = await prisma.case.aggregate({
-            where: {
-              userId: userId,
-              status: "APPROVED",
-              createdAt: {
-                gte: goal.startDate,
-                lte: goal.endDate,
-              },
-            },
-            _sum: { premium: true },
-          });
-          current = result._sum?.premium || 0;
-        }
-
-        const progress = goal.target > 0 ? (current / goal.target) * 100 : 0;
-
-        return {
-          ...goal,
-          current,
-          progress: Math.min(progress, 100),
-        };
-      })
-    );
-
-    return NextResponse.json({ goals: goalsWithProgress });
-  } catch (error) {
+    return NextResponse.json({
+      success: true,
+      data: enrichedGoals,
+    });
+  } catch (error: any) {
     console.error("Error fetching goals:", error);
     return NextResponse.json(
-      { error: "Failed to fetch goals" },
+      { error: error.message || "Failed to fetch goals" },
       { status: 500 }
     );
   }
 }
 
-// POST /api/goals - Create a new goal
+/**
+ * POST /api/goals - Create a new goal
+ */
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Replace with actual user ID from Supabase auth
-    const userId = "demo-user-id";
-
     const body = await request.json();
-    const { title, type, target, startDate, endDate, description } = body;
+    const {
+      userId,
+      type,
+      metric,
+      targetValue,
+      startDate,
+      endDate,
+      description,
+    } = body;
 
-    if (!title || !type || !target || !startDate || !endDate) {
+    // Use demo user if not provided
+    const goalUserId = userId || "demo-user-id";
+
+    if (!type || !metric || !targetValue || !startDate || !endDate) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: type, metric, targetValue, startDate, endDate" },
         { status: 400 }
       );
     }
 
     const goal = await prisma.goal.create({
       data: {
-        userId,
-        title,
+        userId: goalUserId,
         type,
-        target: parseFloat(target),
+        metric,
+        targetValue: parseFloat(targetValue),
+        currentValue: 0,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         description,
+        status: "ACTIVE",
       },
     });
 
-    return NextResponse.json({ goal });
-  } catch (error) {
+    return NextResponse.json({
+      success: true,
+      data: goal,
+    });
+  } catch (error: any) {
     console.error("Error creating goal:", error);
     return NextResponse.json(
-      { error: "Failed to create goal" },
+      { error: error.message || "Failed to create goal" },
       { status: 500 }
     );
   }
 }
 
-// PUT /api/goals - Update a goal
-export async function PUT(request: NextRequest) {
+/**
+ * PATCH /api/goals - Update a goal
+ */
+export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, title, type, target, startDate, endDate, description } = body;
+    const { id, type, metric, targetValue, startDate, endDate, description, status } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -128,23 +109,29 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const updateData: any = {};
+
+    if (type) updateData.type = type;
+    if (metric) updateData.metric = metric;
+    if (targetValue) updateData.targetValue = parseFloat(targetValue);
+    if (startDate) updateData.startDate = new Date(startDate);
+    if (endDate) updateData.endDate = new Date(endDate);
+    if (description !== undefined) updateData.description = description;
+    if (status) updateData.status = status;
+
     const goal = await prisma.goal.update({
       where: { id },
-      data: {
-        ...(title && { title }),
-        ...(type && { type }),
-        ...(target && { target: parseFloat(target) }),
-        ...(startDate && { startDate: new Date(startDate) }),
-        ...(endDate && { endDate: new Date(endDate) }),
-        ...(description !== undefined && { description }),
-      },
+      data: updateData,
     });
 
-    return NextResponse.json({ goal });
-  } catch (error) {
+    return NextResponse.json({
+      success: true,
+      data: goal,
+    });
+  } catch (error: any) {
     console.error("Error updating goal:", error);
     return NextResponse.json(
-      { error: "Failed to update goal" },
+      { error: error.message || "Failed to update goal" },
       { status: 500 }
     );
   }

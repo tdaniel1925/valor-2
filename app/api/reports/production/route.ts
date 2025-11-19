@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/db/prisma';
+import { prisma } from '@/lib/db/prisma';
+import { generateProductionReport, exportToCSV } from '@/lib/reports/generator';
+import { getUserIdOrDemo } from '@/lib/auth/supabase';
 
 export async function GET(request: NextRequest) {
   try {

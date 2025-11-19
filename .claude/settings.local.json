@@ -69,7 +69,8 @@
       "Bash(ren .env.production.local .env)",
       "Bash(npx prisma migrate diff:*)",
       "Bash(schema.sql)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:ttandSellaBella1234@db.buteoznuikfowbwofabs.supabase.co:5432/postgres\" npm run db:seed:*)"
     ],
     "deny": [],
     "ask": []

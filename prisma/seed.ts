@@ -11,15 +11,16 @@ async function main() {
 
   // Clean existing data
   console.log("🧹 Cleaning existing data...");
+  await prisma.notification.deleteMany();
   await prisma.commission.deleteMany();
   await prisma.caseNote.deleteMany();
   await prisma.case.deleteMany();
   await prisma.quote.deleteMany();
   await prisma.contract.deleteMany();
-  await prisma.notification.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.organizationMember.deleteMany();
   await prisma.organization.deleteMany();
+  await prisma.goal.deleteMany();
   await prisma.userProfile.deleteMany();
   await prisma.user.deleteMany();
 
