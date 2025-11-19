@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       userId,
+      title,
       type,
-      metric,
-      targetValue,
+      target,
       startDate,
       endDate,
       description,
@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
     // Use demo user if not provided
     const goalUserId = userId || "demo-user-id";
 
-    if (!type || !metric || !targetValue || !startDate || !endDate) {
+    if (!title || !type || !target || !startDate || !endDate) {
       return NextResponse.json(
-        { error: "Missing required fields: type, metric, targetValue, startDate, endDate" },
+        { error: "Missing required fields: title, type, target, startDate, endDate" },
         { status: 400 }
       );
     }
@@ -70,14 +70,12 @@ export async function POST(request: NextRequest) {
     const goal = await prisma.goal.create({
       data: {
         userId: goalUserId,
+        title,
         type,
-        metric,
-        targetValue: parseFloat(targetValue),
-        currentValue: 0,
+        target: parseFloat(target),
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         description,
-        status: "ACTIVE",
       },
     });
 
@@ -100,7 +98,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, type, metric, targetValue, startDate, endDate, description, status } = body;
+    const { id, title, type, target, startDate, endDate, description } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -111,13 +109,12 @@ export async function PATCH(request: NextRequest) {
 
     const updateData: any = {};
 
+    if (title) updateData.title = title;
     if (type) updateData.type = type;
-    if (metric) updateData.metric = metric;
-    if (targetValue) updateData.targetValue = parseFloat(targetValue);
+    if (target) updateData.target = parseFloat(target);
     if (startDate) updateData.startDate = new Date(startDate);
     if (endDate) updateData.endDate = new Date(endDate);
     if (description !== undefined) updateData.description = description;
-    if (status) updateData.status = status;
 
     const goal = await prisma.goal.update({
       where: { id },

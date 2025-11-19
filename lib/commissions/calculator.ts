@@ -48,15 +48,7 @@ export async function calculateCommission(input: CommissionInput): Promise<{
         include: {
           organization: {
             include: {
-              parent: {
-                include: {
-                  parent: {
-                    include: {
-                      parent: true,
-                    },
-                  },
-                },
-              },
+              parent: true,
             },
           },
         },
@@ -90,11 +82,16 @@ export async function calculateCommission(input: CommissionInput): Promise<{
   remainingAmount -= totalAmount * agentSplit;
 
   // Walk up the organization hierarchy
-  let currentOrg = agentMembership.organization;
+  let currentOrg: any = agentMembership.organization;
   let level = 1;
 
-  while (currentOrg.parent && remainingAmount > 0) {
-    const parentOrg = currentOrg.parent;
+  while (currentOrg.parentId && remainingAmount > 0 && level <= 3) {
+    // Get the parent organization
+    const parentOrg = await prisma.organization.findUnique({
+      where: { id: currentOrg.parentId },
+    });
+
+    if (!parentOrg) break;
 
     // Find the owner/manager of the parent organization
     const parentMembers = await prisma.organizationMember.findMany({

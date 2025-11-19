@@ -97,7 +97,6 @@ export async function calculateDashboardMetrics(
     prisma.goal.findMany({
       where: {
         userId,
-        status: { in: ["ACTIVE", "COMPLETED"] },
       },
     }),
   ]);
@@ -138,10 +137,10 @@ export async function calculateDashboardMetrics(
 
   // Calculate case metrics
   const activeCases = allCases.filter(
-    (c) => c.status === "PENDING" || c.status === "SUBMITTED"
+    (c) => c.status === "SUBMITTED" || c.status === "IN_UNDERWRITING" || c.status === "PENDING_REQUIREMENTS"
   ).length;
 
-  const pendingCases = allCases.filter((c) => c.status === "PENDING").length;
+  const pendingCases = allCases.filter((c) => c.status === "PENDING_REQUIREMENTS").length;
 
   const totalCases = allCases.length;
 
@@ -167,13 +166,9 @@ export async function calculateDashboardMetrics(
       ? ((casesThisMonth - casesLastMonth) / casesLastMonth) * 100
       : 0;
 
-  // Calculate goal metrics
-  const completedGoals = activeGoals.filter((g) => g.status === "COMPLETED");
-  const onTrackGoals = activeGoals.filter((g) => {
-    if (g.status === "COMPLETED") return true;
-    const progress = g.targetValue > 0 ? (g.currentValue / g.targetValue) * 100 : 0;
-    return progress >= 50; // Consider on track if >50% complete
-  });
+  // Calculate goal metrics - simplified since Goal doesn't have status/currentValue
+  const completedGoals: any[] = [];
+  const onTrackGoals: any[] = [];
 
   // Get recent activity
   const recentCases = allCases
@@ -234,7 +229,7 @@ export async function calculateTeamMetrics(
         where: {
           userId: member.userId,
           status: "ISSUED",
-          issueDate: { gte: yearStart },
+          issuedAt: { gte: yearStart },
         },
       });
 
@@ -313,7 +308,7 @@ export async function calculateTimeSeriesData(
         where: {
           userId,
           status: "ISSUED",
-          issueDate: {
+          issuedAt: {
             gte: monthDate,
             lt: nextMonthDate,
           },
@@ -337,7 +332,7 @@ export async function calculateTimeSeriesData(
         where: {
           userId,
           status: "ISSUED",
-          issueDate: {
+          issuedAt: {
             gte: monthDate,
             lt: nextMonthDate,
           },

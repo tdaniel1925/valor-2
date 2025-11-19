@@ -43,8 +43,8 @@ export async function calculateGoalProgress(
   // Calculate current amount based on goal type
   let currentAmount = 0;
 
-  switch (goal.metric) {
-    case "PREMIUM":
+  switch (goal.type) {
+    case "PRODUCTION":
       currentAmount = await calculatePremiumTotal(
         goal.userId,
         startDate,
@@ -52,7 +52,7 @@ export async function calculateGoalProgress(
       );
       break;
 
-    case "COMMISSIONS":
+    case "COMMISSION":
       currentAmount = await calculateCommissionTotal(
         goal.userId,
         startDate,
@@ -64,28 +64,12 @@ export async function calculateGoalProgress(
       currentAmount = await calculateCaseCount(goal.userId, startDate, endDate);
       break;
 
-    case "POLICIES":
-      currentAmount = await calculatePolicyCount(
-        goal.userId,
-        startDate,
-        endDate
-      );
-      break;
-
-    case "NEW_CLIENTS":
-      currentAmount = await calculateNewClientCount(
-        goal.userId,
-        startDate,
-        endDate
-      );
-      break;
-
     default:
-      throw new Error(`Unsupported goal metric: ${goal.metric}`);
+      throw new Error(`Unsupported goal type: ${goal.type}`);
   }
 
   // Calculate progress metrics
-  const targetAmount = goal.targetValue;
+  const targetAmount = goal.target;
   const percentComplete = Math.min((currentAmount / targetAmount) * 100, 100);
   const remaining = Math.max(targetAmount - currentAmount, 0);
   const isCompleted = currentAmount >= targetAmount;
@@ -109,18 +93,12 @@ export async function calculateGoalProgress(
   const onTrack =
     isCompleted || (daysRemaining > 0 && currentDailyRate >= requiredDailyRate);
 
-  // Update goal progress in database
-  await prisma.goal.update({
-    where: { id: goalId },
-    data: {
-      currentValue: currentAmount,
-      status: isCompleted ? "COMPLETED" : "ACTIVE",
-    },
-  });
+  // Note: The Goal model doesn't have currentValue or status fields
+  // Progress is calculated on-the-fly
 
   return {
     goalId,
-    goalType: goal.metric,
+    goalType: goal.type,
     targetAmount,
     currentAmount,
     percentComplete,
@@ -142,7 +120,6 @@ export async function calculateUserGoals(
   const goals = await prisma.goal.findMany({
     where: {
       userId,
-      status: { in: ["ACTIVE", "COMPLETED"] },
     },
     orderBy: {
       endDate: "asc",
@@ -175,7 +152,7 @@ async function calculatePremiumTotal(
     where: {
       userId,
       status: "ISSUED",
-      issueDate: {
+      issuedAt: {
         gte: startDate,
         lte: endDate,
       },
@@ -219,7 +196,7 @@ async function calculateCaseCount(
     where: {
       userId,
       status: "ISSUED",
-      issueDate: {
+      issuedAt: {
         gte: startDate,
         lte: endDate,
       },
@@ -239,7 +216,7 @@ async function calculatePolicyCount(
     where: {
       userId,
       status: "ISSUED",
-      issueDate: {
+      issuedAt: {
         gte: startDate,
         lte: endDate,
       },
@@ -259,7 +236,7 @@ async function calculateNewClientCount(
     where: {
       userId,
       status: "ISSUED",
-      issueDate: {
+      issuedAt: {
         gte: startDate,
         lte: endDate,
       },
@@ -279,9 +256,9 @@ async function calculateNewClientCount(
  */
 export async function createGoal(data: {
   userId: string;
-  type: string;
-  metric: string;
-  targetValue: number;
+  title: string;
+  type: any;
+  target: number;
   startDate: Date;
   endDate: Date;
   description?: string;
@@ -289,28 +266,13 @@ export async function createGoal(data: {
   return await prisma.goal.create({
     data: {
       userId: data.userId,
-      type: data.type,
-      metric: data.metric,
-      targetValue: data.targetValue,
-      currentValue: 0,
+      title: data.title,
+      type: data.type as any,
+      target: data.target,
       startDate: data.startDate,
       endDate: data.endDate,
-      status: "ACTIVE",
       description: data.description,
     },
-  });
-}
-
-/**
- * Update goal status
- */
-export async function updateGoalStatus(
-  goalId: string,
-  status: "ACTIVE" | "COMPLETED" | "CANCELLED"
-) {
-  return await prisma.goal.update({
-    where: { id: goalId },
-    data: { status },
   });
 }
 
