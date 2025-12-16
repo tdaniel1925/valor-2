@@ -37,7 +37,7 @@ export async function callClientAboutQuote(quoteId: string) {
       carrier: quote.carrier,
       productName: quote.productName,
       premium: quote.premium,
-      agentName: quote.user.name || 'Insurance Agent',
+      agentName: `${quote.user.firstName} ${quote.user.lastName}`.trim() || 'Insurance Agent',
       type: 'quote-followup',
     },
   });
@@ -73,7 +73,7 @@ export async function callClientAboutApplication(caseId: string) {
       carrier: caseData.carrier,
       productName: caseData.productName,
       pendingRequirements: caseData.pendingRequirements,
-      agentName: caseData.user.name || 'Insurance Agent',
+      agentName: `${caseData.user.firstName} ${caseData.user.lastName}`.trim() || 'Insurance Agent',
       type: 'application-status',
     },
   });
@@ -107,7 +107,7 @@ export async function callClientAboutRequirements(caseId: string) {
       applicationNumber: caseData.applicationNumber,
       pendingRequirements: caseData.pendingRequirements,
       carrier: caseData.carrier,
-      agentName: caseData.user.name || 'Insurance Agent',
+      agentName: `${caseData.user.firstName} ${caseData.user.lastName}`.trim() || 'Insurance Agent',
       type: 'requirements-reminder',
     },
   });
