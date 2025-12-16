@@ -238,26 +238,24 @@ export default function WinFlexIntegrationPage() {
                 <CardTitle className="text-base">Resources</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start text-sm h-9" asChild>
-                  <a
-                    href="https://www.winflexweb.com/help"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    WinFlex Help Center
-                  </a>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start text-sm h-9" asChild>
-                  <a
-                    href="mailto:support.winflex@zinnia.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Contact WinFlex Support
-                  </a>
-                </Button>
+                <a
+                  href="https://www.winflexweb.com/help"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full justify-start text-sm h-9 inline-flex items-center rounded-md px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  WinFlex Help Center
+                </a>
+                <a
+                  href="mailto:support.winflex@zinnia.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full justify-start text-sm h-9 inline-flex items-center rounded-md px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Contact WinFlex Support
+                </a>
               </CardContent>
             </Card>
           </div>

@@ -187,12 +187,13 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/quotes">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Quotes
-                </Link>
-              </Button>
+              <Link
+                href="/quotes"
+                className="inline-flex items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Quotes
+              </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {quote.quoteNumber}
@@ -210,12 +211,13 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
                 <Download className="h-4 w-4 mr-2" />
                 Download PDF
               </Button>
-              <Button size="sm" asChild>
-                <Link href={`/quotes/${quoteId}/edit`}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Quote
-                </Link>
-              </Button>
+              <Link
+                href={`/quotes/${quoteId}/edit`}
+                className="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Quote
+              </Link>
             </div>
           </div>
         </div>
