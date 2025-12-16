@@ -1,7 +1,174 @@
 /**
  * iPipeline API Integration Types
- * Term life insurance quotes and electronic applications
+ * Term life insurance quotes, electronic applications, and SAML 2.0 SSO
+ *
+ * Based on Valor Insurance SAML2 Guide (GAID: 2717)
  */
+
+// ============================================
+// SAML 2.0 SSO Types
+// ============================================
+
+// iPipeline product types for SSO
+export type IPipelineProduct = 'igo' | 'lifepipe' | 'formspipe' | 'xrae' | 'productinfo';
+
+// Environment type
+export type IPipelineEnvironment = 'uat' | 'production';
+
+// iPipeline SSO configuration
+export interface IPipelineConfig {
+  // Valor-specific identifiers (assigned by iPipeline)
+  gaid: string;           // 2717
+  companyIdentifier: string; // 2717
+  channelName: string;    // VAL
+  groups: string;         // 02717-UsersGroup
+
+  // Certificate configuration
+  privateKey: string;
+  certificate: string;
+
+  // IdP configuration
+  entityId: string;
+
+  // Environment
+  environment: IPipelineEnvironment;
+}
+
+// SSO request for launching iPipeline products
+export interface IPipelineSSORequest {
+  // User identification
+  userId: string;
+
+  // User profile data
+  firstName: string;
+  lastName: string;
+  email: string;
+
+  // Optional user data
+  middleName?: string;
+  phone?: string;
+  phone2?: string;
+  fax?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  brokerDealerNum?: string;
+
+  // Which iPipeline product to launch
+  product: IPipelineProduct;
+
+  // Optional client data (for iGO)
+  clientData?: IPipelineClientData;
+}
+
+// Client data for iGO applications
+export interface IPipelineClientData {
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  ssn?: string;
+  email?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}
+
+// SAML Response structure
+export interface SAMLResponseData {
+  samlResponse: string;  // Base64 encoded SAML XML
+  relayState: string;    // Destination URL
+  acsUrl: string;        // Assertion Consumer Service URL
+}
+
+// iPipeline endpoints configuration
+export const IPIPELINE_ENDPOINTS = {
+  // Assertion Consumer Service URLs
+  acs: {
+    uat: 'https://federate-uat.ipipeline.com/sp/ACS.saml2',
+    production: 'https://federate.ipipeline.com/sp/ACS.saml2',
+  },
+
+  // Single Logout Service URLs
+  slo: {
+    uat: 'https://federate-uat.ipipeline.com/sp/SLO.saml2',
+    production: 'https://federate.ipipeline.com/sp/SLO.saml2',
+  },
+
+  // RelayState URLs (product-specific, GAID=2717 for Valor)
+  products: {
+    igo: {
+      uat: 'https://pipepasstoigo-uat3.ipipeline.com/default.aspx?gaid=2717',
+      production: 'https://pipepasstoigo.ipipeline.com/default.aspx?gaid=2717',
+    },
+    lifepipe: {
+      uat: 'https://quote-uat.ipipeline.com/LTSearch.aspx?GAID=2717',
+      production: 'https://quote.ipipeline.com/LTSearch.aspx?GAID=2717',
+    },
+    formspipe: {
+      uat: 'https://formspipe-uat.ipipeline.com/?GAID=2717',
+      production: 'https://formspipe.ipipeline.com/?GAID=2717',
+    },
+    xrae: {
+      uat: 'https://xrae-uat.ipipeline.com/RSAGateway?gaid=2717',
+      production: 'https://xrae.ipipeline.com/RSAGateway?gaid=2717',
+    },
+    productinfo: {
+      uat: 'https://prodinfo-uat.ipipeline.com/productlist?GAID=2717',
+      production: 'https://prodinfo.ipipeline.com/productlist?GAID=2717',
+    },
+  },
+
+  // SP Entity IDs
+  spEntityId: {
+    uat: 'federate-uat.ipipeline.com:saml2',
+    production: 'federate.ipipeline.com:saml2',
+  },
+};
+
+// Product display information
+export const IPIPELINE_PRODUCTS_INFO: Record<IPipelineProduct, {
+  name: string;
+  description: string;
+  icon: string;
+}> = {
+  igo: {
+    name: 'iGO',
+    description: 'Life Insurance E-Applications',
+    icon: 'FileText',
+  },
+  lifepipe: {
+    name: 'LifePipe',
+    description: 'Term Life Quoting',
+    icon: 'Calculator',
+  },
+  formspipe: {
+    name: 'FormsPipe',
+    description: 'Insurance Forms',
+    icon: 'FileCheck',
+  },
+  xrae: {
+    name: 'XRAE',
+    description: 'Risk Assessment Engine',
+    icon: 'Shield',
+  },
+  productinfo: {
+    name: 'Product Info',
+    description: 'Product Catalog',
+    icon: 'Info',
+  },
+};
+
+// ============================================
+// Quote API Types (existing)
+// ============================================
 
 export type Gender = 'Male' | 'Female';
 export type TobaccoUse = 'Never' | 'Former' | 'Current';
