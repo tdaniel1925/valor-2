@@ -23,9 +23,9 @@ interface WinFlexLauncherProps {
     phone?: string;
   };
   /** Button variant */
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'default';
   /** Button size */
-  size?: 'default' | 'sm' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   /** Custom button text */
   buttonText?: string;
   /** Show as icon only */
@@ -49,7 +49,7 @@ type LaunchStatus = 'idle' | 'loading' | 'success' | 'error';
 export function WinFlexLauncher({
   user,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   buttonText = 'Launch WinFlex',
   iconOnly = false,
   className = '',
