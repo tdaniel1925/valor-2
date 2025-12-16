@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import AppLayout from "@/components/layout/AppLayout";
 import PerformanceCharts from "@/components/dashboard/PerformanceCharts";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 
 interface DashboardData {
   user: {
@@ -75,21 +76,22 @@ export default function DashboardPage() {
   const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ["dashboard"],
     queryFn: async () => {
+      console.log("Fetching dashboard data...");
       const res = await fetch("/api/dashboard");
-      if (!res.ok) throw new Error("Failed to fetch dashboard data");
-      const json = await res.json(); return json.data;
+      if (!res.ok) {
+        console.error("Dashboard API error:", res.status, res.statusText);
+        throw new Error("Failed to fetch dashboard data");
+      }
+      const json = await res.json();
+      console.log("Dashboard data received:", json);
+      return json.data;
     },
   });
 
+  console.log("Dashboard state:", { isLoading, error, hasData: !!data });
+
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error || !data) {

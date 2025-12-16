@@ -236,6 +236,94 @@ export class RateWatchWebhookHandler extends BaseWebhookHandler {
 }
 
 /**
+ * VAPI webhook handler
+ */
+export class VapiWebhookHandler extends BaseWebhookHandler {
+  validateSignature(payload: string, signature: string): boolean {
+    const secret = process.env.VAPI_WEBHOOK_SECRET || '';
+    if (!secret) return false;
+
+    // TODO: Implement actual signature validation
+    // VAPI typically uses HMAC SHA-256 for webhook signatures
+    return true;
+  }
+
+  async handle(event: WebhookEvent): Promise<void> {
+    try {
+      console.log('[VAPI_WEBHOOK] Received event:', event.event);
+
+      switch (event.event) {
+        case 'call.started':
+        case 'call.ringing':
+          await this.handleCallStarted(event.data);
+          break;
+        case 'call.ended':
+          await this.handleCallEnded(event.data);
+          break;
+        case 'call.status-update':
+          await this.handleCallStatusUpdate(event.data);
+          break;
+        case 'call.transcript':
+          await this.handleCallTranscript(event.data);
+          break;
+        case 'call.recording':
+          await this.handleCallRecording(event.data);
+          break;
+        case 'call.failed':
+          await this.handleCallFailed(event.data);
+          break;
+        default:
+          console.log('[VAPI_WEBHOOK] Unhandled event:', event.event);
+      }
+
+      await this.logWebhookEvent(event, true);
+    } catch (error) {
+      console.error('[VAPI_WEBHOOK] Error handling event:', error);
+      await this.logWebhookEvent(
+        event,
+        false,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      throw error;
+    }
+  }
+
+  private async handleCallStarted(data: any) {
+    console.log('[VAPI_WEBHOOK] Call started:', data.callId);
+    // Update call status in database or create notification
+    // Could link to cases/quotes via metadata
+  }
+
+  private async handleCallEnded(data: any) {
+    console.log('[VAPI_WEBHOOK] Call ended:', data.callId);
+    // Update call status, store transcript, calculate duration
+    // Create follow-up tasks if needed
+  }
+
+  private async handleCallStatusUpdate(data: any) {
+    console.log('[VAPI_WEBHOOK] Call status update:', data.callId, data.status);
+    // Update call status in real-time
+  }
+
+  private async handleCallTranscript(data: any) {
+    console.log('[VAPI_WEBHOOK] Call transcript received:', data.callId);
+    // Store transcript, analyze for key information
+    // Could extract quote requests, application status, etc.
+  }
+
+  private async handleCallRecording(data: any) {
+    console.log('[VAPI_WEBHOOK] Call recording available:', data.callId);
+    // Store recording URL, link to case/quote
+  }
+
+  private async handleCallFailed(data: any) {
+    console.log('[VAPI_WEBHOOK] Call failed:', data.callId, data.reason);
+    // Log failure reason, create notification
+    // Could trigger retry logic
+  }
+}
+
+/**
  * Webhook registry
  */
 export class WebhookRegistry {
@@ -249,6 +337,7 @@ export class WebhookRegistry {
     this.handlers.set('winflex', new WinFlexWebhookHandler());
     this.handlers.set('ipipeline', new IPipelineWebhookHandler());
     this.handlers.set('ratewatch', new RateWatchWebhookHandler());
+    this.handlers.set('vapi', new VapiWebhookHandler());
   }
 
   getHandler(source: string): BaseWebhookHandler | undefined {

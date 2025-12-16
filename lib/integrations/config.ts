@@ -170,6 +170,18 @@ export const calendlyConfig: IntegrationConfig = {
 };
 
 /**
+ * VAPI - Voice AI Integration
+ */
+export const vapiConfig: IntegrationConfig = {
+  enabled: process.env.VAPI_ENABLED === 'true',
+  apiKey: process.env.VAPI_API_KEY,
+  baseUrl: process.env.VAPI_BASE_URL || 'https://api.vapi.ai',
+  timeout: Number(process.env.VAPI_TIMEOUT) || 30000,
+  retryAttempts: Number(process.env.VAPI_RETRY_ATTEMPTS) || 3,
+  retryDelay: Number(process.env.VAPI_RETRY_DELAY) || 1000,
+};
+
+/**
  * All integration configurations
  */
 export const integrationConfigs = {
@@ -186,6 +198,7 @@ export const integrationConfigs = {
   goHighLevel: goHighLevelConfig,
   twilio: twilioConfig,
   calendly: calendlyConfig,
+  vapi: vapiConfig,
 };
 
 /**

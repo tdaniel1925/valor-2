@@ -778,3 +778,110 @@ model ProductInfo {
   @@index([isActive])
   @@map("product_info")
 }
+
+// ============================================
+// HELP CENTER & DOCUMENTATION
+// ============================================
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ArticleCategory {
+  GETTING_STARTED
+  CASES
+  COMMISSIONS
+  QUOTES
+  CONTRACTS
+  TRAINING
+  REPORTS
+  INTEGRATIONS
+  TROUBLESHOOTING
+  BEST_PRACTICES
+  COMPLIANCE
+  ADMIN
+}
+
+model HelpArticle {
+  id              String          @id @default(uuid())
+  title           String
+  slug            String          @unique
+  category        ArticleCategory
+  tags            String[]
+
+  // Content
+  summary         String          @db.Text
+  content         String          @db.Text // Markdown format
+  videoUrl        String?
+  attachments     String[]        // URLs to supplementary files
+
+  // SEO & Search
+  keywords        String[]
+  searchableText  String          @db.Text // Auto-generated from content
+
+  // Organization
+  order           Int             @default(0)
+  parentId        String?
+  parent          HelpArticle?    @relation("ArticleHierarchy", fields: [parentId], references: [id])
+  children        HelpArticle[]   @relation("ArticleHierarchy")
+  relatedArticles String[]        // IDs of related articles
+
+  // Metadata
+  status          ArticleStatus   @default(DRAFT)
+  authorId        String
+  lastEditedBy    String?
+  views           Int             @default(0)
+  helpfulCount    Int             @default(0)
+  notHelpfulCount Int             @default(0)
+
+  publishedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  feedback        ArticleFeedback[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([parentId])
+  @@map("help_articles")
+}
+
+model ArticleFeedback {
+  id              String      @id @default(uuid())
+  articleId       String
+  article         HelpArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId          String?
+
+  helpful         Boolean
+  comment         String?     @db.Text
+
+  createdAt       DateTime    @default(now())
+
+  @@index([articleId])
+  @@index([helpful])
+  @@map("article_feedback")
+}
+
+model FAQ {
+  id              String      @id @default(uuid())
+  question        String
+  answer          String      @db.Text
+  category        String
+  order           Int         @default(0)
+
+  views           Int         @default(0)
+  helpfulCount    Int         @default(0)
+
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@map("faqs")
+}

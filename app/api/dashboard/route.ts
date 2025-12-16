@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         user: user || { email: "", firstName: "Demo", lastName: "User" },
@@ -171,6 +171,11 @@ export async function GET(request: NextRequest) {
         })),
       },
     });
+
+    // Add caching headers (cache for 30 seconds)
+    response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
+
+    return response;
   } catch (error: any) {
     console.error("Error fetching dashboard data:", error);
     return NextResponse.json(
