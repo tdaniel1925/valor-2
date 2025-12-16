@@ -307,12 +307,13 @@ export default function CategoryPage({ params }: { params: Promise<{ categoryId:
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               The category you're looking for doesn't exist.
             </p>
-            <Button asChild>
-              <Link href="/help">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Help Center
-              </Link>
-            </Button>
+            <Link
+              href="/help"
+              className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Help Center
+            </Link>
           </div>
         </div>
       </AppLayout>
