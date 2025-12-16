@@ -73,7 +73,7 @@ const sampleWholeLifeData: WholeLifeIllustrationData = {
 
   riders: {
     acceleratedDeathBenefit: true,
-    waiveOfPremium: { premium: 85 },
+    waiveOfPremium: true,
     guaranteedInsurability: {
       coverage: 25000,
       premium: 120,
