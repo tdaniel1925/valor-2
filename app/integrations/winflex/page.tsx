@@ -68,14 +68,14 @@ export default function WinFlexIntegrationPage() {
               <Badge
                 className={
                   status.enabled && status.configured
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-blue-100 text-blue-700'
                     : 'bg-yellow-100 text-yellow-700'
                 }
               >
                 {status.enabled && status.configured ? (
                   <>
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Connected
+                    <Info className="h-3 w-3 mr-1" />
+                    Credentials Set
                   </>
                 ) : (
                   <>
@@ -114,13 +114,13 @@ export default function WinFlexIntegrationPage() {
                 <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-4 mt-4">
                   <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
                     <Info className="h-4 w-4 text-blue-600" />
-                    How SSO Works
+                    About WinFlex SSO
                   </h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li>• Your session is automatically authenticated</li>
-                    <li>• No separate login required for WinFlex</li>
-                    <li>• First-time users are auto-registered</li>
-                    <li>• Your profile syncs with your Valor account</li>
+                    <li>• Requires valid agency credentials from Zinnia</li>
+                    <li>• Contact Zinnia to register your agency for SSO access</li>
+                    <li>• Once configured, users are auto-authenticated</li>
+                    <li>• First-time users are auto-registered in WinFlex</li>
                   </ul>
                 </div>
               </CardContent>
@@ -190,10 +190,10 @@ export default function WinFlexIntegrationPage() {
                   <span className="font-medium">
                     {loading ? (
                       'Checking...'
-                    ) : status?.enabled ? (
-                      <span className="text-green-600">Active</span>
+                    ) : status?.enabled && status?.configured ? (
+                      <span className="text-blue-600">Credentials Set</span>
                     ) : (
-                      <span className="text-yellow-600">Disabled</span>
+                      <span className="text-yellow-600">Not Configured</span>
                     )}
                   </span>
                 </div>
@@ -211,6 +211,11 @@ export default function WinFlexIntegrationPage() {
                   <span className="text-gray-600 dark:text-gray-400">Provider</span>
                   <span className="font-medium">Zinnia (LifeLink)</span>
                 </div>
+                {status?.enabled && status?.configured && (
+                  <div className="mt-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded text-xs text-yellow-700 dark:text-yellow-400">
+                    <strong>Note:</strong> SSO requires valid credentials from Zinnia. Contact them to register your agency.
+                  </div>
+                )}
               </CardContent>
             </Card>
 
