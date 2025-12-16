@@ -8,10 +8,11 @@ import { vapiClient } from '@/lib/integrations/vapi/client';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const assistant = await vapiClient.getAssistant(params.id);
+    const { id } = await params;
+    const assistant = await vapiClient.getAssistant(id);
     return NextResponse.json(assistant);
   } catch (error) {
     console.error('Failed to get VAPI assistant:', error);

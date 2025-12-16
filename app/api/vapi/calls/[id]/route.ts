@@ -10,10 +10,11 @@ import { UpdateCallRequest } from '@/lib/integrations/vapi/types';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const call = await vapiClient.getCall(params.id);
+    const { id } = await params;
+    const call = await vapiClient.getCall(id);
     return NextResponse.json(call);
   } catch (error) {
     console.error('Failed to get VAPI call:', error);
@@ -26,11 +27,12 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body: UpdateCallRequest = await request.json();
-    const call = await vapiClient.updateCall(params.id, body);
+    const call = await vapiClient.updateCall(id, body);
     return NextResponse.json(call);
   } catch (error) {
     console.error('Failed to update VAPI call:', error);

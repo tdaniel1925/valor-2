@@ -8,10 +8,11 @@ import { vapiClient } from '@/lib/integrations/vapi/client';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const call = await vapiClient.endCall(params.id);
+    const { id } = await params;
+    const call = await vapiClient.endCall(id);
     return NextResponse.json(call);
   } catch (error) {
     console.error('Failed to end VAPI call:', error);
