@@ -13,50 +13,61 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The insurance platform implements core business logic across three primary domains:
+Insurance Agency Management Platform Core Architecture
 
-## Insurance Quote Processing
-Core quote generation system handling multiple insurance product types:
+## Primary Business Domains
 
-- Life Insurance Workflow
-  - Term, ROP, and Convertible Term products
-  - Health class and tobacco use factoring
-  - Premium calculations based on rating factors
-  - Quote comparison engine
-  `/app/quotes/life/new/page.tsx`
+1. Commission Management
+- Hierarchical commission splitting across organization levels (IMO -> MGA -> Agency)
+- Multi-type commission handling (First Year, Renewal, Override, Trail, Bonus)
+- Preview calculations and forecasting with confidence levels
+Importance Score: 85
 
-- Annuity System
-  - MYGA, Fixed, and Indexed annuity types
-  - Surrender charge calculations
-  - Guaranteed vs current rate processing
-  `/app/quotes/annuity/new/page.tsx`
+2. Quote Aggregation System
+- Consolidation of quotes from multiple providers
+- Provider-specific transformations and normalizations
+- Product validation rules by insurance type
+- Premium calculations and comparisons
+Importance Score: 90
 
-## Organization Management
-Hierarchical business structure implementation:
+3. Insurance Production Analytics
+- Conversion rate calculations by product type
+- Commission hierarchy analysis
+- Product mix evaluation
+- Performance metrics across organization levels
+Importance Score: 75
 
-- Multi-level Organization System
-  - Commission split hierarchies
-  - Member role assignments
-  - Parent-child organizational relationships
-  `/app/admin/organizations/[id]/page.tsx`
+4. Organization Structure
+- Nested organizational hierarchy management
+- Commission inheritance patterns
+- Permission propagation across levels
+- Contract relationship handling
+Importance Score: 80
 
-- Contract Management
-  - Hierarchical approval workflows
-  - Commission level assignments
-  - Carrier-specific requirements
-  `/app/admin/contracts/page.tsx`
+## Critical Implementation Components
 
-## Permission Control
-Role-based system managing access and commissions:
+1. Insurance Illustrations System
+- Complex product calculations (Term, Whole, Universal, Annuity)
+- Guaranteed vs non-guaranteed projections
+- Surrender charge calculations
+- Policy rider integration
+Importance Score: 85
 
-- Role Hierarchy
-  - ADMIN, MANAGER, AGENT, SUPPORT levels
-  - Permission inheritance model
-  - Role-specific commission structures
-  `/app/admin/roles/page.tsx`
+2. Case Management Workflow
+- Status progression tracking
+- Underwriting requirement management
+- Policy coverage calculations
+- Premium processing
+Importance Score: 80
 
-Business Impact Score: 85/100
-The system demonstrates sophisticated insurance industry implementations, particularly in quote generation and organizational management domains.
+## Integration Architecture
+
+Quote Provider Integration
+- Multiple carrier connections (WinFlex, iPipeline, RateWatch)
+- Rate normalization
+- Product-specific validation
+- Best value determination
+Importance Score: 85
 
 $END$
 

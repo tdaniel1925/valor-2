@@ -254,7 +254,7 @@ export default function ArticleDetailPage() {
               <div className="flex items-center gap-3 flex-wrap mb-8">
                 <Tag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                 {article.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
+                  <Badge key={tag} variant="outline">
                     {tag}
                   </Badge>
                 ))}
@@ -369,7 +369,7 @@ export default function ArticleDetailPage() {
                               {related.summary}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="outline" className="text-xs">
                                 {related.category}
                               </Badge>
                             </div>

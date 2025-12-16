@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "vapi": {
+      "command": "node",
+      "args": [
+        "<path_to_vapi_mcp_server>/dist/index.js"
+      ],
+      "env": {
+        "VAPI_TOKEN": "<your_vapi_api_key>"
+      }
+    }
+  }
+}
+
+
+
+

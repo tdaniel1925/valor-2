@@ -1,61 +1,58 @@
 ---
-description: Processes premium calculation algorithms, health class determination, rate adjustments, and carrier quote aggregation
+description: Specification for insurance quote calculation algorithms, premium determination, and rate aggregation logic
 ---
 
 
 # quote-calculation-algorithms
 
-Premium calculation and quote aggregation logic spans multiple components:
+Premium Calculation Core Components:
 
-## Core Rating Components
-Importance Score: 95
-
-Premium calculations incorporate:
-- Health class determination based on height/weight/blood pressure matrices
-- Tobacco use rating factors (12/24 month lookback)
-- Age-nearest birthday calculation with 6-month rounding 
-- Face amount band breakpoints at standard tiers
-- Modal premium factors for payment frequency adjustments
-
-## Multi-Carrier Quote Aggregation 
+1. Quote Aggregation Engine 
+Path: `app/api/quotes/aggregated/route.ts`
 Importance Score: 90
+- Consolidates rate data from multiple carriers (WinFlex, iPipeline, RateWatch)
+- Normalizes provider-specific quote formats into standardized structure
+- Applies product-specific validation rules and rate adjustments
+- Handles multi-carrier quote comparison and best value determination
 
-Quote consolidation workflow:
-1. Parallel carrier quote requests with provider-specific formatting
-2. Normalization of disparate carrier rate structures
-3. Premium comparison with carrier-specific:
-   - Rate class mapping
-   - Product eligibility rules
-   - State availability filters
-4. Best value determination using weighted scoring:
-   - Premium cost (40%)
-   - Financial rating (30%) 
-   - Conversion options (20%)
-   - Product features (10%)
-
-## Rate Class Assignment
+2. Insurance Illustrations System
+Path: `components/illustrations`
 Importance Score: 85
+- Premium projection models for different product types:
+  - Term Life: Level vs decreasing benefit calculations
+  - Universal Life: COI calculations, loan provisions
+  - Whole Life: Participating vs non-participating differentials
+  - Annuities: Guaranteed vs non-guaranteed projections
+- Surrender charge schedules and death benefit calculations
+- Dividend crediting strategies and interest scenarios
 
-Health class determination algorithm:
-1. Build rate class matrix from:
-   - Height/weight tables
-   - Blood pressure readings
-   - Family history factors
-   - Lab results when available
-2. Apply tobacco use classifications
-3. Calculate final health class using most conservative rating
-4. Map standardized health class to carrier-specific classes
+3. Rate Calculation Logic
+Path: `lib/quotes/calculator.ts` 
+Importance Score: 90
+- Base premium determination using actuarial tables
+- Health class adjustments (Preferred Plus, Preferred, Standard, etc.)
+- Age/gender/tobacco status rate modifications
+- Product-specific premium modeling:
+  - Term: Duration-based pricing
+  - Whole Life: Cash value component factoring
+  - Universal Life: Flexible premium structure
+  - Annuities: Fixed/variable/indexed variations
 
-## Premium Adjustments
-Importance Score: 80
+4. Product Comparison System
+Path: `components/quotes/ProductComparison.tsx`
+Importance Score: 85
+- Cost per thousand calculations across policy types
+- Cash value accumulation projections
+- Premium comparison analytics
+- Break-even analysis between product options
+- Recommendation scoring based on client parameters
 
-Rate modification factors:
-- Flat extras for hazardous activities
-- Table ratings for medical conditions
-- Rider premium calculations
-- Policy fee additions
-- Modal premium conversions
-- State-specific premium tax adjustments
+Notable Insurance-Specific Elements:
+- Multi-carrier rate integration and normalization
+- Health classification determination logic
+- Product-specific premium adjustments
+- Regulatory compliance factors in rate calculations
+- Complex illustration projections adhering to industry standards
 
 $END$
 

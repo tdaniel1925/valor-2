@@ -69,6 +69,7 @@ function formatDisplayName(name: string): string {
     goHighLevel: 'GoHighLevel',
     twilio: 'Twilio',
     calendly: 'Calendly',
+    vapi: 'VAPI',
   };
 
   return displayNames[name] || name;

@@ -1,60 +1,43 @@
 ---
-description: Specifications for insurance carrier integration patterns, quote normalization, and provider data transformations
+description: Defines carrier integration patterns, quote normalization, and provider-specific data transformations for insurance platform
 ---
 
 
 # integration-patterns
 
-## Carrier Integration Framework
+## Quote Aggregation Service
+Path: `app/api/quotes/aggregated/route.ts`
+Importance Score: 90
+
+- Normalizes quote data from multiple provider APIs:
+  - WinFlex quote transformations
+  - iPipeline format standardization 
+  - RateWatch data mapping
+- Implements provider-specific validation rules
+- Handles product-type specific quote validation
+- Maps carrier-specific health classifications to standard scale
+
+## Provider Data Transformations
+Path: `lib/integrations/quote-aggregator.ts`
 Importance Score: 85
 
-Core integration patterns for normalizing and transforming insurance carrier data:
+- Carrier-specific rate table transformations
+- Product feature mapping standardization
+- Rider option normalization across carriers
+- Premium calculation adjustments per carrier
+- Policy benefit standardization rules
 
-### Quote Aggregation System
-- Consolidates quotes from multiple providers:
-  - WinFlex API integration
-  - iPipeline quote system
-  - RateWatch data feeds
-- Normalizes disparate carrier formats into unified structure
-- Transforms carrier-specific product codes and classifications
+## Quote Comparison Engine 
+Path: `components/quotes/ProductComparison.tsx`
+Importance Score: 80
 
-### Provider Data Transformations
-- Health class mapping across carriers:
-  - Preferred Plus → Super Preferred
-  - Standard Plus → Select
-- Premium mode conversions:
-  - Annual → Monthly, Quarterly
-  - Modal factor applications
-- Product type standardization:
-  - Term → Level Term
-  - ROP → Return of Premium
+- Normalizes cost comparison metrics
+- Standardizes benefit presentations
+- Maps carrier-specific features to common format
+- Implements carrier-specific illustration rules
+- Handles product-type specific comparison logic
 
-### Quote Normalization Process
-- Standardizes carrier-specific fields:
-  - Premium rates
-  - Product features
-  - Rider availability
-- Applies carrier-specific business rules:
-  - State availability filters
-  - Face amount restrictions
-  - Age limitations
-  - Tobacco classifications
-
-## Integration Protocols
-- Quote request transformation rules
-- Response parsing and normalization
-- Error mapping and standardization
-- Carrier-specific retry policies
-- Required field mappings per carrier
-
-## Data Flow Architecture
-- Carrier API gateway routing
-- Quote request orchestration
-- Response aggregation patterns
-- Error handling protocols
-- Field validation rules
-
-The system implements sophisticated carrier integration patterns focused on normalizing disparate insurance data formats and managing complex transformations between different provider systems.
+The integration patterns focus heavily on normalizing data from multiple insurance carriers into standardized formats for comparison and processing. Key aspects include quote aggregation, provider-specific transformations, and standardized comparison logic across different insurance product types and carriers.
 
 $END$
 

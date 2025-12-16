@@ -1,73 +1,65 @@
 ---
-description: Specifies data models for insurance quotes, commissions, organizations and contracts within insurance platforms
+description: Defines core insurance data models for quotes, commissions, organizations and contracts
 ---
 
 
 # insurance-data-models
 
-Core data model structures for insurance business operations:
+Core insurance data models implementing domain-specific structures and relationships:
 
-## Quote Models
-Importance Score: 90
+## Quote Models (Importance: 95)
+- Complex multi-product quote structure supporting:
+  - Life insurance (Term, Whole, Universal, Variable)
+  - Fixed and variable annuities  
+  - Health class categorization
+  - Risk factor modeling
+  - Premium calculation rules
+  - Rider attachments
+  - Policy feature combinations
 
-### Life Insurance Quote Structure
-- Product type classification (Term, ROP, Convertible Term)
-- Underwriting factors:
-  - Health class ratings 
-  - Tobacco usage status
-  - Age bands
-  - Face amount tiers
-- Premium calculation components:
-  - Base rate factors
-  - Modal premium adjustments
-  - Rider inclusion rates
+## Commission Hierarchy Models (Importance: 90)
+- Multi-level commission distribution structure:
+  - Organization types (IMO, MGA, Agency)
+  - Commission types (First Year, Renewal, Override)
+  - Split rules and inheritance
+  - Override levels and hierarchies
+  - Commission status tracking
+  - Split validation rules
 
-### Annuity Quote Models
-- Product classifications (MYGA, Fixed, Indexed)
-- Surrender charge schedules
-- Rate structures:
-  - Guaranteed minimum rates
-  - Current crediting rates
-  - Bonus rate periods
-- Market value adjustment factors
+## Organization Relationship Models (Importance: 85)
+- Insurance-specific organizational hierarchy:
+  - Parent-child agency relationships
+  - Downline tracking and management
+  - Contract relationship mapping
+  - Role-based hierarchy access
+  - Territory and jurisdiction tracking
 
-## Commission Hierarchies
-Importance Score: 85
+## Contract Models (Importance: 80)
+- Insurance contract relationship tracking:
+  - Carrier appointments
+  - Commission level assignments
+  - Contract status workflows
+  - License requirements
+  - Expiration management
+  - Renewal tracking
+  - Territory restrictions
 
-- Multi-level commission split structures:
-  - Executive tier (5%)
-  - Manager tier (15%) 
-  - Agent tier (50%)
-- Commission tracking elements:
-  - Gross commission amounts
-  - Split calculations
-  - Override percentages
-  - Vesting schedules
+## Case Management Models (Importance: 75)
+- Insurance case workflow structure:
+  - Underwriting status progression
+  - Requirements tracking
+  - Policy details
+  - Premium calculations
+  - Commission assignments
+  - Document management
+  - Compliance tracking
 
-## Organization Relationships
-Importance Score: 80
-
-- Insurance industry organization types:
-  - IMO (Insurance Marketing Organization)
-  - MGA (Managing General Agent)
-  - Agency level entities
-- Hierarchical relationships:
-  - Parent-child associations
-  - Commission flow mapping
-  - Contract inheritance paths
-
-## Contract Models
-Importance Score: 75
-
-- Carrier appointment status tracking
-- Product authorization levels
-- Commission level assignments
-- Contract state transitions:
-  - PENDING
-  - APPROVED 
-  - ACTIVE
-  - TERMINATED
-- Required documentation tracking
+Notable Domain-Specific Elements:
+- Insurance product categorization hierarchies
+- Multi-level commission distribution rules
+- Regulatory compliance requirements
+- Carrier relationship tracking
+- Agent licensing and appointment management
 
 $END$
 

@@ -1,52 +1,53 @@
 ---
-description: Specifies commission distribution algorithms and hierarchical organization calculations in insurance sales
+description: Specifies commission distribution algorithms and hierarchical splits across organization levels
 ---
 
 
 # commission-hierarchy-flow
 
-Importance Score: 70
+Core Commission Distribution Logic:
 
-## Commission Distribution Model
+1. Hierarchical Commission Structure
+- Multi-tiered distribution model across IMO -> MGA -> Agency levels
+- Commission inheritance and split calculations between organization levels
+- Organization-based commission override management
+Importance Score: 90
 
-Hierarchical commission splits follow organization structure with predefined distribution rates:
-- Executive Level: 5% base commission
-- Manager Level: 15% base commission  
-- Agent Level: 50% base commission
+2. Commission Split Algorithms
+- Split ratio calculations based on hierarchy position
+- Automatic balancing of commission percentages
+- Override commission handling for special arrangements
+Importance Score: 85
 
-Multi-tier commission calculations cascade through organizational levels with inherited splits. Child organizations receive remaining commission percentages after parent-level deductions.
+3. Commission Types Processing
+- First Year Commission calculations
+- Renewal Commission distribution
+- Override Commission management
+- Trail Commission tracking
+- Bonus Commission handling
+Importance Score: 85
 
-## Organization Hierarchy Implementation
+4. Organization Hierarchy Impact
+- Commission flow based on organizational structure
+- Permission-based commission access controls
+- Multi-level agency relationship handling
+Importance Score: 80
 
-Commission flows map to organizational structure:
-- IMO (Insurance Marketing Organization) - Top level
-- MGA (Managing General Agent) - Mid level 
-- Agency - Base level
+Key Implementation Components:
+- Path: `app/api/admin/commission-split/preview/route.ts`
+  * Preview calculations for commission distributions
+  * Pre-split validation checks
+  * Hierarchy-based split routing
 
-Each level inherits commission split rules and contract relationships from parent organizations.
+- Path: `lib/commissions/calculator.ts`
+  * Core commission distribution algorithms
+  * Split percentage validations
+  * Multi-level commission routing
 
-## Contract Commission Assignment
-
-Contract status transitions affect commission eligibility:
-- PENDING: No commission distribution
-- APPROVED: Commission structure activated
-- ACTIVE: Commission payments enabled
-
-Commission levels assign based on:
-- Organization tier position
-- Contract type qualifications
-- Product line authorizations
-
-## Period-Based Commission Tracking
-
-Commission calculations segment by timeframes:
-- MTD (Month-to-Date)
-- QTD (Quarter-to-Date)  
-- YTD (Year-to-Date)
-
-Split amounts track both:
-- Gross commission value
-- Net distribution after hierarchical splits
+- Path: `prisma/seed.ts`
+  * Commission structure data models
+  * Organization hierarchy relationships
+  * Commission type definitions
 
 $END$
 

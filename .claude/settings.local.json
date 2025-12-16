@@ -70,7 +70,16 @@
       "Bash(npx prisma migrate diff:*)",
       "Bash(schema.sql)",
       "Bash(npm run build:*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:ttandSellaBella1234@db.buteoznuikfowbwofabs.supabase.co:5432/postgres\" npm run db:seed:*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:ttandSellaBella1234@db.buteoznuikfowbwofabs.supabase.co:5432/postgres\" npm run db:seed:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" npx ts-node:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" DIRECT_URL=\"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" npx prisma db push:*)",
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(ping:*)",
+      "Bash(.env)",
+      "Bash(\"app\\help\\articles\\[slug]\\page.tsx\")",
+      "Bash(\"app\\api\\help\\articles\\[slug]\\feedback\\route.ts\")",
+      "Bash(npx prisma migrate:*)",
+      "Bash(set:*)"
     ],
     "deny": [],
     "ask": []
