@@ -334,7 +334,7 @@ export function ProductComparison({ products, onRemoveProduct, onAddProduct }: P
                   </td>
                   {products.map((product) => (
                     <td key={product.id} className="px-4 py-3 text-center">
-                      <Badge variant="secondary">{product.productType}</Badge>
+                      <Badge variant="outline">{product.productType}</Badge>
                     </td>
                   ))}
                 </tr>

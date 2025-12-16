@@ -209,7 +209,7 @@ export function WholeLifeIllustration({ data }: WholeLifeIllustrationProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Type:</span>
-              <Badge variant="secondary">{data.policyType}</Badge>
+              <Badge variant="outline">{data.policyType}</Badge>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Face Amount:</span>

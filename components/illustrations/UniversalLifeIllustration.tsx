@@ -226,7 +226,7 @@ export function UniversalLifeIllustration({ data }: UniversalLifeIllustrationPro
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Type:</span>
-              <Badge variant="secondary">{data.policyType} UL</Badge>
+              <Badge variant="outline">{data.policyType} UL</Badge>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Death Benefit Option:</span>
@@ -268,7 +268,7 @@ export function UniversalLifeIllustration({ data }: UniversalLifeIllustrationPro
           <CardContent className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Strategy Type:</span>
-              <Badge variant="secondary">{data.creditingStrategy.type}</Badge>
+              <Badge variant="outline">{data.creditingStrategy.type}</Badge>
             </div>
             {data.creditingStrategy.indexName && (
               <div className="flex justify-between">
