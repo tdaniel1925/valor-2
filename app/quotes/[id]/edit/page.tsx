@@ -192,7 +192,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 </div>
                 <div>
                   <Label htmlFor="gender">Gender *</Label>
-                  <Select value={formData.gender} onValueChange={(value) => handleChange('gender', value)} required>
+                  <Select value={formData.gender} onValueChange={(value) => handleChange('gender', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
@@ -204,7 +204,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 </div>
                 <div>
                   <Label htmlFor="smoker">Smoker Status *</Label>
-                  <Select value={formData.smoker} onValueChange={(value) => handleChange('smoker', value)} required>
+                  <Select value={formData.smoker} onValueChange={(value) => handleChange('smoker', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select smoker status" />
                     </SelectTrigger>
@@ -243,7 +243,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="policyType">Policy Type *</Label>
-                  <Select value={formData.policyType} onValueChange={(value) => handleChange('policyType', value)} required>
+                  <Select value={formData.policyType} onValueChange={(value) => handleChange('policyType', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select policy type" />
                     </SelectTrigger>
@@ -257,7 +257,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 </div>
                 <div>
                   <Label htmlFor="carrier">Carrier *</Label>
-                  <Select value={formData.carrier} onValueChange={(value) => handleChange('carrier', value)} required>
+                  <Select value={formData.carrier} onValueChange={(value) => handleChange('carrier', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select carrier" />
                     </SelectTrigger>
@@ -293,7 +293,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 {formData.policyType === 'term' && (
                   <div>
                     <Label htmlFor="term">Term Length (years) *</Label>
-                    <Select value={formData.term} onValueChange={(value) => handleChange('term', value)} required>
+                    <Select value={formData.term} onValueChange={(value) => handleChange('term', value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select term" />
                       </SelectTrigger>
@@ -360,7 +360,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="status">Quote Status *</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange('status', value)} required>
+                <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
