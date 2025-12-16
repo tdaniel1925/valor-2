@@ -602,7 +602,7 @@ export function UniversalLifeIllustration({ data }: UniversalLifeIllustrationPro
                         </p>
                       </div>
                       {scenario.lapseYear && (
-                        <Badge variant="destructive" className="ml-4">
+                        <Badge variant="danger" className="ml-4">
                           Lapses Year {scenario.lapseYear}
                         </Badge>
                       )}
