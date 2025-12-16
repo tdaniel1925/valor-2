@@ -38,12 +38,12 @@ function generateSSOXml(params: WinFlexSSORequest): string {
     throw new Error("WinFlex credentials not configured");
   }
 
-  // Build profile XML for user registration/auto-create
-  let profileXml = "";
-  if (params.autoCreate) {
-    profileXml = `
+  // Build WinFlex node with Profile for user registration/auto-create
+  // Per Zinnia documentation: AutoCreate="true" bypasses registration and auto-creates WinFlex user
+  // AutoEmail="false" suppresses the email notification
+  let winFlexXml = `
   <WinFlex>
-    <Profile>
+    <Profile AutoCreate="true" AutoEmail="false">
       <FirstName>${escapeXml(params.firstName)}</FirstName>
       <LastName>${escapeXml(params.lastName)}</LastName>
       ${params.companyName ? `<CompanyName>${escapeXml(params.companyName)}</CompanyName>` : ""}
@@ -55,7 +55,6 @@ function generateSSOXml(params: WinFlexSSORequest): string {
       <Email>${escapeXml(params.email)}</Email>
     </Profile>
   </WinFlex>`;
-  }
 
   // Generate the SSO XML according to WinFlex v1.8 specification
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -69,7 +68,7 @@ function generateSSOXml(params: WinFlexSSORequest): string {
     <Tool>
       <Name>WinFlex</Name>
     </Tool>
-  </LL>${profileXml}
+  </LL>${winFlexXml}
 </LifeLink>`;
 
   return xml;
