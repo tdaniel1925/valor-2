@@ -30,7 +30,7 @@ export default function NewLifeApplicationPage() {
     dateOfBirth: '',
     ssn: '',
     gender: '',
-    marital status: '',
+    maritalStatus: '',
     email: '',
     phone: '',
 
