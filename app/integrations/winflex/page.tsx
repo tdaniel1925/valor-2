@@ -107,7 +107,7 @@ export default function WinFlexIntegrationPage() {
                     size="lg"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Opens in a new window
+                    Opens in a new browser tab
                   </span>
                 </div>
 

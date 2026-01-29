@@ -40,10 +40,10 @@ type LaunchStatus = 'idle' | 'loading' | 'success' | 'error';
  * WinFlex Launcher Component
  *
  * Handles SSO authentication with WinFlex Web and opens
- * the illustration software in a new browser window.
+ * the illustration software in a new browser tab.
  *
  * Per WinFlex requirements:
- * - Must open in a new browser window (not iframe/frames)
+ * - Must open in a new browser tab (not iframe/frames)
  * - Uses the official WinFlex button design
  */
 export function WinFlexLauncher({
@@ -89,8 +89,8 @@ export function WinFlexLauncher({
       if (data.xml && data.ssoUrl) {
         setStatus('success');
 
-        // Open new window first (to avoid popup blocker)
-        const winFlexWindow = window.open('about:blank', 'WinFlexWeb', 'width=1200,height=800,menubar=no,toolbar=no,location=yes,status=no');
+        // Open new browser tab first (to avoid popup blocker)
+        const winFlexWindow = window.open('about:blank', '_blank');
 
         if (!winFlexWindow) {
           setError('Popup blocked. Please allow popups for this site and try again.');
@@ -180,7 +180,7 @@ export function WinFlexLauncher({
                 <span>Please wait while we authenticate your session with WinFlex Web...</span>
               )}
               {status === 'success' && (
-                <span>WinFlex Web has been opened in a new window. You can close this dialog.</span>
+                <span>WinFlex Web has been opened in a new browser tab. You can close this dialog.</span>
               )}
               {status === 'error' && (
                 <div className="space-y-2">
