@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get aggregated quotes
-    const result = await quoteAggregator.getAggregatedQuotes(body);
+    const result = await quoteAggregator.getUnifiedQuotes(body);
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
