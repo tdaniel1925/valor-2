@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { calculateUserGoals, calculateGoalProgress } from "@/lib/goals/calculator";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/goals - Get user's goals with progress
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") || "demo-user-id";
+    // Require authentication and get user ID from session
+    const user = await requireAuth(request);
+    const userId = user.id;
 
     // Calculate progress for all user goals
     const goalsWithProgress = await calculateUserGoals(userId);
@@ -33,6 +35,9 @@ export async function GET(request: NextRequest) {
       data: enrichedGoals,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error fetching goals:", error);
     return NextResponse.json(
       { error: error.message || "Failed to fetch goals" },
@@ -46,9 +51,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+
     const body = await request.json();
     const {
-      userId,
       title,
       type,
       target,
@@ -56,9 +63,6 @@ export async function POST(request: NextRequest) {
       endDate,
       description,
     } = body;
-
-    // Use demo user if not provided
-    const goalUserId = userId || "demo-user-id";
 
     if (!title || !type || !target || !startDate || !endDate) {
       return NextResponse.json(
@@ -69,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     const goal = await prisma.goal.create({
       data: {
-        userId: goalUserId,
+        userId: user.id,
         title,
         type,
         target: parseFloat(target),
@@ -84,6 +88,9 @@ export async function POST(request: NextRequest) {
       data: goal,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error creating goal:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create goal" },
@@ -97,6 +104,9 @@ export async function POST(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+
     const body = await request.json();
     const { id, title, type, target, startDate, endDate, description } = body;
 
@@ -104,6 +114,21 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         { error: "Goal ID is required" },
         { status: 400 }
+      );
+    }
+
+    // Check if user owns this goal
+    const existingGoal = await prisma.goal.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
+    });
+
+    if (!existingGoal) {
+      return NextResponse.json(
+        { error: "Goal not found or you do not have permission to modify it" },
+        { status: 403 }
       );
     }
 
@@ -126,6 +151,9 @@ export async function PATCH(request: NextRequest) {
       data: goal,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error updating goal:", error);
     return NextResponse.json(
       { error: error.message || "Failed to update goal" },
@@ -137,6 +165,9 @@ export async function PATCH(request: NextRequest) {
 // DELETE /api/goals - Delete a goal
 export async function DELETE(request: NextRequest) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -147,12 +178,30 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Check if user owns this goal
+    const existingGoal = await prisma.goal.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
+    });
+
+    if (!existingGoal) {
+      return NextResponse.json(
+        { error: "Goal not found or you do not have permission to delete it" },
+        { status: 403 }
+      );
+    }
+
     await prisma.goal.delete({
       where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error deleting goal:", error);
     return NextResponse.json(
       { error: "Failed to delete goal" },

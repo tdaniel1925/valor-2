@@ -1,9 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/audit-logs - Fetch audit logs with filtering
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication - only admins should view audit logs
+    const authUser = await requireAuth(request);
+
+    // Check if user has admin privileges
+    const user = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { role: true },
+    });
+
+    if (user?.role !== 'ADMINISTRATOR' && user?.role !== 'EXECUTIVE') {
+      return NextResponse.json(
+        { error: "You do not have permission to view audit logs" },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
 
     // Pagination
@@ -62,6 +79,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error fetching audit logs:", error);
     return NextResponse.json(
       { error: "Failed to fetch audit logs" },
@@ -73,8 +93,11 @@ export async function GET(request: NextRequest) {
 // POST /api/audit-logs - Create a new audit log entry
 export async function POST(request: NextRequest) {
   try {
+    // Require authentication
+    const authUser = await requireAuth(request);
+
     const body = await request.json();
-    const { userId, action, entityType, entityId, changes, ipAddress, userAgent } = body;
+    const { action, entityType, entityId, changes, ipAddress, userAgent } = body;
 
     if (!action) {
       return NextResponse.json(
@@ -85,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     const log = await prisma.auditLog.create({
       data: {
-        userId: userId || null,
+        userId: authUser.id, // Always use authenticated user ID
         action,
         entityType: entityType || null,
         entityId: entityId || null,
@@ -97,6 +120,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ log });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error creating audit log:", error);
     return NextResponse.json(
       { error: "Failed to create audit log" },

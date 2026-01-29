@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/commissions
@@ -7,25 +8,21 @@ import { prisma } from "@/lib/db/prisma";
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication and get user ID from session
+    const user = await requireAuth(request);
+
     const { searchParams } = new URL(request.url);
 
-    const userId = searchParams.get("userId");
     const caseId = searchParams.get("caseId");
     const status = searchParams.get("status");
     const type = searchParams.get("type");
     const limit = parseInt(searchParams.get("limit") || "100");
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    // Build where clause
-    const where: any = {};
-
-    // If no userId provided, use demo user for now
-    // TODO: Replace with actual auth user ID from Supabase
-    if (userId) {
-      where.userId = userId;
-    } else {
-      where.userId = "demo-user-id";
-    }
+    // Build where clause - always filter by authenticated user
+    const where: any = {
+      userId: user.id,
+    };
 
     if (caseId) {
       where.caseId = caseId;
@@ -95,6 +92,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("List commissions error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to list commissions" },
@@ -109,6 +109,9 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+
     const body = await request.json();
     const { id, status, notes } = body;
 
@@ -116,6 +119,21 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         { error: "id and status are required" },
         { status: 400 }
+      );
+    }
+
+    // Check if user owns this commission
+    const existingCommission = await prisma.commission.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
+    });
+
+    if (!existingCommission) {
+      return NextResponse.json(
+        { error: "Commission not found or you do not have permission to modify it" },
+        { status: 403 }
       );
     }
 
@@ -157,6 +175,9 @@ export async function PATCH(request: NextRequest) {
       data: commission,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Update commission error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to update commission" },

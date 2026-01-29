@@ -34,11 +34,38 @@ export async function updateMemberCommissionSplit(
     throw new Error("Organization member not found");
   }
 
-  // Update commission split
+  // Validate that updating this split won't cause total to exceed 100%
+  const allMembers = await prisma.organizationMember.findMany({
+    where: {
+      organizationId,
+      isActive: true,
+    },
+  });
+
+  // Calculate new total with this update
+  let newTotal = 0;
+  for (const m of allMembers) {
+    if (m.userId === userId) {
+      newTotal += split; // New split for this user
+    } else {
+      newTotal += (m.commissionSplit || 0) * 100; // Convert decimal to percentage
+    }
+  }
+
+  // CRITICAL: Enforce hard limit - total must not exceed 100%
+  if (newTotal > 100) {
+    throw new Error(
+      `Cannot update commission split: total would be ${newTotal.toFixed(2)}% which exceeds 100%. ` +
+      `Current total is ${((newTotal - split + (member.commissionSplit || 0) * 100)).toFixed(2)}%. ` +
+      `Please adjust splits to ensure the total does not exceed 100%.`
+    );
+  }
+
+  // Update commission split (convert percentage to decimal)
   const updatedMember = await prisma.organizationMember.update({
     where: { id: member.id },
     data: {
-      commissionSplit: split,
+      commissionSplit: split / 100,
     },
   });
 
@@ -67,11 +94,56 @@ export async function bulkUpdateCommissionSplits(
   configs: CommissionSplitConfig[],
   updatedBy: string
 ) {
-  // Validate all splits
+  // Validate all splits are within valid range
   for (const config of configs) {
     if (config.split < 0 || config.split > 100) {
       throw new Error(
         `Invalid split for user ${config.userId}: must be between 0 and 100`
+      );
+    }
+  }
+
+  // Group configs by organization to validate totals
+  const configsByOrg = configs.reduce((acc, config) => {
+    if (!acc[config.organizationId]) {
+      acc[config.organizationId] = [];
+    }
+    acc[config.organizationId].push(config);
+    return acc;
+  }, {} as Record<string, CommissionSplitConfig[]>);
+
+  // Validate that total splits per organization don't exceed 100%
+  for (const [orgId, orgConfigs] of Object.entries(configsByOrg)) {
+    // Get current members and their splits
+    const currentMembers = await prisma.organizationMember.findMany({
+      where: {
+        organizationId: orgId,
+        isActive: true,
+      },
+    });
+
+    // Calculate new total by applying the updates
+    let newTotal = 0;
+    const userIdsBeingUpdated = new Set(orgConfigs.map(c => c.userId));
+
+    // Add splits for users being updated
+    for (const config of orgConfigs) {
+      newTotal += config.split;
+    }
+
+    // Add splits for users NOT being updated
+    for (const member of currentMembers) {
+      if (!userIdsBeingUpdated.has(member.userId)) {
+        newTotal += (member.commissionSplit || 0) * 100; // Convert decimal to percentage
+      }
+    }
+
+    // CRITICAL: Enforce hard limit - total must not exceed 100%
+    if (newTotal > 100) {
+      throw new Error(
+        `Cannot update commission splits for organization ${orgId}: ` +
+        `total would be ${newTotal.toFixed(2)}% which exceeds 100%. ` +
+        `Please adjust splits to ensure the total does not exceed 100%.`
       );
     }
   }

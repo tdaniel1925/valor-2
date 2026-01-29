@@ -198,31 +198,30 @@ export class IPipelineSAMLClient {
   }
 
   /**
-   * Sign the SAML Response using RSA-SHA1
+   * Sign the SAML Response using RSA-SHA256
    */
   private signSAMLResponse(xml: string, responseId: string): string {
     if (!this.privateKey || !this.certificate) {
-      // Return unsigned if no key (for testing)
-      console.warn('SAML signing keys not configured - returning unsigned response');
-      return xml;
+      // SECURITY: Never return unsigned SAML responses in production
+      throw new Error('SAML signing keys not configured - cannot generate secure SSO response');
     }
 
     // Create the signature
     const signedInfo = this.createSignedInfo(xml, responseId);
     const signature = this.createSignature(signedInfo);
 
-    // Build the Signature element
+    // Build the Signature element with SHA-256
     const signatureElement = `
   <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
     <ds:SignedInfo>
       <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-      <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
       <ds:Reference URI="#${responseId}">
         <ds:Transforms>
           <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
           <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
         </ds:Transforms>
-        <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
         <ds:DigestValue>${this.computeDigest(xml)}</ds:DigestValue>
       </ds:Reference>
     </ds:SignedInfo>
@@ -243,43 +242,43 @@ export class IPipelineSAMLClient {
   }
 
   /**
-   * Create the SignedInfo element for signing
+   * Create the SignedInfo element for signing with SHA-256
    */
   private createSignedInfo(xml: string, responseId: string): string {
     return `<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
       <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-      <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
       <ds:Reference URI="#${responseId}">
         <ds:Transforms>
           <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
           <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
         </ds:Transforms>
-        <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
         <ds:DigestValue>${this.computeDigest(xml)}</ds:DigestValue>
       </ds:Reference>
     </ds:SignedInfo>`;
   }
 
   /**
-   * Compute SHA1 digest of XML
+   * Compute SHA256 digest of XML
    */
   private computeDigest(xml: string): string {
-    const hash = crypto.createHash('sha1');
+    const hash = crypto.createHash('sha256');
     hash.update(xml);
     return hash.digest('base64');
   }
 
   /**
-   * Create RSA-SHA1 signature
+   * Create RSA-SHA256 signature
    */
   private createSignature(signedInfo: string): string {
     try {
-      const sign = crypto.createSign('RSA-SHA1');
+      const sign = crypto.createSign('RSA-SHA256');
       sign.update(signedInfo);
       return sign.sign(this.privateKey, 'base64');
     } catch (error) {
       console.error('Error creating SAML signature:', error);
-      return '';
+      throw new Error('Failed to create SAML signature');
     }
   }
 

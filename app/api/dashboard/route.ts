@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/dashboard - Get dashboard data
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    // For demo purposes, using the demo user ID
-    // TODO: Replace with actual auth user ID from Supabase
-    const userId = searchParams.get("userId") || "demo-user-id";
+    // Require authentication and get user ID from session
+    const user = await requireAuth(request);
+    const userId = user.id;
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch data in parallel
     const [
-      user,
+      userInfo,
       casesCount,
       commissionsSum,
       contractsCount,
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       data: {
-        user: user || { email: "", firstName: "Demo", lastName: "User" },
+        user: userInfo || { email: "", firstName: "Demo", lastName: "User" },
         stats: {
           casesTotal: casesCount,
           commissionsTotal: commissionsSum._sum.amount || 0,
@@ -177,6 +177,9 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error fetching dashboard data:", error);
     return NextResponse.json(
       { error: error.message || "Failed to fetch dashboard data" },

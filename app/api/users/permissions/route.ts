@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { getPermissionsForRole, mergeRolePermissions, Permission } from "@/lib/auth/permissions";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/users/permissions - Get user's permissions including hierarchical inheritance
@@ -12,8 +13,11 @@ import { getPermissionsForRole, mergeRolePermissions, Permission } from "@/lib/a
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication and get user ID from session
+    const authUser = await requireAuth(request);
+    const userId = authUser.id;
+
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") || "demo-user-id"; // TODO: Get from auth
     const organizationId = searchParams.get("organizationId"); // Current context organization
 
     // Fetch user
@@ -93,6 +97,9 @@ export async function GET(request: NextRequest) {
       organizationId: organizationId || null,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error fetching permissions:", error);
     return NextResponse.json(
       { error: "Failed to fetch permissions" },
@@ -128,6 +135,9 @@ async function getOrganizationHierarchy(organizationId: string) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    // Require authentication - only admins should be able to update permissions
+    const authUser = await requireAuth(request);
+
     const body = await request.json();
     const { userId, organizationId, permissions } = body;
 
@@ -135,6 +145,20 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         { error: "userId and organizationId are required" },
         { status: 400 }
+      );
+    }
+
+    // Check if the authenticated user has permission to modify permissions
+    // (You should implement proper role/permission checks here)
+    const adminUser = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { role: true },
+    });
+
+    if (adminUser?.role !== 'ADMINISTRATOR' && adminUser?.role !== 'EXECUTIVE') {
+      return NextResponse.json(
+        { error: "You do not have permission to modify user permissions" },
+        { status: 403 }
       );
     }
 
@@ -156,6 +180,9 @@ export async function PUT(request: NextRequest) {
       member: updated,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error updating permissions:", error);
     return NextResponse.json(
       { error: "Failed to update permissions" },

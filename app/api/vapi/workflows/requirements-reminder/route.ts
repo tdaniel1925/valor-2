@@ -5,9 +5,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { callClientAboutRequirements } from '@/lib/integrations/vapi/workflows';
+import { requireAuth } from '@/lib/auth/server-auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+
     const body = await request.json();
     const { caseId } = body;
 
@@ -18,7 +22,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const call = await callClientAboutRequirements(caseId);
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(caseId)) {
+      return NextResponse.json(
+        { error: 'Invalid caseId format' },
+        { status: 400 }
+      );
+    }
+
+    const call = await callClientAboutRequirements(caseId, user.id);
 
     return NextResponse.json({
       success: true,
@@ -26,6 +39,12 @@ export async function POST(request: NextRequest) {
       message: 'Call initiated successfully',
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error instanceof Error && error.message.includes('permission')) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     console.error('Failed to initiate requirements reminder call:', error);
     return NextResponse.json(
       {
@@ -37,6 +56,9 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
 
 
 

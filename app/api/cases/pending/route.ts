@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCasesPendingAction, getCaseStatistics } from "@/lib/cases/workflow";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/cases/pending
@@ -8,11 +8,12 @@ import { getUserIdOrDemo } from "@/lib/auth/supabase";
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication and get user ID from session
+    const user = await requireAuth(request);
+    const userId = user.id;
+
     const { searchParams } = new URL(request.url);
     const includeStats = searchParams.get("includeStats") === "true";
-    const userIdParam = searchParams.get("userId");
-
-    const userId = userIdParam || (await getUserIdOrDemo());
 
     const pendingCases = await getCasesPendingAction(userId);
 
@@ -30,6 +31,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Get pending cases error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to get pending cases" },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { calculateTimeSeriesData } from "@/lib/analytics/dashboard";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/analytics/timeseries
@@ -7,8 +8,11 @@ import { calculateTimeSeriesData } from "@/lib/analytics/dashboard";
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication and get user ID from session
+    const user = await requireAuth(request);
+    const userId = user.id;
+
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") || "demo-user-id";
     const metric = searchParams.get("metric") || "PREMIUM";
     const months = parseInt(searchParams.get("months") || "12");
 
@@ -30,6 +34,9 @@ export async function GET(request: NextRequest) {
       data,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Time series analytics error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to calculate time series data" },

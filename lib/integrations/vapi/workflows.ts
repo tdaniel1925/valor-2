@@ -12,15 +12,22 @@ import { prisma } from '@/lib/db/prisma';
  * Call a client about a quote follow-up
  * Use case: After sending a quote, automatically call the client to answer questions
  */
-export async function callClientAboutQuote(quoteId: string) {
-  // Get quote details
-  const quote = await prisma.quote.findUnique({
-    where: { id: quoteId },
+export async function callClientAboutQuote(quoteId: string, userId: string) {
+  // Get quote details and verify ownership
+  const quote = await prisma.quote.findFirst({
+    where: {
+      id: quoteId,
+      userId: userId, // Ensure user owns this quote
+    },
     include: { user: true },
   });
 
-  if (!quote || !quote.clientPhone) {
-    throw new Error('Quote not found or client phone number missing');
+  if (!quote) {
+    throw new Error('Quote not found or you do not have permission to access it');
+  }
+
+  if (!quote.clientPhone) {
+    throw new Error('Client phone number missing');
   }
 
   // Create AI call
@@ -49,14 +56,22 @@ export async function callClientAboutQuote(quoteId: string) {
  * Call a client about application status
  * Use case: Notify client when application status changes (approved, needs requirements, etc.)
  */
-export async function callClientAboutApplication(caseId: string) {
-  const caseData = await prisma.case.findUnique({
-    where: { id: caseId },
+export async function callClientAboutApplication(caseId: string, userId: string) {
+  // Verify ownership
+  const caseData = await prisma.case.findFirst({
+    where: {
+      id: caseId,
+      userId: userId, // Ensure user owns this case
+    },
     include: { user: true },
   });
 
-  if (!caseData || !caseData.clientPhone) {
-    throw new Error('Case not found or client phone number missing');
+  if (!caseData) {
+    throw new Error('Case not found or you do not have permission to access it');
+  }
+
+  if (!caseData.clientPhone) {
+    throw new Error('Client phone number missing');
   }
 
   const call = await vapiClient.createCall({
@@ -85,14 +100,26 @@ export async function callClientAboutApplication(caseId: string) {
  * Call client about pending requirements
  * Use case: Remind clients about incomplete application requirements
  */
-export async function callClientAboutRequirements(caseId: string) {
-  const caseData = await prisma.case.findUnique({
-    where: { id: caseId },
+export async function callClientAboutRequirements(caseId: string, userId: string) {
+  // Verify ownership
+  const caseData = await prisma.case.findFirst({
+    where: {
+      id: caseId,
+      userId: userId, // Ensure user owns this case
+    },
     include: { user: true },
   });
 
-  if (!caseData || !caseData.clientPhone || caseData.pendingRequirements.length === 0) {
-    throw new Error('Case not found, no phone number, or no pending requirements');
+  if (!caseData) {
+    throw new Error('Case not found or you do not have permission to access it');
+  }
+
+  if (!caseData.clientPhone) {
+    throw new Error('Client phone number missing');
+  }
+
+  if (caseData.pendingRequirements.length === 0) {
+    throw new Error('No pending requirements for this case');
   }
 
   const call = await vapiClient.createCall({
@@ -280,6 +307,9 @@ export async function createInsuranceAssistant(
 
   return assistant;
 }
+
+
+
 
 
 

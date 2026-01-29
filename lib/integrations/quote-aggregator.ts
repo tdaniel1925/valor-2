@@ -169,8 +169,11 @@ export class QuoteAggregator {
       }
     }
 
+    // Deduplicate quotes - same carrier/product could appear from multiple providers
+    const deduplicatedQuotes = this.deduplicateQuotes(allQuotes);
+
     // Apply filters
-    let filteredQuotes = allQuotes;
+    let filteredQuotes = deduplicatedQuotes;
     if (request.filters) {
       if (request.filters.carriers && request.filters.carriers.length > 0) {
         filteredQuotes = filteredQuotes.filter((q) =>
@@ -219,6 +222,44 @@ export class QuoteAggregator {
       requestId,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Deduplicate quotes from multiple providers
+   * Same carrier/product can appear from different quote engines
+   */
+  private deduplicateQuotes(quotes: AggregatedQuote[]): AggregatedQuote[] {
+    const quoteMap = new Map<string, AggregatedQuote>();
+
+    for (const quote of quotes) {
+      // Create a unique key based on carrier + product + coverage amount
+      const key = `${quote.carrierId}|${quote.productName}|${quote.coverageAmount || 0}`;
+
+      const existing = quoteMap.get(key);
+
+      if (!existing) {
+        // First occurrence - add it
+        quoteMap.set(key, quote);
+      } else {
+        // Duplicate found - keep the better one
+        // Prefer the quote with lower premium (for life insurance) or higher rate (for annuities)
+        if (quote.monthlyPremium && existing.monthlyPremium) {
+          if (quote.monthlyPremium < existing.monthlyPremium) {
+            quoteMap.set(key, quote);
+          }
+        } else if (quote.rate && existing.rate) {
+          if (quote.rate > existing.rate) {
+            quoteMap.set(key, quote);
+          }
+        }
+        // If one has premium and other doesn't, keep the one with premium
+        else if (quote.monthlyPremium && !existing.monthlyPremium) {
+          quoteMap.set(key, quote);
+        }
+      }
+    }
+
+    return Array.from(quoteMap.values());
   }
 
   /**

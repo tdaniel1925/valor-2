@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateCommissionReport, exportToCSV } from "@/lib/reports/generator";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/reports/commission
@@ -8,9 +8,11 @@ import { getUserIdOrDemo } from "@/lib/auth/supabase";
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    // Require authentication and get user ID from session
+    const user = await requireAuth(request);
+    const userId = user.id;
 
-    const userId = searchParams.get("userId") || (await getUserIdOrDemo());
+    const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const includeTeam = searchParams.get("includeTeam") === "true";
@@ -38,6 +40,9 @@ export async function GET(request: NextRequest) {
       data: report,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Commission report error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to generate commission report" },

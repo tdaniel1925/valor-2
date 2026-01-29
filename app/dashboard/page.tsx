@@ -196,6 +196,152 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Path to Promotion Progress Meter */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 dark:from-amber-900/20 dark:via-yellow-900/20 dark:to-amber-900/20 rounded-lg shadow-lg p-6 border border-amber-200 dark:border-amber-800">
+            {/* Header with Title and Current Stats */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Path to Promotion
+                </h3>
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  Associate → Street Level
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-2 justify-end mb-1">
+                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 text-xs font-semibold rounded-full border border-green-300 dark:border-green-700">
+                    🎯 Promotion Pending
+                  </span>
+                </div>
+                <p className="text-sm text-amber-700 dark:text-amber-300">2 months remaining</p>
+              </div>
+            </div>
+
+            {/* Production Progress */}
+            <div className="mb-3">
+              <div className="flex justify-between items-baseline mb-2">
+                <span className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                  $60,300
+                </span>
+                <span className="text-sm text-amber-700 dark:text-amber-300">
+                  of <span className="font-semibold">$90,000</span> target
+                </span>
+              </div>
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                Year-to-Date Production • 67% Complete
+              </p>
+            </div>
+
+            {/* Progress Bar with Milestones */}
+            <div className="relative">
+              {/* Main progress bar container */}
+              <div className="relative w-full h-10 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
+                {/* Animated striped progress fill */}
+                <div
+                  className="absolute top-0 left-0 h-full transition-all duration-1000 ease-out"
+                  style={{ width: '67%' }}
+                >
+                  {/* Gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600"></div>
+
+                  {/* Animated diagonal stripes */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(255,255,255,.25) 12px, rgba(255,255,255,.25) 24px)',
+                      backgroundSize: '40px 40px',
+                      animation: 'progress-stripes 1.5s linear infinite'
+                    }}
+                  ></div>
+
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                </div>
+
+                {/* Milestone markers */}
+                <div className="absolute top-0 left-[33.3%] w-0.5 h-full bg-white/40 z-10"></div>
+                <div className="absolute top-0 left-[83.3%] w-0.5 h-full bg-white/40 z-10"></div>
+
+                {/* Current position indicator */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-1 h-12 bg-amber-900 dark:bg-amber-100 rounded-full shadow-lg z-20"
+                  style={{ left: 'calc(67% - 2px)' }}
+                >
+                  <div className="absolute -top-1 -left-1 w-3 h-3 bg-amber-900 dark:bg-amber-100 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Milestone labels below the bar */}
+              <div className="relative mt-3">
+                <div className="flex justify-between items-start">
+                  {/* $0 */}
+                  <div className="flex flex-col items-center" style={{ width: '0%', position: 'absolute', left: '0%', transform: 'translateX(0%)' }}>
+                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400">$0</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-500">Start</div>
+                  </div>
+
+                  {/* $30K - First threshold */}
+                  <div className="flex flex-col items-center" style={{ width: '0%', position: 'absolute', left: '33.3%', transform: 'translateX(-50%)' }}>
+                    <div className="text-xs font-semibold text-amber-700 dark:text-amber-300">$30K</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">Pre-Assoc</div>
+                  </div>
+
+                  {/* $60.3K - Current position */}
+                  <div className="flex flex-col items-center" style={{ width: '0%', position: 'absolute', left: '67%', transform: 'translateX(-50%)' }}>
+                    <div className="px-2 py-0.5 bg-amber-900 dark:bg-amber-100 text-white dark:text-amber-900 text-xs font-bold rounded shadow-lg">
+                      YOU
+                    </div>
+                    <div className="text-[10px] text-amber-800 dark:text-amber-200 font-medium mt-1">$60.3K</div>
+                  </div>
+
+                  {/* $75K - Street minimum */}
+                  <div className="flex flex-col items-center" style={{ width: '0%', position: 'absolute', left: '83.3%', transform: 'translateX(-50%)' }}>
+                    <div className="text-xs font-semibold text-green-700 dark:text-green-300">$75K</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">Street Min</div>
+                  </div>
+
+                  {/* $90K - Target */}
+                  <div className="flex flex-col items-center" style={{ width: '0%', position: 'absolute', left: '100%', transform: 'translateX(-100%)' }}>
+                    <div className="text-xs font-bold text-amber-900 dark:text-amber-100">$90K</div>
+                    <div className="text-[10px] text-amber-700 dark:text-amber-300">Goal</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Steps Indicator */}
+            <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-800">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">Qualified for Street Level (75%)</span>
+                </div>
+                <div className="text-amber-700 dark:text-amber-300">
+                  <span className="font-semibold">$29.7K</span> to next goal
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes progress-stripes {
+            from {
+              background-position: 0 0;
+            }
+            to {
+              background-position: 40px 0;
+            }
+          }
+        `}</style>
+
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>

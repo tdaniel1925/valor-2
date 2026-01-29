@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/contracts/[id] - Get a specific contract by ID
 export async function GET(
@@ -7,16 +8,15 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params;
+    // Require authentication
+    const user = await requireAuth(request);
 
-    // For demo purposes, using the demo user ID
-    // TODO: Replace with actual auth user ID from Supabase
-    const userId = "demo-user-id";
+    const { id } = await context.params;
 
     const contract = await prisma.contract.findFirst({
       where: {
         id,
-        userId, // Ensure the contract belongs to the current user
+        userId: user.id, // Ensure the contract belongs to the current user
       },
       include: {
         organization: {
@@ -46,6 +46,9 @@ export async function GET(
 
     return NextResponse.json({ contract });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error fetching contract:", error);
     return NextResponse.json(
       { error: "Failed to fetch contract" },

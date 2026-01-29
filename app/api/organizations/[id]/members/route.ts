@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/organizations/[id]/members - Get organization members
 export async function GET(
@@ -7,6 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Require authentication
+    await requireAuth(request);
+
     const { id } = await params;
 
     const members = await prisma.organizationMember.findMany({
@@ -36,6 +40,9 @@ export async function GET(
 
     return NextResponse.json({ members });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error fetching organization members:", error);
     return NextResponse.json(
       { error: "Failed to fetch organization members" },
@@ -50,6 +57,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Require authentication
+    await requireAuth(request);
+
     const { id: organizationId } = await params;
     const body = await request.json();
     const { userId, role, commissionSplit } = body;
@@ -101,6 +111,9 @@ export async function POST(
 
     return NextResponse.json({ member });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error adding organization member:", error);
     return NextResponse.json(
       { error: "Failed to add organization member" },
@@ -115,6 +128,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Require authentication
+    await requireAuth(request);
+
     const { id: organizationId } = await params;
     const body = await request.json();
     const { userId, role, commissionSplit, isActive } = body;
@@ -156,6 +172,9 @@ export async function PUT(
 
     return NextResponse.json({ member });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error updating organization member:", error);
     return NextResponse.json(
       { error: "Failed to update organization member" },
@@ -170,6 +189,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Require authentication
+    await requireAuth(request);
+
     const { id: organizationId} = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
@@ -192,6 +214,9 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Error removing organization member:", error);
     return NextResponse.json(
       { error: "Failed to remove organization member" },

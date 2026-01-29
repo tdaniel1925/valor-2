@@ -4,10 +4,10 @@
   "description": "Valor Financial Specialists Insurance Back Office Platform",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3006",
+    "dev": "next dev -p 2050",
     "dev:local": "bash -c 'unset DATABASE_URL && unset DIRECT_URL && npm run dev'",
     "build": "prisma generate && next build",
-    "start": "next start -p 3006",
+    "start": "next start -p 2050",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "postinstall": "prisma generate",

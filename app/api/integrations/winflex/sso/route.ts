@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * WinFlex SSO Integration
@@ -179,17 +180,29 @@ export async function POST(request: NextRequest) {
  *
  * Returns WinFlex integration status
  */
-export async function GET() {
-  const isEnabled = process.env.WINFLEX_ENABLED === "true";
-  const hasCredentials = !!(
-    process.env.WINFLEX_COMPANY_CODE &&
-    process.env.WINFLEX_COMPANY_PASSWORD
-  );
+export async function GET(request: NextRequest) {
+  try {
+    // Require authentication to view integration status
+    await requireAuth(request);
 
-  return NextResponse.json({
-    enabled: isEnabled,
-    configured: hasCredentials,
-    companyCode: process.env.WINFLEX_COMPANY_CODE ?
-      `${process.env.WINFLEX_COMPANY_CODE.substring(0, 2)}**` : null,
-  });
+    const isEnabled = process.env.WINFLEX_ENABLED === "true";
+    const hasCredentials = !!(
+      process.env.WINFLEX_COMPANY_CODE &&
+      process.env.WINFLEX_COMPANY_PASSWORD
+    );
+
+    // SECURITY: Don't expose any part of credentials
+    return NextResponse.json({
+      enabled: isEnabled,
+      configured: hasCredentials,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.json(
+      { error: 'Failed to get WinFlex status' },
+      { status: 500 }
+    );
+  }
 }
