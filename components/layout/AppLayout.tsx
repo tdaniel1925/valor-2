@@ -65,33 +65,6 @@ const businessNavigation: NavItem[] = [
     ),
     children: [
       {
-        name: "New Life Quote",
-        href: "/quotes/life/new",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        ),
-      },
-      {
-        name: "New Term Quote",
-        href: "/quotes/term/new",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        ),
-      },
-      {
-        name: "New Annuity Quote",
-        href: "/quotes/annuity/new",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        ),
-      },
-      {
         name: "Income Focused",
         href: "/quotes/income-focused/new",
         icon: (
