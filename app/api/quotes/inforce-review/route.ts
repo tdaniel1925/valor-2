@@ -6,6 +6,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resendClient } from '@/lib/integrations/resend/client';
 
+interface FileAttachment {
+  filename: string;
+  content: string;
+  contentType: string;
+}
+
 interface InforceReviewQuoteRequest {
   // Agent Information
   agentName: string;
@@ -39,6 +45,9 @@ interface InforceReviewQuoteRequest {
   // Consent
   transactionalConsent: boolean;
   marketingConsent: boolean;
+
+  // File Attachment
+  attachment?: FileAttachment | null;
 }
 
 function formatCurrency(value: string): string {
@@ -329,6 +338,15 @@ export async function POST(request: NextRequest) {
     const html = generateEmailHTML(body);
     const text = generateEmailText(body);
 
+    // Prepare attachments if file was uploaded
+    const attachments = body.attachment ? [
+      {
+        filename: body.attachment.filename,
+        content: body.attachment.content,
+        contentType: body.attachment.contentType,
+      }
+    ] : undefined;
+
     // Send email to phil@valorfs.com
     const result = await resendClient.sendEmail({
       from: {
@@ -348,6 +366,7 @@ export async function POST(request: NextRequest) {
       subject: `Inforce Policy Review Request - ${body.currentCarrier || 'Policy Review'}`,
       html,
       text,
+      attachments,
       tags: {
         type: 'inforce-review-quote',
         carrier: body.currentCarrier || 'unknown',

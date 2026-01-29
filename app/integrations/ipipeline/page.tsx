@@ -105,9 +105,14 @@ export default function IPipelineIntegrationPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                iPipeline Integration
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  iPipeline Integration
+                </h1>
+                <span className="px-4 py-2 bg-red-600 text-white text-lg font-bold rounded-lg shadow-lg">
+                  COMING SOON
+                </span>
+              </div>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
                 Life insurance quoting, e-applications, and risk assessment
               </p>

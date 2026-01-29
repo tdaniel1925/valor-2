@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, Upload } from 'lucide-react';
 
 export default function IncomeFocusedQuotePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     // Agent Information
@@ -56,6 +57,13 @@ export default function IncomeFocusedQuotePage() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -63,12 +71,32 @@ export default function IncomeFocusedQuotePage() {
     setErrorMessage('');
 
     try {
+      let fileData = null;
+      if (selectedFile) {
+        const reader = new FileReader();
+        fileData = await new Promise((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = reader.result as string;
+            resolve({
+              filename: selectedFile.name,
+              content: base64.split(',')[1], // Remove data:mime;base64, prefix
+              contentType: selectedFile.type,
+            });
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(selectedFile);
+        });
+      }
+
       const response = await fetch('/api/quotes/income-focused', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          attachment: fileData,
+        }),
       });
 
       const data = await response.json();
@@ -391,6 +419,41 @@ export default function IncomeFocusedQuotePage() {
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* File Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Supporting Documentation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Please attach any relevant medical information or financial documentation that may assist with underwriting.
+                </label>
+                <div className="mt-2">
+                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="h-8 w-8 text-gray-400" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedFile ? selectedFile.name : 'Click to upload file'}
+                      </span>
+                      {selectedFile && (
+                        <span className="text-xs text-gray-500 dark:text-gray-500">
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    />
+                  </label>
+                </div>
               </div>
             </CardContent>
           </Card>

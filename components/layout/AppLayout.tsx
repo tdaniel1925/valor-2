@@ -119,11 +119,11 @@ const businessNavigation: NavItem[] = [
         ),
       },
       {
-        name: "Annuity Quoting Form",
-        href: "https://quotes.valorfs.com/",
+        name: "Annuity Quote",
+        href: "/quotes/annuity-quote/new",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
         ),
       },
@@ -356,12 +356,22 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     admin: true,
   });
 
-  // Load dark mode preference from localStorage
+  // Load dark mode and expanded sections from localStorage
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedMode);
     if (savedMode) {
       document.documentElement.classList.add('dark');
+    }
+
+    // Load expanded sections state
+    const savedSections = localStorage.getItem('expandedSections');
+    if (savedSections) {
+      try {
+        setExpandedSections(JSON.parse(savedSections));
+      } catch (e) {
+        console.error('Failed to parse saved sections:', e);
+      }
     }
   }, []);
 
@@ -374,10 +384,15 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
 
   // Toggle section expansion
   const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+    setExpandedSections((prev) => {
+      const newSections = {
+        ...prev,
+        [section]: !prev[section],
+      };
+      // Save to localStorage
+      localStorage.setItem('expandedSections', JSON.stringify(newSections));
+      return newSections;
+    });
   };
 
   // Render navigation item with optional children
