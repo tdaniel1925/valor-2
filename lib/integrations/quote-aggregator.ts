@@ -83,7 +83,7 @@ export interface UnifiedQuote {
   eAppAvailable?: boolean;
 }
 
-export interface AggregatedQuotesResponse {
+export interface UnifiedQuotesResponse {
   success: boolean;
   quotes: UnifiedQuote[];
   providers: {
@@ -105,9 +105,9 @@ export class QuoteAggregator {
   /**
    * Get quotes from all available providers
    */
-  async getAggregatedQuotes(
+  async getUnifiedQuotes(
     request: UnifiedQuoteRequest
-  ): Promise<AggregatedQuotesResponse> {
+  ): Promise<UnifiedQuotesResponse> {
     const startTime = Date.now();
     const requestId = `AGG-${startTime}`;
 
@@ -228,12 +228,12 @@ export class QuoteAggregator {
    * Deduplicate quotes from multiple providers
    * Same carrier/product can appear from different quote engines
    */
-  private deduplicateQuotes(quotes: AggregatedQuote[]): AggregatedQuote[] {
-    const quoteMap = new Map<string, AggregatedQuote>();
+  private deduplicateQuotes(quotes: UnifiedQuote[]): UnifiedQuote[] {
+    const quoteMap = new Map<string, UnifiedQuote>();
 
     for (const quote of quotes) {
       // Create a unique key based on carrier + product + coverage amount
-      const key = `${quote.carrierId}|${quote.productName}|${quote.coverageAmount || 0}`;
+      const key = `${quote.carrierId}|${quote.productName}|${quote.faceAmount || 0}`;
 
       const existing = quoteMap.get(key);
 
