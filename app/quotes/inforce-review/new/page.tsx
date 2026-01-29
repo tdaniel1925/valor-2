@@ -7,6 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Loader2, Upload } from 'lucide-react';
 
+const US_STATES = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+];
+
 export default function InforceReviewQuotePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,34 +27,30 @@ export default function InforceReviewQuotePage() {
     agentName: '',
     agentEmail: '',
 
+    // Client Information
+    clientName: '',
+    dateOfBirth: '',
+    age: '',
+    useAge: false,
+    riskClass: '',
+    state: '',
+
     // Current Policy Information
     currentCarrier: '',
     policyType: '',
     policyNumber: '',
     issueDate: '',
-    issueAge: '',
     deathBenefit: '',
     cashValue: '',
     loanBalance: '',
     currentPremium: '',
     premiumMode: '',
-    riders: '',
-
-    // Client Situation
-    healthChanges: '',
-    financialGoals: '',
-    insuranceNeedsChanges: '',
-    concerns: '',
 
     // Review Objectives
     reviewObjectives: '',
 
     // Additional Information
-    additionalComments: '',
-
-    // Consent
-    transactionalConsent: false,
-    marketingConsent: false,
+    additionalInfo: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -190,6 +194,96 @@ export default function InforceReviewQuotePage() {
             </CardContent>
           </Card>
 
+          {/* Client Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Client Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Client Name
+                </label>
+                <input
+                  type="text"
+                  name="clientName"
+                  value={formData.clientName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Date of Birth or Age
+                </label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="useAge"
+                      checked={formData.useAge}
+                      onChange={handleChange}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Use Age instead of Date of Birth</span>
+                  </label>
+                  {!formData.useAge ? (
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      placeholder="Age"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Risk Class
+                </label>
+                <select
+                  name="riskClass"
+                  value={formData.riskClass}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="Preferred Plus">Preferred Plus</option>
+                  <option value="Preferred">Preferred</option>
+                  <option value="Standard Plus">Standard Plus</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Substandard">Substandard</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  State
+                </label>
+                <select
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select State...</option>
+                  {US_STATES.map((state) => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Current Policy Information */}
           <Card>
             <CardHeader>
@@ -240,31 +334,17 @@ export default function InforceReviewQuotePage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Issue Date
-                  </label>
-                  <input
-                    type="date"
-                    name="issueDate"
-                    value={formData.issueDate}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Issue Age
-                  </label>
-                  <input
-                    type="text"
-                    name="issueAge"
-                    value={formData.issueAge}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Issue Date
+                </label>
+                <input
+                  type="date"
+                  name="issueDate"
+                  value={formData.issueDate}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -339,75 +419,6 @@ export default function InforceReviewQuotePage() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Riders
-                </label>
-                <textarea
-                  name="riders"
-                  value={formData.riders}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Client Situation */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Situation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Health Changes
-                </label>
-                <textarea
-                  name="healthChanges"
-                  value={formData.healthChanges}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Financial Goals
-                </label>
-                <textarea
-                  name="financialGoals"
-                  value={formData.financialGoals}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Insurance Needs Changes
-                </label>
-                <textarea
-                  name="insuranceNeedsChanges"
-                  value={formData.insuranceNeedsChanges}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Concerns
-                </label>
-                <textarea
-                  name="concerns"
-                  value={formData.concerns}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -419,12 +430,13 @@ export default function InforceReviewQuotePage() {
             <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  What would you like to accomplish with this review?
+                  What would you like to accomplish? <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="reviewObjectives"
                   value={formData.reviewObjectives}
                   onChange={handleChange}
+                  required
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
@@ -440,11 +452,11 @@ export default function InforceReviewQuotePage() {
             <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Additional Comments
+                  Additional Information (medical, medications)
                 </label>
                 <textarea
-                  name="additionalComments"
-                  value={formData.additionalComments}
+                  name="additionalInfo"
+                  value={formData.additionalInfo}
                   onChange={handleChange}
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -485,39 +497,6 @@ export default function InforceReviewQuotePage() {
                   </label>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="transactionalConsent"
-                  checked={formData.transactionalConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive transactional messages about my review request
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketingConsent"
-                  checked={formData.marketingConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive marketing messages about insurance products and services
-                </span>
-              </label>
             </CardContent>
           </Card>
 

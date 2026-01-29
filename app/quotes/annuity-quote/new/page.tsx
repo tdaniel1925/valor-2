@@ -7,6 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
+const US_STATES = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+];
+
 export default function AnnuityQuotePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,30 +28,33 @@ export default function AnnuityQuotePage() {
 
     // Client Information
     clientName: '',
-    residence: '',
+    dateOfBirth: '',
     age: '',
+    useAge: false, // Toggle between DOB and Age
+    state: '',
     gender: '',
-
-    // Investment Details
-    initialInvestment: '',
-    anyAdditionalInvestments: '',
-
-    // Account Details
-    accountType: '',
-    accumulationOrIncome: [] as string[],
-    other: '',
-
-    // Surrender and Account Details
-    howManyYearsSurrender: '',
-    traditionalAccountTypes: '',
 
     // Life Status
     singleOrJointLife: '',
-    whenTakeIncome: '',
-    jointLifeSpouseInfo: '',
+    spouseName: '',
+    spouseDateOfBirth: '',
+    spouseAge: '',
+    spouseUseAge: false,
+    spouseGender: '',
 
-    // Terms and Conditions
-    termsConditions: false,
+    // Account Details
+    accountType: '',
+
+    // Investment Details
+    initialInvestment: '',
+    additionalInvestments: '',
+    additionalInvestmentsFrequency: '',
+
+    // Product Details
+    accumulationOrIncome: '',
+    productType: '',
+    surrenderSchedule: '',
+    whenTakeIncome: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -51,26 +62,7 @@ export default function AnnuityQuotePage() {
 
     if (type === 'checkbox') {
       const checkbox = e.target as HTMLInputElement;
-
-      // Handle the checkboxes for accumulation_or_income
-      if (name === 'accumulation' || name === 'income') {
-        setFormData(prev => {
-          const newAccumulationOrIncome = [...prev.accumulationOrIncome];
-          if (checkbox.checked) {
-            if (!newAccumulationOrIncome.includes(name === 'accumulation' ? 'Accumulation' : 'Income')) {
-              newAccumulationOrIncome.push(name === 'accumulation' ? 'Accumulation' : 'Income');
-            }
-          } else {
-            const index = newAccumulationOrIncome.indexOf(name === 'accumulation' ? 'Accumulation' : 'Income');
-            if (index > -1) {
-              newAccumulationOrIncome.splice(index, 1);
-            }
-          }
-          return { ...prev, accumulationOrIncome: newAccumulationOrIncome };
-        });
-      } else if (name === 'termsConditions') {
-        setFormData(prev => ({ ...prev, termsConditions: checkbox.checked }));
-      }
+      setFormData(prev => ({ ...prev, [name]: checkbox.checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -179,218 +171,12 @@ export default function AnnuityQuotePage() {
             </CardContent>
           </Card>
 
-          {/* Client Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Client Name
-                </label>
-                <input
-                  type="text"
-                  name="clientName"
-                  value={formData.clientName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Residence
-                </label>
-                <input
-                  type="text"
-                  name="residence"
-                  value={formData.residence}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Age
-                  </label>
-                  <input
-                    type="number"
-                    name="age"
-                    value={formData.age}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Gender
-                  </label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Investment Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Investment Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Initial Investment
-                </label>
-                <input
-                  type="text"
-                  name="initialInvestment"
-                  value={formData.initialInvestment}
-                  onChange={handleChange}
-                  placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Any Additional Investments
-                </label>
-                <input
-                  type="text"
-                  name="anyAdditionalInvestments"
-                  value={formData.anyAdditionalInvestments}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Account Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Account Type
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="Qualified"
-                      checked={formData.accountType === 'Qualified'}
-                      onChange={handleChange}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Qualified</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="Not Qualified"
-                      checked={formData.accountType === 'Not Qualified'}
-                      onChange={handleChange}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Not Qualified</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Accumulation or Income (can select both)
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="accumulation"
-                      checked={formData.accumulationOrIncome.includes('Accumulation')}
-                      onChange={handleChange}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Accumulation</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="income"
-                      checked={formData.accumulationOrIncome.includes('Income')}
-                      onChange={handleChange}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Income</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Other
-                </label>
-                <input
-                  type="text"
-                  name="other"
-                  value={formData.other}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Surrender and Account Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Surrender and Account Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  How Many Years Surrender
-                </label>
-                <input
-                  type="text"
-                  name="howManyYearsSurrender"
-                  value={formData.howManyYearsSurrender}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Traditional Account Types
-                </label>
-                <input
-                  type="text"
-                  name="traditionalAccountTypes"
-                  value={formData.traditionalAccountTypes}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Life Status */}
+          {/* Single or Joint Life */}
           <Card>
             <CardHeader>
               <CardTitle>Life Status</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Single or Joint Life
@@ -420,51 +206,327 @@ export default function AnnuityQuotePage() {
                   </label>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Client Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Client Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  When Take Income
+                  Client Name
                 </label>
                 <input
                   type="text"
-                  name="whenTakeIncome"
-                  value={formData.whenTakeIncome}
+                  name="clientName"
+                  value={formData.clientName}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Joint Life Spouse Info (spouse name and age if joint life)
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Date of Birth or Age
                 </label>
-                <textarea
-                  name="jointLifeSpouseInfo"
-                  value={formData.jointLifeSpouseInfo}
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="useAge"
+                      checked={formData.useAge}
+                      onChange={handleChange}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Use Age instead of Date of Birth</span>
+                  </label>
+                  {!formData.useAge ? (
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      placeholder="Age"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  State <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="state"
+                  value={formData.state}
                   onChange={handleChange}
-                  rows={2}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
+                >
+                  <option value="">Select State...</option>
+                  {US_STATES.map((state) => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
               </div>
             </CardContent>
           </Card>
 
-          {/* Terms and Conditions */}
+          {/* Spouse Information - Only show if Joint Life selected */}
+          {formData.singleOrJointLife === 'Joint Life' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Spouse Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Spouse Name
+                  </label>
+                  <input
+                    type="text"
+                    name="spouseName"
+                    value={formData.spouseName}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Date of Birth or Age
+                  </label>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="spouseUseAge"
+                        checked={formData.spouseUseAge}
+                        onChange={handleChange}
+                        className="text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Use Age instead of Date of Birth</span>
+                    </label>
+                    {!formData.spouseUseAge ? (
+                      <input
+                        type="date"
+                        name="spouseDateOfBirth"
+                        value={formData.spouseDateOfBirth}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    ) : (
+                      <input
+                        type="number"
+                        name="spouseAge"
+                        value={formData.spouseAge}
+                        onChange={handleChange}
+                        placeholder="Age"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Gender
+                  </label>
+                  <select
+                    name="spouseGender"
+                    value={formData.spouseGender}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Account Details */}
           <Card>
             <CardHeader>
-              <CardTitle>Terms and Conditions</CardTitle>
+              <CardTitle>Account Details</CardTitle>
             </CardHeader>
-            <CardContent>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="termsConditions"
-                  checked={formData.termsConditions}
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Account Type
+                </label>
+                <select
+                  name="accountType"
+                  value={formData.accountType}
                   onChange={handleChange}
-                  className="mt-1"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="Qualified (IRA)">Qualified (IRA)</option>
+                  <option value="Qualified (401k)">Qualified (401k)</option>
+                  <option value="Qualified (SEP)">Qualified (SEP)</option>
+                  <option value="Non-Qualified (Cash)">Non-Qualified (Cash)</option>
+                  <option value="Roth IRA">Roth IRA</option>
+                </select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Investment Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Investment Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Initial Investment
+                </label>
+                <input
+                  type="text"
+                  name="initialInvestment"
+                  value={formData.initialInvestment}
+                  onChange={handleChange}
+                  placeholder="$"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to the terms and conditions
-                </span>
-              </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Additional Investments
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    name="additionalInvestments"
+                    value={formData.additionalInvestments}
+                    onChange={handleChange}
+                    placeholder="$"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                  <select
+                    name="additionalInvestmentsFrequency"
+                    value={formData.additionalInvestmentsFrequency}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select...</option>
+                    <option value="per month">per month</option>
+                    <option value="per year">per year</option>
+                  </select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Product Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Accumulation or Income
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="accumulationOrIncome"
+                      value="Accumulation"
+                      checked={formData.accumulationOrIncome === 'Accumulation'}
+                      onChange={handleChange}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Accumulation</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="accumulationOrIncome"
+                      value="Income"
+                      checked={formData.accumulationOrIncome === 'Income'}
+                      onChange={handleChange}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Income</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Product Type
+                </label>
+                <select
+                  name="productType"
+                  value={formData.productType}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="FIA">FIA (Fixed Index Annuity)</option>
+                  <option value="MYGA">MYGA (Multi-Year Guaranteed Annuity)</option>
+                  <option value="SPIA">SPIA (Single Premium Immediate Annuity)</option>
+                  <option value="DIA">DIA (Deferred Income Annuity)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Surrender Schedule
+                </label>
+                <select
+                  name="surrenderSchedule"
+                  value={formData.surrenderSchedule}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="5 years">5 years</option>
+                  <option value="7 years">7 years</option>
+                  <option value="10+ years">10+ years</option>
+                </select>
+              </div>
+              {formData.accumulationOrIncome === 'Income' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    When to Take Income
+                  </label>
+                  <input
+                    type="text"
+                    name="whenTakeIncome"
+                    value={formData.whenTakeIncome}
+                    onChange={handleChange}
+                    placeholder="e.g., At age 65, or in 10 years"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 

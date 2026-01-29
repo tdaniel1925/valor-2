@@ -22,43 +22,29 @@ export default function DisabilityQuotePage() {
     // Client Information
     clientName: '',
     dateOfBirth: '',
+    age: '',
+    useAge: false, // Toggle between DOB and Age
     gender: '',
     stateOfResidence: '',
+    riskClass: '',
     occupation: '',
     annualIncome: '',
     employmentType: '',
-    tobaccoUse: '',
-    height: '',
-    weight: '',
 
     // Coverage Details
-    monthlyBenefit: '',
-    otherRiders: '',
+    monthlyBenefitAmount: '',
+    calculateSixtyPercent: false,
     eliminationPeriod: '',
     benefitPeriod: '',
 
-    // Health Information
-    currentHealth: '',
-    chronicConditions: '',
-    medications: '',
-    recentInjuries: '',
-    previousDisabilityClaims: '',
-
     // Existing Coverage
-    existingDisabilityCoverage: '',
-    groupCoverage: '',
-
-    // Business Owner Information
-    businessOwner: '',
-    businessType: '',
-    businessIncome: '',
+    hasExistingCoverage: '',
+    existingThroughWork: '',
+    groupCoverageAmount: '',
+    personalCoverageAmount: '',
 
     // Additional Information
     additionalComments: '',
-
-    // Consent
-    transactionalConsent: false,
-    marketingConsent: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -230,19 +216,49 @@ export default function DisabilityQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date of Birth
-                  </label>
+              <div>
+                <label className="flex items-center gap-2 mb-2 cursor-pointer">
                   <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
+                    type="checkbox"
+                    name="useAge"
+                    checked={formData.useAge}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Use Age instead of Date of Birth
+                  </span>
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      disabled={formData.useAge}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Age
+                    </label>
+                    <input
+                      type="number"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      disabled={!formData.useAge}
+                      placeholder="Years"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                    />
+                  </div>
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -258,21 +274,40 @@ export default function DisabilityQuotePage() {
                     <option value="Female">Female</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    State of Residence <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="stateOfResidence"
+                    value={formData.stateOfResidence}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select state...</option>
+                    {usStates.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  State of Residence
+                  Risk Class
                 </label>
                 <select
-                  name="stateOfResidence"
-                  value={formData.stateOfResidence}
+                  name="riskClass"
+                  value={formData.riskClass}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
-                  <option value="">Select state...</option>
-                  {usStates.map(state => (
-                    <option key={state} value={state}>{state}</option>
-                  ))}
+                  <option value="">Select...</option>
+                  <option value="Preferred Elite">Preferred Elite</option>
+                  <option value="Preferred">Preferred</option>
+                  <option value="Standard Plus">Standard Plus</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Substandard">Substandard</option>
                 </select>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -290,13 +325,14 @@ export default function DisabilityQuotePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Annual Income
+                    Annual Income (include bonuses) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="annualIncome"
                     value={formData.annualIncome}
                     onChange={handleChange}
+                    required
                     placeholder="$"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
@@ -319,49 +355,6 @@ export default function DisabilityQuotePage() {
                   <option value="Business Owner">Business Owner</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Tobacco Use
-                </label>
-                <select
-                  name="tobaccoUse"
-                  value={formData.tobaccoUse}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select...</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Height
-                  </label>
-                  <input
-                    type="text"
-                    name="height"
-                    value={formData.height}
-                    onChange={handleChange}
-                    placeholder="e.g., 5'10&quot;"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Weight
-                  </label>
-                  <input
-                    type="text"
-                    name="weight"
-                    value={formData.weight}
-                    onChange={handleChange}
-                    placeholder="lbs"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-              </div>
             </CardContent>
           </Card>
 
@@ -377,24 +370,24 @@ export default function DisabilityQuotePage() {
                 </label>
                 <input
                   type="text"
-                  name="monthlyBenefit"
-                  value={formData.monthlyBenefit}
+                  name="monthlyBenefitAmount"
+                  value={formData.monthlyBenefitAmount}
                   onChange={handleChange}
+                  disabled={formData.calculateSixtyPercent}
                   placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Other Riders
+                <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="calculateSixtyPercent"
+                    checked={formData.calculateSixtyPercent}
+                    onChange={handleChange}
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Calculate 60% of income
+                  </span>
                 </label>
-                <textarea
-                  name="otherRiders"
-                  value={formData.otherRiders}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -429,83 +422,8 @@ export default function DisabilityQuotePage() {
                     <option value="5 Years">5 Years</option>
                     <option value="To Age 65">To Age 65</option>
                     <option value="To Age 67">To Age 67</option>
-                    <option value="Lifetime">Lifetime</option>
                   </select>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Health Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Health Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Current Health Status
-                </label>
-                <select
-                  name="currentHealth"
-                  value={formData.currentHealth}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select...</option>
-                  <option value="Excellent">Excellent</option>
-                  <option value="Good">Good</option>
-                  <option value="Fair">Fair</option>
-                  <option value="Poor">Poor</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Chronic Conditions
-                </label>
-                <textarea
-                  name="chronicConditions"
-                  value={formData.chronicConditions}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Current Medications
-                </label>
-                <textarea
-                  name="medications"
-                  value={formData.medications}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Recent Injuries
-                </label>
-                <textarea
-                  name="recentInjuries"
-                  value={formData.recentInjuries}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Previous Disability Claims
-                </label>
-                <textarea
-                  name="previousDisabilityClaims"
-                  value={formData.previousDisabilityClaims}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
               </div>
             </CardContent>
           </Card>
@@ -518,77 +436,95 @@ export default function DisabilityQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Existing Disability Coverage
+                  Existing Disability Coverage <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  name="existingDisabilityCoverage"
-                  value={formData.existingDisabilityCoverage}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="hasExistingCoverage"
+                      value="Yes"
+                      checked={formData.hasExistingCoverage === 'Yes'}
+                      onChange={handleChange}
+                      required
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="hasExistingCoverage"
+                      value="No"
+                      checked={formData.hasExistingCoverage === 'No'}
+                      onChange={handleChange}
+                      required
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                  </label>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Group Coverage
-                </label>
-                <textarea
-                  name="groupCoverage"
-                  value={formData.groupCoverage}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Business Owner Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Business Owner Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Business Owner
-                </label>
-                <select
-                  name="businessOwner"
-                  value={formData.businessOwner}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select...</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Business Type
-                </label>
-                <input
-                  type="text"
-                  name="businessType"
-                  value={formData.businessType}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Business Income
-                </label>
-                <input
-                  type="text"
-                  name="businessIncome"
-                  value={formData.businessIncome}
-                  onChange={handleChange}
-                  placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
+              {formData.hasExistingCoverage === 'Yes' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Through work?
+                    </label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="existingThroughWork"
+                          value="Yes"
+                          checked={formData.existingThroughWork === 'Yes'}
+                          onChange={handleChange}
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="existingThroughWork"
+                          value="No"
+                          checked={formData.existingThroughWork === 'No'}
+                          onChange={handleChange}
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {formData.existingThroughWork === 'Yes' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Group coverage amount
+                      </label>
+                      <input
+                        type="text"
+                        name="groupCoverageAmount"
+                        value={formData.groupCoverageAmount}
+                        onChange={handleChange}
+                        placeholder="$"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Personal DI coverage amount
+                    </label>
+                    <input
+                      type="text"
+                      name="personalCoverageAmount"
+                      value={formData.personalCoverageAmount}
+                      onChange={handleChange}
+                      placeholder="$"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -645,39 +581,6 @@ export default function DisabilityQuotePage() {
                   </label>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="transactionalConsent"
-                  checked={formData.transactionalConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive transactional messages about my quote request
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketingConsent"
-                  checked={formData.marketingConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive marketing messages about insurance products and services
-                </span>
-              </label>
             </CardContent>
           </Card>
 

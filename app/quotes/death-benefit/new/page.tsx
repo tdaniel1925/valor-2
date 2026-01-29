@@ -20,34 +20,35 @@ export default function DeathBenefitQuotePage() {
 
     // Client Information
     clientName: '',
+    dobOrAge: 'dob', // 'dob' or 'age'
     dateOfBirth: '',
+    age: '',
     gender: '',
     stateOfResidence: '',
-    tobaccoUse: '',
+    riskClass: '',
 
     // Coverage Details
-    purposeOfCoverage: '',
     deathBenefitAmount: '',
+    premiumFrequency: '',
+    preferredPremium: '',
     preferredProductType: '',
     otherRiders: '',
-    premiumBudget: '',
     premiumPaymentDuration: '',
 
     // Additional Information
-    currentCoverage: '',
     additionalComments: '',
 
-    // Consent
-    transactionalConsent: false,
-    marketingConsent: false,
+    // File Upload
+    uploadedFile: null as File | null,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
-    if (type === 'checkbox') {
-      const checkbox = e.target as HTMLInputElement;
-      setFormData(prev => ({ ...prev, [name]: checkbox.checked }));
+    if (type === 'file') {
+      const fileInput = e.target as HTMLInputElement;
+      const file = fileInput.files?.[0] || null;
+      setFormData(prev => ({ ...prev, uploadedFile: file }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -140,13 +141,14 @@ export default function DeathBenefitQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Agent Name
+                  Agent Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="agentName"
                   value={formData.agentName}
                   onChange={handleChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
@@ -184,11 +186,35 @@ export default function DeathBenefitQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date of Birth
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  DOB or Age
+                </label>
+                <div className="flex gap-6 mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dobOrAge"
+                      value="dob"
+                      checked={formData.dobOrAge === 'dob'}
+                      onChange={handleChange}
+                      className="cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Date of Birth</span>
                   </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dobOrAge"
+                      value="age"
+                      checked={formData.dobOrAge === 'age'}
+                      onChange={handleChange}
+                      className="cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Age</span>
+                  </label>
+                </div>
+                {formData.dobOrAge === 'dob' ? (
                   <input
                     type="date"
                     name="dateOfBirth"
@@ -196,7 +222,20 @@ export default function DeathBenefitQuotePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
-                </div>
+                ) : (
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    placeholder="Enter age"
+                    min="0"
+                    max="120"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -212,36 +251,40 @@ export default function DeathBenefitQuotePage() {
                     <option value="Female">Female</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    State of Residence <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="stateOfResidence"
+                    value={formData.stateOfResidence}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select state...</option>
+                    {usStates.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  State of Residence
+                  Risk Class
                 </label>
                 <select
-                  name="stateOfResidence"
-                  value={formData.stateOfResidence}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select state...</option>
-                  {usStates.map(state => (
-                    <option key={state} value={state}>{state}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Tobacco Use
-                </label>
-                <select
-                  name="tobaccoUse"
-                  value={formData.tobaccoUse}
+                  name="riskClass"
+                  value={formData.riskClass}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Select...</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
+                  <option value="Preferred Plus">Preferred Plus</option>
+                  <option value="Preferred">Preferred</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Preferred Tobacco">Preferred Tobacco</option>
+                  <option value="Standard Tobacco">Standard Tobacco</option>
                 </select>
               </div>
             </CardContent>
@@ -255,25 +298,7 @@ export default function DeathBenefitQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Purpose of Coverage
-                </label>
-                <select
-                  name="purposeOfCoverage"
-                  value={formData.purposeOfCoverage}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select...</option>
-                  <option value="Estate Planning">Estate Planning</option>
-                  <option value="Business Protection">Business Protection</option>
-                  <option value="Family Protection">Family Protection</option>
-                  <option value="Legacy Planning">Legacy Planning</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Death Benefit Amount
+                  Death Benefit Amount <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -281,8 +306,41 @@ export default function DeathBenefitQuotePage() {
                   value={formData.deathBenefitAmount}
                   onChange={handleChange}
                   placeholder="$"
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Premium Frequency
+                  </label>
+                  <select
+                    name="premiumFrequency"
+                    value={formData.premiumFrequency}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Semi-Annual">Semi-Annual</option>
+                    <option value="Annual">Annual</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Preferred Premium
+                  </label>
+                  <input
+                    type="text"
+                    name="preferredPremium"
+                    value={formData.preferredPremium}
+                    onChange={handleChange}
+                    placeholder="$"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -295,14 +353,14 @@ export default function DeathBenefitQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Select...</option>
-                  <option value="IUL">IUL (Indexed Universal Life)</option>
+                  <option value="IUL">IUL</option>
                   <option value="Whole Life">Whole Life</option>
                   <option value="Either">Either</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Other Riders
+                  Other Riders (living benefits, long-term care)
                 </label>
                 <textarea
                   name="otherRiders"
@@ -312,38 +370,24 @@ export default function DeathBenefitQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Premium Budget
-                  </label>
-                  <input
-                    type="text"
-                    name="premiumBudget"
-                    value={formData.premiumBudget}
-                    onChange={handleChange}
-                    placeholder="$"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Premium Payment Duration
-                  </label>
-                  <select
-                    name="premiumPaymentDuration"
-                    value={formData.premiumPaymentDuration}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="10 Years">10 Years</option>
-                    <option value="15 Years">15 Years</option>
-                    <option value="20 Years">20 Years</option>
-                    <option value="Pay to Age 65">Pay to Age 65</option>
-                    <option value="Lifetime">Lifetime</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Premium Payment Duration
+                </label>
+                <select
+                  name="premiumPaymentDuration"
+                  value={formData.premiumPaymentDuration}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="10 Years">10 Years</option>
+                  <option value="15 Years">15 Years</option>
+                  <option value="20 Years">20 Years</option>
+                  <option value="Paid to Age 65">Paid to Age 65</option>
+                  <option value="Lifetime">Lifetime</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </CardContent>
           </Card>
@@ -356,15 +400,19 @@ export default function DeathBenefitQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Current Coverage
+                  File Upload
                 </label>
-                <textarea
-                  name="currentCoverage"
-                  value={formData.currentCoverage}
+                <input
+                  type="file"
+                  name="uploadedFile"
                   onChange={handleChange}
-                  rows={3}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
+                {formData.uploadedFile && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Selected: {formData.uploadedFile.name}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -378,39 +426,6 @@ export default function DeathBenefitQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="transactionalConsent"
-                  checked={formData.transactionalConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive transactional messages about my quote request
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketingConsent"
-                  checked={formData.marketingConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive marketing messages about insurance products and services
-                </span>
-              </label>
             </CardContent>
           </Card>
 

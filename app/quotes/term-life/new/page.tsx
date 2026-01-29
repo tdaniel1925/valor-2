@@ -20,42 +20,25 @@ export default function TermLifeQuotePage() {
 
     // Client Information
     clientName: '',
+    dobOrAge: 'dob', // 'dob' or 'age'
     dateOfBirth: '',
+    age: '',
     gender: '',
     stateOfResidence: '',
-    tobaccoUse: '',
     riskClass: '',
 
     // Coverage Details
     deathBenefitAmount: '',
-    levelPremiumPeriod: '',
     termDuration: '',
     conversionOptions: '',
 
-    // Health Information
-    medicalConcerns: '',
-    currentMedications: '',
-
-    // Financial Information
-    premiumBudget: '',
-
     // Additional Information
     additionalComments: '',
-
-    // Consent
-    transactionalConsent: false,
-    marketingConsent: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-
-    if (type === 'checkbox') {
-      const checkbox = e.target as HTMLInputElement;
-      setFormData(prev => ({ ...prev, [name]: checkbox.checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,13 +128,14 @@ export default function TermLifeQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Agent Name
+                  Agent Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="agentName"
                   value={formData.agentName}
                   onChange={handleChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
@@ -189,11 +173,35 @@ export default function TermLifeQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date of Birth
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  DOB or Age
+                </label>
+                <div className="flex gap-6 mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dobOrAge"
+                      value="dob"
+                      checked={formData.dobOrAge === 'dob'}
+                      onChange={handleChange}
+                      className="cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Date of Birth</span>
                   </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dobOrAge"
+                      value="age"
+                      checked={formData.dobOrAge === 'age'}
+                      onChange={handleChange}
+                      className="cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Age</span>
+                  </label>
+                </div>
+                {formData.dobOrAge === 'dob' ? (
                   <input
                     type="date"
                     name="dateOfBirth"
@@ -201,7 +209,20 @@ export default function TermLifeQuotePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
-                </div>
+                ) : (
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    placeholder="Enter age"
+                    min="0"
+                    max="120"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -217,56 +238,41 @@ export default function TermLifeQuotePage() {
                     <option value="Female">Female</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    State of Residence <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="stateOfResidence"
+                    value={formData.stateOfResidence}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select state...</option>
+                    {usStates.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  State of Residence
+                  Risk Class
                 </label>
                 <select
-                  name="stateOfResidence"
-                  value={formData.stateOfResidence}
+                  name="riskClass"
+                  value={formData.riskClass}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
-                  <option value="">Select state...</option>
-                  {usStates.map(state => (
-                    <option key={state} value={state}>{state}</option>
-                  ))}
+                  <option value="">Select...</option>
+                  <option value="Preferred Plus">Preferred Plus</option>
+                  <option value="Preferred">Preferred</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Preferred Tobacco">Preferred Tobacco</option>
+                  <option value="Standard Tobacco">Standard Tobacco</option>
                 </select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Tobacco Use
-                  </label>
-                  <select
-                    name="tobaccoUse"
-                    value={formData.tobaccoUse}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Risk Class
-                  </label>
-                  <select
-                    name="riskClass"
-                    value={formData.riskClass}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Preferred Plus">Preferred Plus</option>
-                    <option value="Preferred">Preferred</option>
-                    <option value="Standard Plus">Standard Plus</option>
-                    <option value="Standard">Standard</option>
-                  </select>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -279,7 +285,7 @@ export default function TermLifeQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Death Benefit Amount
+                  Death Benefit Amount <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -287,19 +293,7 @@ export default function TermLifeQuotePage() {
                   value={formData.deathBenefitAmount}
                   onChange={handleChange}
                   placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Level Premium Period
-                </label>
-                <input
-                  type="text"
-                  name="levelPremiumPeriod"
-                  value={formData.levelPremiumPeriod}
-                  onChange={handleChange}
-                  placeholder="e.g., 10, 15, 20, 30"
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
@@ -314,81 +308,45 @@ export default function TermLifeQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Select...</option>
-                  <option value="10 Years">10 Years</option>
-                  <option value="15 Years">15 Years</option>
-                  <option value="20 Years">20 Years</option>
-                  <option value="30 Years">30 Years</option>
+                  <option value="1">1 Year</option>
+                  <option value="5">5 Years</option>
+                  <option value="10">10 Years</option>
+                  <option value="15">15 Years</option>
+                  <option value="20">20 Years</option>
+                  <option value="25">25 Years</option>
+                  <option value="30">30 Years</option>
+                  <option value="35">35 Years</option>
+                  <option value="40">40 Years</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Conversion Options
                 </label>
-                <select
-                  name="conversionOptions"
-                  value={formData.conversionOptions}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select...</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Health Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Health Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Medical Concerns
-                </label>
-                <textarea
-                  name="medicalConcerns"
-                  value={formData.medicalConcerns}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Current Medications
-                </label>
-                <textarea
-                  name="currentMedications"
-                  value={formData.currentMedications}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Financial Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Financial Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Premium Budget
-                </label>
-                <input
-                  type="text"
-                  name="premiumBudget"
-                  value={formData.premiumBudget}
-                  onChange={handleChange}
-                  placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="conversionOptions"
+                      value="Yes"
+                      checked={formData.conversionOptions === 'Yes'}
+                      onChange={handleChange}
+                      className="cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="conversionOptions"
+                      value="No"
+                      checked={formData.conversionOptions === 'No'}
+                      onChange={handleChange}
+                      className="cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                  </label>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -411,39 +369,6 @@ export default function TermLifeQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="transactionalConsent"
-                  checked={formData.transactionalConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive transactional messages about my quote request
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketingConsent"
-                  checked={formData.marketingConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive marketing messages about insurance products and services
-                </span>
-              </label>
             </CardContent>
           </Card>
 

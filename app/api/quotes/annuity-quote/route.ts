@@ -13,30 +13,33 @@ interface AnnuityQuoteRequest {
 
   // Client Information
   clientName: string;
-  residence: string;
+  dateOfBirth: string;
   age: string;
+  useAge: boolean;
+  state: string;
   gender: string;
-
-  // Investment Details
-  initialInvestment: string;
-  anyAdditionalInvestments: string;
-
-  // Account Details
-  accountType: string;
-  accumulationOrIncome: string[];
-  other: string;
-
-  // Surrender and Account Details
-  howManyYearsSurrender: string;
-  traditionalAccountTypes: string;
 
   // Life Status
   singleOrJointLife: string;
-  whenTakeIncome: string;
-  jointLifeSpouseInfo: string;
+  spouseName: string;
+  spouseDateOfBirth: string;
+  spouseAge: string;
+  spouseUseAge: boolean;
+  spouseGender: string;
 
-  // Terms and Conditions
-  termsConditions: boolean;
+  // Account Details
+  accountType: string;
+
+  // Investment Details
+  initialInvestment: string;
+  additionalInvestments: string;
+  additionalInvestmentsFrequency: string;
+
+  // Product Details
+  accumulationOrIncome: string;
+  productType: string;
+  surrenderSchedule: string;
+  whenTakeIncome: string;
 }
 
 function formatCurrency(value: string): string {
@@ -46,7 +49,18 @@ function formatCurrency(value: string): string {
   return `$${parseFloat(numericValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function formatDate(dateStr: string): string {
+  if (!dateStr) return 'Not specified';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 function generateEmailHTML(data: AnnuityQuoteRequest): string {
+  const clientAge = data.useAge ? data.age : (data.dateOfBirth ? formatDate(data.dateOfBirth) : 'Not specified');
+  const spouseAge = data.singleOrJointLife === 'Joint Life'
+    ? (data.spouseUseAge ? data.spouseAge : (data.spouseDateOfBirth ? formatDate(data.spouseDateOfBirth) : 'Not specified'))
+    : null;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -137,6 +151,15 @@ function generateEmailHTML(data: AnnuityQuoteRequest): string {
       </div>
     </div>
 
+    <!-- Life Status -->
+    <div class="section">
+      <h2 class="section-title">Life Status</h2>
+      <div class="field">
+        <div class="field-label">Single or Joint Life:</div>
+        <div class="field-value">${data.singleOrJointLife || 'Not specified'}</div>
+      </div>
+    </div>
+
     <!-- Client Information -->
     <div class="section">
       <h2 class="section-title">Client Information</h2>
@@ -145,16 +168,44 @@ function generateEmailHTML(data: AnnuityQuoteRequest): string {
         <div class="field-value">${data.clientName || 'Not provided'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Residence:</div>
-        <div class="field-value">${data.residence || 'Not specified'}</div>
+        <div class="field-label">${data.useAge ? 'Age' : 'Date of Birth'}:</div>
+        <div class="field-value">${clientAge}</div>
       </div>
       <div class="field">
-        <div class="field-label">Age:</div>
-        <div class="field-value">${data.age || 'Not specified'}</div>
+        <div class="field-label">State:</div>
+        <div class="field-value">${data.state || 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">Gender:</div>
         <div class="field-value">${data.gender || 'Not specified'}</div>
+      </div>
+    </div>
+
+    ${data.singleOrJointLife === 'Joint Life' ? `
+    <!-- Spouse Information -->
+    <div class="section">
+      <h2 class="section-title">Spouse Information</h2>
+      <div class="field">
+        <div class="field-label">Spouse Name:</div>
+        <div class="field-value">${data.spouseName || 'Not provided'}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">${data.spouseUseAge ? 'Age' : 'Date of Birth'}:</div>
+        <div class="field-value">${spouseAge}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Gender:</div>
+        <div class="field-value">${data.spouseGender || 'Not specified'}</div>
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Account Details -->
+    <div class="section">
+      <h2 class="section-title">Account Details</h2>
+      <div class="field">
+        <div class="field-label">Account Type:</div>
+        <div class="field-value">${data.accountType || 'Not specified'}</div>
       </div>
     </div>
 
@@ -166,65 +217,32 @@ function generateEmailHTML(data: AnnuityQuoteRequest): string {
         <div class="field-value">${formatCurrency(data.initialInvestment)}</div>
       </div>
       <div class="field">
-        <div class="field-label">Any Additional Investments:</div>
-        <div class="field-value">${data.anyAdditionalInvestments || 'None'}</div>
+        <div class="field-label">Additional Investments:</div>
+        <div class="field-value">${data.additionalInvestments ? `${formatCurrency(data.additionalInvestments)} ${data.additionalInvestmentsFrequency || ''}` : 'None'}</div>
       </div>
     </div>
 
-    <!-- Account Details -->
+    <!-- Product Details -->
     <div class="section">
-      <h2 class="section-title">Account Details</h2>
-      <div class="field">
-        <div class="field-label">Account Type:</div>
-        <div class="field-value">${data.accountType || 'Not specified'}</div>
-      </div>
+      <h2 class="section-title">Product Details</h2>
       <div class="field">
         <div class="field-label">Accumulation or Income:</div>
-        <div class="field-value">${data.accumulationOrIncome.length > 0 ? data.accumulationOrIncome.join(', ') : 'Not specified'}</div>
+        <div class="field-value">${data.accumulationOrIncome || 'Not specified'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Other:</div>
-        <div class="field-value">${data.other || 'None'}</div>
-      </div>
-    </div>
-
-    <!-- Surrender and Account Details -->
-    <div class="section">
-      <h2 class="section-title">Surrender and Account Details</h2>
-      <div class="field">
-        <div class="field-label">How Many Years Surrender:</div>
-        <div class="field-value">${data.howManyYearsSurrender || 'Not specified'}</div>
+        <div class="field-label">Product Type:</div>
+        <div class="field-value">${data.productType || 'Not specified'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Traditional Account Types:</div>
-        <div class="field-value">${data.traditionalAccountTypes || 'Not specified'}</div>
+        <div class="field-label">Surrender Schedule:</div>
+        <div class="field-value">${data.surrenderSchedule || 'Not specified'}</div>
       </div>
-    </div>
-
-    <!-- Life Status -->
-    <div class="section">
-      <h2 class="section-title">Life Status</h2>
+      ${data.accumulationOrIncome === 'Income' ? `
       <div class="field">
-        <div class="field-label">Single or Joint Life:</div>
-        <div class="field-value">${data.singleOrJointLife || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">When Take Income:</div>
+        <div class="field-label">When to Take Income:</div>
         <div class="field-value">${data.whenTakeIncome || 'Not specified'}</div>
       </div>
-      <div class="field">
-        <div class="field-label">Joint Life Spouse Info:</div>
-        <div class="field-value">${data.jointLifeSpouseInfo || 'Not provided'}</div>
-      </div>
-    </div>
-
-    <!-- Terms and Conditions -->
-    <div class="section">
-      <h2 class="section-title">Terms and Conditions</h2>
-      <div class="field">
-        <div class="field-label">Agreed to Terms:</div>
-        <div class="field-value">${data.termsConditions ? '✓ Agreed' : '✗ Not agreed'}</div>
-      </div>
+      ` : ''}
     </div>
   </div>
 
@@ -238,6 +256,11 @@ function generateEmailHTML(data: AnnuityQuoteRequest): string {
 }
 
 function generateEmailText(data: AnnuityQuoteRequest): string {
+  const clientAge = data.useAge ? data.age : (data.dateOfBirth ? formatDate(data.dateOfBirth) : 'Not specified');
+  const spouseAge = data.singleOrJointLife === 'Joint Life'
+    ? (data.spouseUseAge ? data.spouseAge : (data.spouseDateOfBirth ? formatDate(data.spouseDateOfBirth) : 'Not specified'))
+    : null;
+
   return `
 ANNUITY QUOTE REQUEST
 ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
@@ -247,38 +270,38 @@ AGENT INFORMATION
 Agent Name: ${data.agentName || 'Not provided'}
 Email: ${data.email}
 
+LIFE STATUS
+-----------
+Single or Joint Life: ${data.singleOrJointLife || 'Not specified'}
+
 CLIENT INFORMATION
 ------------------
 Client Name: ${data.clientName || 'Not provided'}
-Residence: ${data.residence || 'Not specified'}
-Age: ${data.age || 'Not specified'}
+${data.useAge ? 'Age' : 'Date of Birth'}: ${clientAge}
+State: ${data.state || 'Not specified'}
 Gender: ${data.gender || 'Not specified'}
+
+${data.singleOrJointLife === 'Joint Life' ? `SPOUSE INFORMATION
+------------------
+Spouse Name: ${data.spouseName || 'Not provided'}
+${data.spouseUseAge ? 'Age' : 'Date of Birth'}: ${spouseAge}
+Gender: ${data.spouseGender || 'Not specified'}
+
+` : ''}ACCOUNT DETAILS
+---------------
+Account Type: ${data.accountType || 'Not specified'}
 
 INVESTMENT DETAILS
 ------------------
 Initial Investment: ${formatCurrency(data.initialInvestment)}
-Any Additional Investments: ${data.anyAdditionalInvestments || 'None'}
+Additional Investments: ${data.additionalInvestments ? `${formatCurrency(data.additionalInvestments)} ${data.additionalInvestmentsFrequency || ''}` : 'None'}
 
-ACCOUNT DETAILS
+PRODUCT DETAILS
 ---------------
-Account Type: ${data.accountType || 'Not specified'}
-Accumulation or Income: ${data.accumulationOrIncome.length > 0 ? data.accumulationOrIncome.join(', ') : 'Not specified'}
-Other: ${data.other || 'None'}
-
-SURRENDER AND ACCOUNT DETAILS
-------------------------------
-How Many Years Surrender: ${data.howManyYearsSurrender || 'Not specified'}
-Traditional Account Types: ${data.traditionalAccountTypes || 'Not specified'}
-
-LIFE STATUS
------------
-Single or Joint Life: ${data.singleOrJointLife || 'Not specified'}
-When Take Income: ${data.whenTakeIncome || 'Not specified'}
-Joint Life Spouse Info: ${data.jointLifeSpouseInfo || 'Not provided'}
-
-TERMS AND CONDITIONS
---------------------
-Agreed to Terms: ${data.termsConditions ? 'Agreed' : 'Not agreed'}
+Accumulation or Income: ${data.accumulationOrIncome || 'Not specified'}
+Product Type: ${data.productType || 'Not specified'}
+Surrender Schedule: ${data.surrenderSchedule || 'Not specified'}
+${data.accumulationOrIncome === 'Income' ? `When to Take Income: ${data.whenTakeIncome || 'Not specified'}` : ''}
 
 ---
 Valor Financial Specialists Insurance Platform
@@ -293,6 +316,13 @@ export async function POST(request: NextRequest) {
     if (!body.email) {
       return NextResponse.json(
         { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.state) {
+      return NextResponse.json(
+        { error: 'State is required' },
         { status: 400 }
       );
     }

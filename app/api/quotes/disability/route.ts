@@ -20,43 +20,29 @@ interface DisabilityQuoteRequest {
   // Client Information
   clientName: string;
   dateOfBirth: string;
+  age: string;
+  useAge: boolean;
   gender: string;
   stateOfResidence: string;
+  riskClass: string;
   occupation: string;
   annualIncome: string;
   employmentType: string;
-  tobaccoUse: string;
-  height: string;
-  weight: string;
 
   // Coverage Details
-  monthlyBenefit: string;
-  otherRiders: string;
+  monthlyBenefitAmount: string;
+  calculateSixtyPercent: boolean;
   eliminationPeriod: string;
   benefitPeriod: string;
 
-  // Health Information
-  currentHealth: string;
-  chronicConditions: string;
-  medications: string;
-  recentInjuries: string;
-  previousDisabilityClaims: string;
-
   // Existing Coverage
-  existingDisabilityCoverage: string;
-  groupCoverage: string;
-
-  // Business Owner Information
-  businessOwner: string;
-  businessType: string;
-  businessIncome: string;
+  hasExistingCoverage: string;
+  existingThroughWork: string;
+  groupCoverageAmount: string;
+  personalCoverageAmount: string;
 
   // Additional Information
   additionalComments: string;
-
-  // Consent
-  transactionalConsent: boolean;
-  marketingConsent: boolean;
 
   // File Attachment
   attachment?: FileAttachment | null;
@@ -76,6 +62,14 @@ function formatDate(dateStr: string): string {
 }
 
 function generateEmailHTML(data: DisabilityQuoteRequest): string {
+  const ageOrDob = data.useAge
+    ? `<div class="field"><div class="field-label">Age:</div><div class="field-value">${data.age || 'Not specified'}</div></div>`
+    : `<div class="field"><div class="field-label">Date of Birth:</div><div class="field-value">${formatDate(data.dateOfBirth)}</div></div>`;
+
+  const monthlyBenefit = data.calculateSixtyPercent
+    ? 'Calculate 60% of income'
+    : formatCurrency(data.monthlyBenefitAmount);
+
   return `
 <!DOCTYPE html>
 <html>
@@ -173,10 +167,7 @@ function generateEmailHTML(data: DisabilityQuoteRequest): string {
         <div class="field-label">Client Name:</div>
         <div class="field-value">${data.clientName || 'Not provided'}</div>
       </div>
-      <div class="field">
-        <div class="field-label">Date of Birth:</div>
-        <div class="field-value">${formatDate(data.dateOfBirth)}</div>
-      </div>
+      ${ageOrDob}
       <div class="field">
         <div class="field-label">Gender:</div>
         <div class="field-value">${data.gender || 'Not specified'}</div>
@@ -186,28 +177,20 @@ function generateEmailHTML(data: DisabilityQuoteRequest): string {
         <div class="field-value">${data.stateOfResidence || 'Not specified'}</div>
       </div>
       <div class="field">
+        <div class="field-label">Risk Class:</div>
+        <div class="field-value">${data.riskClass || 'Not specified'}</div>
+      </div>
+      <div class="field">
         <div class="field-label">Occupation:</div>
         <div class="field-value">${data.occupation || 'Not specified'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Annual Income:</div>
+        <div class="field-label">Annual Income (including bonuses):</div>
         <div class="field-value">${formatCurrency(data.annualIncome)}</div>
       </div>
       <div class="field">
         <div class="field-label">Employment Type:</div>
         <div class="field-value">${data.employmentType || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Tobacco Use:</div>
-        <div class="field-value">${data.tobaccoUse || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Height:</div>
-        <div class="field-value">${data.height || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Weight:</div>
-        <div class="field-value">${data.weight || 'Not specified'}</div>
       </div>
     </div>
 
@@ -216,11 +199,7 @@ function generateEmailHTML(data: DisabilityQuoteRequest): string {
       <h2 class="section-title">Coverage Details</h2>
       <div class="field">
         <div class="field-label">Monthly Benefit:</div>
-        <div class="field-value">${formatCurrency(data.monthlyBenefit)}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Other Riders:</div>
-        <div class="field-value">${data.otherRiders || 'None provided'}</div>
+        <div class="field-value">${monthlyBenefit}</div>
       </div>
       <div class="field">
         <div class="field-label">Elimination Period:</div>
@@ -232,59 +211,29 @@ function generateEmailHTML(data: DisabilityQuoteRequest): string {
       </div>
     </div>
 
-    <!-- Health Information -->
-    <div class="section">
-      <h2 class="section-title">Health Information</h2>
-      <div class="field">
-        <div class="field-label">Current Health:</div>
-        <div class="field-value">${data.currentHealth || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Chronic Conditions:</div>
-        <div class="field-value">${data.chronicConditions || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Medications:</div>
-        <div class="field-value">${data.medications || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Recent Injuries:</div>
-        <div class="field-value">${data.recentInjuries || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Previous Disability Claims:</div>
-        <div class="field-value">${data.previousDisabilityClaims || 'None provided'}</div>
-      </div>
-    </div>
-
     <!-- Existing Coverage -->
     <div class="section">
       <h2 class="section-title">Existing Coverage</h2>
       <div class="field">
-        <div class="field-label">Existing Disability Coverage:</div>
-        <div class="field-value">${data.existingDisabilityCoverage || 'None provided'}</div>
+        <div class="field-label">Has Existing Disability Coverage:</div>
+        <div class="field-value">${data.hasExistingCoverage || 'Not specified'}</div>
       </div>
-      <div class="field">
-        <div class="field-label">Group Coverage:</div>
-        <div class="field-value">${data.groupCoverage || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Business Owner Information -->
-    <div class="section">
-      <h2 class="section-title">Business Owner Information</h2>
-      <div class="field">
-        <div class="field-label">Business Owner:</div>
-        <div class="field-value">${data.businessOwner || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Business Type:</div>
-        <div class="field-value">${data.businessType || 'Not provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Business Income:</div>
-        <div class="field-value">${formatCurrency(data.businessIncome)}</div>
-      </div>
+      ${data.hasExistingCoverage === 'Yes' ? `
+        <div class="field">
+          <div class="field-label">Through Work:</div>
+          <div class="field-value">${data.existingThroughWork || 'Not specified'}</div>
+        </div>
+        ${data.existingThroughWork === 'Yes' ? `
+          <div class="field">
+            <div class="field-label">Group Coverage Amount:</div>
+            <div class="field-value">${formatCurrency(data.groupCoverageAmount)}</div>
+          </div>
+        ` : ''}
+        <div class="field">
+          <div class="field-label">Personal DI Coverage Amount:</div>
+          <div class="field-value">${formatCurrency(data.personalCoverageAmount)}</div>
+        </div>
+      ` : ''}
     </div>
 
     <!-- Additional Information -->
@@ -293,19 +242,6 @@ function generateEmailHTML(data: DisabilityQuoteRequest): string {
       <div class="field">
         <div class="field-label">Additional Comments:</div>
         <div class="field-value">${data.additionalComments || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Consent -->
-    <div class="section">
-      <h2 class="section-title">Consent</h2>
-      <div class="field">
-        <div class="field-label">Transactional Messages:</div>
-        <div class="field-value">${data.transactionalConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Marketing Messages:</div>
-        <div class="field-value">${data.marketingConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
       </div>
     </div>
   </div>
@@ -320,6 +256,23 @@ function generateEmailHTML(data: DisabilityQuoteRequest): string {
 }
 
 function generateEmailText(data: DisabilityQuoteRequest): string {
+  const ageOrDob = data.useAge
+    ? `Age: ${data.age || 'Not specified'}`
+    : `Date of Birth: ${formatDate(data.dateOfBirth)}`;
+
+  const monthlyBenefit = data.calculateSixtyPercent
+    ? 'Calculate 60% of income'
+    : formatCurrency(data.monthlyBenefitAmount);
+
+  let existingCoverageText = `Has Existing Disability Coverage: ${data.hasExistingCoverage || 'Not specified'}`;
+  if (data.hasExistingCoverage === 'Yes') {
+    existingCoverageText += `\nThrough Work: ${data.existingThroughWork || 'Not specified'}`;
+    if (data.existingThroughWork === 'Yes') {
+      existingCoverageText += `\nGroup Coverage Amount: ${formatCurrency(data.groupCoverageAmount)}`;
+    }
+    existingCoverageText += `\nPersonal DI Coverage Amount: ${formatCurrency(data.personalCoverageAmount)}`;
+  }
+
   return `
 DISABILITY INSURANCE QUOTE REQUEST
 ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
@@ -332,50 +285,27 @@ Email: ${data.agentEmail}
 CLIENT INFORMATION
 ------------------
 Client Name: ${data.clientName || 'Not provided'}
-Date of Birth: ${formatDate(data.dateOfBirth)}
+${ageOrDob}
 Gender: ${data.gender || 'Not specified'}
 State of Residence: ${data.stateOfResidence || 'Not specified'}
+Risk Class: ${data.riskClass || 'Not specified'}
 Occupation: ${data.occupation || 'Not specified'}
-Annual Income: ${formatCurrency(data.annualIncome)}
+Annual Income (including bonuses): ${formatCurrency(data.annualIncome)}
 Employment Type: ${data.employmentType || 'Not specified'}
-Tobacco Use: ${data.tobaccoUse || 'Not specified'}
-Height: ${data.height || 'Not specified'}
-Weight: ${data.weight || 'Not specified'}
 
 COVERAGE DETAILS
 ----------------
-Monthly Benefit: ${formatCurrency(data.monthlyBenefit)}
-Other Riders: ${data.otherRiders || 'None provided'}
+Monthly Benefit: ${monthlyBenefit}
 Elimination Period: ${data.eliminationPeriod || 'Not specified'}
 Benefit Period: ${data.benefitPeriod || 'Not specified'}
 
-HEALTH INFORMATION
-------------------
-Current Health: ${data.currentHealth || 'Not specified'}
-Chronic Conditions: ${data.chronicConditions || 'None provided'}
-Medications: ${data.medications || 'None provided'}
-Recent Injuries: ${data.recentInjuries || 'None provided'}
-Previous Disability Claims: ${data.previousDisabilityClaims || 'None provided'}
-
 EXISTING COVERAGE
 -----------------
-Existing Disability Coverage: ${data.existingDisabilityCoverage || 'None provided'}
-Group Coverage: ${data.groupCoverage || 'None provided'}
-
-BUSINESS OWNER INFORMATION
---------------------------
-Business Owner: ${data.businessOwner || 'Not specified'}
-Business Type: ${data.businessType || 'Not provided'}
-Business Income: ${formatCurrency(data.businessIncome)}
+${existingCoverageText}
 
 ADDITIONAL INFORMATION
 ----------------------
 Additional Comments: ${data.additionalComments || 'None provided'}
-
-CONSENT
--------
-Transactional Messages: ${data.transactionalConsent ? 'Agreed' : 'Not agreed'}
-Marketing Messages: ${data.marketingConsent ? 'Agreed' : 'Not agreed'}
 
 ---
 Valor Financial Specialists Insurance Platform
@@ -390,6 +320,27 @@ export async function POST(request: NextRequest) {
     if (!body.agentEmail) {
       return NextResponse.json(
         { error: 'Agent email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.stateOfResidence) {
+      return NextResponse.json(
+        { error: 'State of residence is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.annualIncome) {
+      return NextResponse.json(
+        { error: 'Annual income is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.hasExistingCoverage) {
+      return NextResponse.json(
+        { error: 'Existing coverage information is required' },
         { status: 400 }
       );
     }

@@ -17,34 +17,30 @@ interface InforceReviewQuoteRequest {
   agentName: string;
   agentEmail: string;
 
+  // Client Information
+  clientName: string;
+  dateOfBirth: string;
+  age: string;
+  useAge: boolean;
+  riskClass: string;
+  state: string;
+
   // Current Policy Information
   currentCarrier: string;
   policyType: string;
   policyNumber: string;
   issueDate: string;
-  issueAge: string;
   deathBenefit: string;
   cashValue: string;
   loanBalance: string;
   currentPremium: string;
   premiumMode: string;
-  riders: string;
-
-  // Client Situation
-  healthChanges: string;
-  financialGoals: string;
-  insuranceNeedsChanges: string;
-  concerns: string;
 
   // Review Objectives
   reviewObjectives: string;
 
   // Additional Information
-  additionalComments: string;
-
-  // Consent
-  transactionalConsent: boolean;
-  marketingConsent: boolean;
+  additionalInfo: string;
 
   // File Attachment
   attachment?: FileAttachment | null;
@@ -64,6 +60,8 @@ function formatDate(dateStr: string): string {
 }
 
 function generateEmailHTML(data: InforceReviewQuoteRequest): string {
+  const clientAge = data.useAge ? data.age : (data.dateOfBirth ? formatDate(data.dateOfBirth) : 'Not specified');
+
   return `
 <!DOCTYPE html>
 <html>
@@ -154,6 +152,27 @@ function generateEmailHTML(data: InforceReviewQuoteRequest): string {
       </div>
     </div>
 
+    <!-- Client Information -->
+    <div class="section">
+      <h2 class="section-title">Client Information</h2>
+      <div class="field">
+        <div class="field-label">Client Name:</div>
+        <div class="field-value">${data.clientName || 'Not provided'}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">${data.useAge ? 'Age' : 'Date of Birth'}:</div>
+        <div class="field-value">${clientAge}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Risk Class:</div>
+        <div class="field-value">${data.riskClass || 'Not specified'}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">State:</div>
+        <div class="field-value">${data.state || 'Not specified'}</div>
+      </div>
+    </div>
+
     <!-- Current Policy Information -->
     <div class="section">
       <h2 class="section-title">Current Policy Information</h2>
@@ -172,10 +191,6 @@ function generateEmailHTML(data: InforceReviewQuoteRequest): string {
       <div class="field">
         <div class="field-label">Issue Date:</div>
         <div class="field-value">${formatDate(data.issueDate)}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Issue Age:</div>
-        <div class="field-value">${data.issueAge || 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">Death Benefit:</div>
@@ -197,37 +212,13 @@ function generateEmailHTML(data: InforceReviewQuoteRequest): string {
         <div class="field-label">Premium Mode:</div>
         <div class="field-value">${data.premiumMode || 'Not specified'}</div>
       </div>
-      <div class="field">
-        <div class="field-label">Riders:</div>
-        <div class="field-value">${data.riders || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Client Situation -->
-    <div class="section">
-      <h2 class="section-title">Client Situation</h2>
-      <div class="field">
-        <div class="field-label">Health Changes:</div>
-        <div class="field-value">${data.healthChanges || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Financial Goals:</div>
-        <div class="field-value">${data.financialGoals || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Insurance Needs Changes:</div>
-        <div class="field-value">${data.insuranceNeedsChanges || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Concerns:</div>
-        <div class="field-value">${data.concerns || 'None provided'}</div>
-      </div>
     </div>
 
     <!-- Review Objectives -->
     <div class="section">
       <h2 class="section-title">Review Objectives</h2>
       <div class="field">
+        <div class="field-label">What would you like to accomplish?</div>
         <div class="field-value">${data.reviewObjectives || 'Not provided'}</div>
       </div>
     </div>
@@ -236,21 +227,8 @@ function generateEmailHTML(data: InforceReviewQuoteRequest): string {
     <div class="section">
       <h2 class="section-title">Additional Information</h2>
       <div class="field">
-        <div class="field-label">Additional Comments:</div>
-        <div class="field-value">${data.additionalComments || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Consent -->
-    <div class="section">
-      <h2 class="section-title">Consent</h2>
-      <div class="field">
-        <div class="field-label">Transactional Messages:</div>
-        <div class="field-value">${data.transactionalConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Marketing Messages:</div>
-        <div class="field-value">${data.marketingConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
+        <div class="field-label">Additional Information (medical, medications):</div>
+        <div class="field-value">${data.additionalInfo || 'None provided'}</div>
       </div>
     </div>
   </div>
@@ -265,6 +243,8 @@ function generateEmailHTML(data: InforceReviewQuoteRequest): string {
 }
 
 function generateEmailText(data: InforceReviewQuoteRequest): string {
+  const clientAge = data.useAge ? data.age : (data.dateOfBirth ? formatDate(data.dateOfBirth) : 'Not specified');
+
   return `
 INFORCE POLICY REVIEW REQUEST
 ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
@@ -274,39 +254,33 @@ AGENT INFORMATION
 Agent Name: ${data.agentName || 'Not provided'}
 Email: ${data.agentEmail}
 
+CLIENT INFORMATION
+------------------
+Client Name: ${data.clientName || 'Not provided'}
+${data.useAge ? 'Age' : 'Date of Birth'}: ${clientAge}
+Risk Class: ${data.riskClass || 'Not specified'}
+State: ${data.state || 'Not specified'}
+
 CURRENT POLICY INFORMATION
 --------------------------
 Current Carrier: ${data.currentCarrier || 'Not provided'}
 Policy Type: ${data.policyType || 'Not specified'}
 Policy Number: ${data.policyNumber || 'Not provided'}
 Issue Date: ${formatDate(data.issueDate)}
-Issue Age: ${data.issueAge || 'Not specified'}
 Death Benefit: ${formatCurrency(data.deathBenefit)}
 Cash Value: ${formatCurrency(data.cashValue)}
 Loan Balance: ${formatCurrency(data.loanBalance)}
 Current Premium: ${formatCurrency(data.currentPremium)}
 Premium Mode: ${data.premiumMode || 'Not specified'}
-Riders: ${data.riders || 'None provided'}
-
-CLIENT SITUATION
-----------------
-Health Changes: ${data.healthChanges || 'None provided'}
-Financial Goals: ${data.financialGoals || 'None provided'}
-Insurance Needs Changes: ${data.insuranceNeedsChanges || 'None provided'}
-Concerns: ${data.concerns || 'None provided'}
 
 REVIEW OBJECTIVES
 -----------------
+What would you like to accomplish?
 ${data.reviewObjectives || 'Not provided'}
 
 ADDITIONAL INFORMATION
 ----------------------
-Additional Comments: ${data.additionalComments || 'None provided'}
-
-CONSENT
--------
-Transactional Messages: ${data.transactionalConsent ? 'Agreed' : 'Not agreed'}
-Marketing Messages: ${data.marketingConsent ? 'Agreed' : 'Not agreed'}
+Additional Information (medical, medications): ${data.additionalInfo || 'None provided'}
 
 ---
 Valor Financial Specialists Insurance Platform
@@ -321,6 +295,13 @@ export async function POST(request: NextRequest) {
     if (!body.agentEmail) {
       return NextResponse.json(
         { error: 'Agent email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.reviewObjectives) {
+      return NextResponse.json(
+        { error: 'Review objectives are required' },
         { status: 400 }
       );
     }

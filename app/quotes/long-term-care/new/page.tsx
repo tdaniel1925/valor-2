@@ -22,12 +22,12 @@ export default function LongTermCareQuotePage() {
     // Client Information
     clientName: '',
     dateOfBirth: '',
+    age: '',
+    useAge: false, // Toggle between DOB and Age
     gender: '',
     stateOfResidence: '',
     maritalStatus: '',
     spouseName: '',
-    spouseDateOfBirth: '',
-    tobaccoUse: '',
     height: '',
     weight: '',
 
@@ -40,29 +40,15 @@ export default function LongTermCareQuotePage() {
     assistedLivingFacility: '',
     nursingHomeCare: '',
 
-    // Health Information
-    currentHealth: '',
-    chronicConditions: '',
-    medications: '',
-    recentHospitalizations: '',
-    mobilityIssues: '',
-    cognitiveIssues: '',
+    // Health and Additional Details
+    additionalHealthDetails: '',
 
-    // Financial Information
-    annualIncome: '',
-    liquidAssets: '',
-    realEstateValue: '',
+    // Existing Coverage
     existingLTCCoverage: '',
     premiumBudget: '',
 
     // Additional Information
-    familyHistory: '',
-    caregivingConcerns: '',
     additionalComments: '',
-
-    // Consent
-    transactionalConsent: false,
-    marketingConsent: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -234,19 +220,49 @@ export default function LongTermCareQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date of Birth
-                  </label>
+              <div>
+                <label className="flex items-center gap-2 mb-2 cursor-pointer">
                   <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
+                    type="checkbox"
+                    name="useAge"
+                    checked={formData.useAge}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Use Age instead of Date of Birth
+                  </span>
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      disabled={formData.useAge}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Age
+                    </label>
+                    <input
+                      type="number"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      disabled={!formData.useAge}
+                      placeholder="Years"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                    />
+                  </div>
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -262,56 +278,40 @@ export default function LongTermCareQuotePage() {
                     <option value="Female">Female</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    State <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="stateOfResidence"
+                    value={formData.stateOfResidence}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select state...</option>
+                    {usStates.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  State of Residence
+                  Marital Status
                 </label>
                 <select
-                  name="stateOfResidence"
-                  value={formData.stateOfResidence}
+                  name="maritalStatus"
+                  value={formData.maritalStatus}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
-                  <option value="">Select state...</option>
-                  {usStates.map(state => (
-                    <option key={state} value={state}>{state}</option>
-                  ))}
+                  <option value="">Select...</option>
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Divorced">Divorced</option>
+                  <option value="Widowed">Widowed</option>
                 </select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Marital Status
-                  </label>
-                  <select
-                    name="maritalStatus"
-                    value={formData.maritalStatus}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Single">Single</option>
-                    <option value="Married">Married</option>
-                    <option value="Divorced">Divorced</option>
-                    <option value="Widowed">Widowed</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Tobacco Use
-                  </label>
-                  <select
-                    name="tobaccoUse"
-                    value={formData.tobaccoUse}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -321,18 +321,6 @@ export default function LongTermCareQuotePage() {
                   type="text"
                   name="spouseName"
                   value={formData.spouseName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Spouse Date of Birth
-                </label>
-                <input
-                  type="date"
-                  name="spouseDateOfBirth"
-                  value={formData.spouseDateOfBirth}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
@@ -374,28 +362,30 @@ export default function LongTermCareQuotePage() {
               <CardTitle>Coverage Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Monthly Benefit Amount <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="monthlyBenefitAmount"
+                  value={formData.monthlyBenefitAmount}
+                  onChange={handleChange}
+                  required
+                  placeholder="$"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Monthly Benefit Amount
-                  </label>
-                  <input
-                    type="text"
-                    name="monthlyBenefitAmount"
-                    value={formData.monthlyBenefitAmount}
-                    onChange={handleChange}
-                    placeholder="$"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Benefit Period
+                    Benefit Period <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="benefitPeriod"
                     value={formData.benefitPeriod}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   >
                     <option value="">Select...</option>
@@ -406,16 +396,15 @@ export default function LongTermCareQuotePage() {
                     <option value="Lifetime">Lifetime</option>
                   </select>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Elimination Period
+                    Elimination Period <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="eliminationPeriod"
                     value={formData.eliminationPeriod}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   >
                     <option value="">Select...</option>
@@ -425,25 +414,26 @@ export default function LongTermCareQuotePage() {
                     <option value="180 Days">180 Days</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Inflation Protection
-                  </label>
-                  <select
-                    name="inflationProtection"
-                    value={formData.inflationProtection}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Select...</option>
-                    <option value="None">None</option>
-                    <option value="3% Simple">3% Simple</option>
-                    <option value="3% Compound">3% Compound</option>
-                    <option value="5% Simple">5% Simple</option>
-                    <option value="5% Compound">5% Compound</option>
-                    <option value="CPI">CPI</option>
-                  </select>
-                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Inflation Protection <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="inflationProtection"
+                  value={formData.inflationProtection}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="">Select...</option>
+                  <option value="None">None</option>
+                  <option value="3% Simple">3% Simple</option>
+                  <option value="3% Compound">3% Compound</option>
+                  <option value="5% Simple">5% Simple</option>
+                  <option value="5% Compound">5% Compound</option>
+                  <option value="CPI">CPI</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -498,134 +488,29 @@ export default function LongTermCareQuotePage() {
             <CardHeader>
               <CardTitle>Health Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Current Health Status
-                </label>
-                <select
-                  name="currentHealth"
-                  value={formData.currentHealth}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Select...</option>
-                  <option value="Excellent">Excellent</option>
-                  <option value="Good">Good</option>
-                  <option value="Fair">Fair</option>
-                  <option value="Poor">Poor</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Chronic Conditions
+                  Additional Details (health, LTC)
                 </label>
                 <textarea
-                  name="chronicConditions"
-                  value={formData.chronicConditions}
+                  name="additionalHealthDetails"
+                  value={formData.additionalHealthDetails}
                   onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Current Medications
-                </label>
-                <textarea
-                  name="medications"
-                  value={formData.medications}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Recent Hospitalizations
-                </label>
-                <textarea
-                  name="recentHospitalizations"
-                  value={formData.recentHospitalizations}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Mobility Issues
-                </label>
-                <textarea
-                  name="mobilityIssues"
-                  value={formData.mobilityIssues}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Cognitive Issues
-                </label>
-                <textarea
-                  name="cognitiveIssues"
-                  value={formData.cognitiveIssues}
-                  onChange={handleChange}
-                  rows={2}
+                  rows={6}
+                  placeholder="Please provide any relevant health information or long-term care details"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Financial Information */}
+          {/* Existing Coverage and Budget */}
           <Card>
             <CardHeader>
-              <CardTitle>Financial Information</CardTitle>
+              <CardTitle>Existing Coverage and Budget</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Annual Income
-                  </label>
-                  <input
-                    type="text"
-                    name="annualIncome"
-                    value={formData.annualIncome}
-                    onChange={handleChange}
-                    placeholder="$"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Liquid Assets
-                  </label>
-                  <input
-                    type="text"
-                    name="liquidAssets"
-                    value={formData.liquidAssets}
-                    onChange={handleChange}
-                    placeholder="$"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Real Estate Value
-                </label>
-                <input
-                  type="text"
-                  name="realEstateValue"
-                  value={formData.realEstateValue}
-                  onChange={handleChange}
-                  placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Existing LTC Coverage
@@ -659,31 +544,7 @@ export default function LongTermCareQuotePage() {
             <CardHeader>
               <CardTitle>Additional Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Family History of Long-Term Care Needs
-                </label>
-                <textarea
-                  name="familyHistory"
-                  value={formData.familyHistory}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Caregiving Concerns
-                </label>
-                <textarea
-                  name="caregivingConcerns"
-                  value={formData.caregivingConcerns}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-              </div>
+            <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Additional Comments
@@ -731,39 +592,6 @@ export default function LongTermCareQuotePage() {
                   </label>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="transactionalConsent"
-                  checked={formData.transactionalConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive transactional messages about my quote request
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketingConsent"
-                  checked={formData.marketingConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive marketing messages about insurance products and services
-                </span>
-              </label>
             </CardContent>
           </Card>
 

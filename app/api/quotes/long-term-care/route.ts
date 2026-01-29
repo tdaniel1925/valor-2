@@ -20,12 +20,12 @@ interface LongTermCareQuoteRequest {
   // Client Information
   clientName: string;
   dateOfBirth: string;
+  age: string;
+  useAge: boolean;
   gender: string;
   stateOfResidence: string;
   maritalStatus: string;
   spouseName: string;
-  spouseDateOfBirth: string;
-  tobaccoUse: string;
   height: string;
   weight: string;
 
@@ -38,29 +38,15 @@ interface LongTermCareQuoteRequest {
   assistedLivingFacility: string;
   nursingHomeCare: string;
 
-  // Health Information
-  currentHealth: string;
-  chronicConditions: string;
-  medications: string;
-  recentHospitalizations: string;
-  mobilityIssues: string;
-  cognitiveIssues: string;
+  // Health and Additional Details
+  additionalHealthDetails: string;
 
-  // Financial Information
-  annualIncome: string;
-  liquidAssets: string;
-  realEstateValue: string;
+  // Existing Coverage
   existingLTCCoverage: string;
   premiumBudget: string;
 
   // Additional Information
-  familyHistory: string;
-  caregivingConcerns: string;
   additionalComments: string;
-
-  // Consent
-  transactionalConsent: boolean;
-  marketingConsent: boolean;
 
   // File Attachment
   attachment?: FileAttachment | null;
@@ -80,6 +66,10 @@ function formatDate(dateStr: string): string {
 }
 
 function generateEmailHTML(data: LongTermCareQuoteRequest): string {
+  const ageOrDob = data.useAge
+    ? `<div class="field"><div class="field-label">Age:</div><div class="field-value">${data.age || 'Not specified'}</div></div>`
+    : `<div class="field"><div class="field-label">Date of Birth:</div><div class="field-value">${formatDate(data.dateOfBirth)}</div></div>`;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -177,10 +167,7 @@ function generateEmailHTML(data: LongTermCareQuoteRequest): string {
         <div class="field-label">Client Name:</div>
         <div class="field-value">${data.clientName || 'Not provided'}</div>
       </div>
-      <div class="field">
-        <div class="field-label">Date of Birth:</div>
-        <div class="field-value">${formatDate(data.dateOfBirth)}</div>
-      </div>
+      ${ageOrDob}
       <div class="field">
         <div class="field-label">Gender:</div>
         <div class="field-value">${data.gender || 'Not specified'}</div>
@@ -194,16 +181,8 @@ function generateEmailHTML(data: LongTermCareQuoteRequest): string {
         <div class="field-value">${data.maritalStatus || 'Not specified'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Tobacco Use:</div>
-        <div class="field-value">${data.tobaccoUse || 'Not specified'}</div>
-      </div>
-      <div class="field">
         <div class="field-label">Spouse Name:</div>
         <div class="field-value">${data.spouseName || 'Not provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Spouse Date of Birth:</div>
-        <div class="field-value">${formatDate(data.spouseDateOfBirth)}</div>
       </div>
       <div class="field">
         <div class="field-label">Height:</div>
@@ -252,46 +231,14 @@ function generateEmailHTML(data: LongTermCareQuoteRequest): string {
     <div class="section">
       <h2 class="section-title">Health Information</h2>
       <div class="field">
-        <div class="field-label">Current Health:</div>
-        <div class="field-value">${data.currentHealth || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Chronic Conditions:</div>
-        <div class="field-value">${data.chronicConditions || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Medications:</div>
-        <div class="field-value">${data.medications || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Recent Hospitalizations:</div>
-        <div class="field-value">${data.recentHospitalizations || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Mobility Issues:</div>
-        <div class="field-value">${data.mobilityIssues || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Cognitive Issues:</div>
-        <div class="field-value">${data.cognitiveIssues || 'None provided'}</div>
+        <div class="field-label">Additional Details (health, LTC):</div>
+        <div class="field-value">${data.additionalHealthDetails || 'None provided'}</div>
       </div>
     </div>
 
-    <!-- Financial Information -->
+    <!-- Existing Coverage and Budget -->
     <div class="section">
-      <h2 class="section-title">Financial Information</h2>
-      <div class="field">
-        <div class="field-label">Annual Income:</div>
-        <div class="field-value">${formatCurrency(data.annualIncome)}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Liquid Assets:</div>
-        <div class="field-value">${formatCurrency(data.liquidAssets)}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Real Estate Value:</div>
-        <div class="field-value">${formatCurrency(data.realEstateValue)}</div>
-      </div>
+      <h2 class="section-title">Existing Coverage and Budget</h2>
       <div class="field">
         <div class="field-label">Existing LTC Coverage:</div>
         <div class="field-value">${data.existingLTCCoverage || 'None provided'}</div>
@@ -306,29 +253,8 @@ function generateEmailHTML(data: LongTermCareQuoteRequest): string {
     <div class="section">
       <h2 class="section-title">Additional Information</h2>
       <div class="field">
-        <div class="field-label">Family History:</div>
-        <div class="field-value">${data.familyHistory || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Caregiving Concerns:</div>
-        <div class="field-value">${data.caregivingConcerns || 'None provided'}</div>
-      </div>
-      <div class="field">
         <div class="field-label">Additional Comments:</div>
         <div class="field-value">${data.additionalComments || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Consent -->
-    <div class="section">
-      <h2 class="section-title">Consent</h2>
-      <div class="field">
-        <div class="field-label">Transactional Messages:</div>
-        <div class="field-value">${data.transactionalConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Marketing Messages:</div>
-        <div class="field-value">${data.marketingConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
       </div>
     </div>
   </div>
@@ -343,6 +269,10 @@ function generateEmailHTML(data: LongTermCareQuoteRequest): string {
 }
 
 function generateEmailText(data: LongTermCareQuoteRequest): string {
+  const ageOrDob = data.useAge
+    ? `Age: ${data.age || 'Not specified'}`
+    : `Date of Birth: ${formatDate(data.dateOfBirth)}`;
+
   return `
 LONG TERM CARE QUOTE REQUEST
 ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
@@ -355,13 +285,11 @@ Email: ${data.agentEmail}
 CLIENT INFORMATION
 ------------------
 Client Name: ${data.clientName || 'Not provided'}
-Date of Birth: ${formatDate(data.dateOfBirth)}
+${ageOrDob}
 Gender: ${data.gender || 'Not specified'}
 State of Residence: ${data.stateOfResidence || 'Not specified'}
 Marital Status: ${data.maritalStatus || 'Not specified'}
-Tobacco Use: ${data.tobaccoUse || 'Not specified'}
 Spouse Name: ${data.spouseName || 'Not provided'}
-Spouse Date of Birth: ${formatDate(data.spouseDateOfBirth)}
 Height: ${data.height || 'Not specified'}
 Weight: ${data.weight || 'Not specified'}
 
@@ -377,31 +305,16 @@ Nursing Home Care: ${data.nursingHomeCare || 'Not specified'}
 
 HEALTH INFORMATION
 ------------------
-Current Health: ${data.currentHealth || 'Not specified'}
-Chronic Conditions: ${data.chronicConditions || 'None provided'}
-Medications: ${data.medications || 'None provided'}
-Recent Hospitalizations: ${data.recentHospitalizations || 'None provided'}
-Mobility Issues: ${data.mobilityIssues || 'None provided'}
-Cognitive Issues: ${data.cognitiveIssues || 'None provided'}
+Additional Details (health, LTC): ${data.additionalHealthDetails || 'None provided'}
 
-FINANCIAL INFORMATION
----------------------
-Annual Income: ${formatCurrency(data.annualIncome)}
-Liquid Assets: ${formatCurrency(data.liquidAssets)}
-Real Estate Value: ${formatCurrency(data.realEstateValue)}
+EXISTING COVERAGE AND BUDGET
+-----------------------------
 Existing LTC Coverage: ${data.existingLTCCoverage || 'None provided'}
 Premium Budget: ${formatCurrency(data.premiumBudget)}
 
 ADDITIONAL INFORMATION
 ----------------------
-Family History: ${data.familyHistory || 'None provided'}
-Caregiving Concerns: ${data.caregivingConcerns || 'None provided'}
 Additional Comments: ${data.additionalComments || 'None provided'}
-
-CONSENT
--------
-Transactional Messages: ${data.transactionalConsent ? 'Agreed' : 'Not agreed'}
-Marketing Messages: ${data.marketingConsent ? 'Agreed' : 'Not agreed'}
 
 ---
 Valor Financial Specialists Insurance Platform
@@ -416,6 +329,41 @@ export async function POST(request: NextRequest) {
     if (!body.agentEmail) {
       return NextResponse.json(
         { error: 'Agent email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.stateOfResidence) {
+      return NextResponse.json(
+        { error: 'State of residence is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.monthlyBenefitAmount) {
+      return NextResponse.json(
+        { error: 'Monthly benefit amount is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.benefitPeriod) {
+      return NextResponse.json(
+        { error: 'Benefit period is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.eliminationPeriod) {
+      return NextResponse.json(
+        { error: 'Elimination period is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.inflationProtection) {
+      return NextResponse.json(
+        { error: 'Inflation protection is required' },
         { status: 400 }
       );
     }

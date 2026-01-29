@@ -13,31 +13,20 @@ interface TermLifeQuoteRequest {
 
   // Client Information
   clientName: string;
+  dobOrAge: string;
   dateOfBirth: string;
+  age: string;
   gender: string;
   stateOfResidence: string;
-  tobaccoUse: string;
   riskClass: string;
 
   // Coverage Details
   deathBenefitAmount: string;
-  levelPremiumPeriod: string;
   termDuration: string;
   conversionOptions: string;
 
-  // Health Information
-  medicalConcerns: string;
-  currentMedications: string;
-
-  // Financial Information
-  premiumBudget: string;
-
   // Additional Information
   additionalComments: string;
-
-  // Consent
-  transactionalConsent: boolean;
-  marketingConsent: boolean;
 }
 
 function formatCurrency(value: string): string {
@@ -152,8 +141,8 @@ function generateEmailHTML(data: TermLifeQuoteRequest): string {
         <div class="field-value">${data.clientName || 'Not provided'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Date of Birth:</div>
-        <div class="field-value">${formatDate(data.dateOfBirth)}</div>
+        <div class="field-label">${data.dobOrAge === 'age' ? 'Age' : 'Date of Birth'}:</div>
+        <div class="field-value">${data.dobOrAge === 'age' ? (data.age || 'Not specified') : formatDate(data.dateOfBirth)}</div>
       </div>
       <div class="field">
         <div class="field-label">Gender:</div>
@@ -162,10 +151,6 @@ function generateEmailHTML(data: TermLifeQuoteRequest): string {
       <div class="field">
         <div class="field-label">State of Residence:</div>
         <div class="field-value">${data.stateOfResidence || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Tobacco Use:</div>
-        <div class="field-value">${data.tobaccoUse || 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">Risk Class:</div>
@@ -181,38 +166,12 @@ function generateEmailHTML(data: TermLifeQuoteRequest): string {
         <div class="field-value">${formatCurrency(data.deathBenefitAmount)}</div>
       </div>
       <div class="field">
-        <div class="field-label">Level Premium Period:</div>
-        <div class="field-value">${data.levelPremiumPeriod || 'Not specified'}</div>
-      </div>
-      <div class="field">
         <div class="field-label">Term Duration:</div>
-        <div class="field-value">${data.termDuration || 'Not specified'}</div>
+        <div class="field-value">${data.termDuration ? data.termDuration + ' Years' : 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">Conversion Options:</div>
         <div class="field-value">${data.conversionOptions || 'Not specified'}</div>
-      </div>
-    </div>
-
-    <!-- Health Information -->
-    <div class="section">
-      <h2 class="section-title">Health Information</h2>
-      <div class="field">
-        <div class="field-label">Medical Concerns:</div>
-        <div class="field-value">${data.medicalConcerns || 'None provided'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Current Medications:</div>
-        <div class="field-value">${data.currentMedications || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Financial Information -->
-    <div class="section">
-      <h2 class="section-title">Financial Information</h2>
-      <div class="field">
-        <div class="field-label">Premium Budget:</div>
-        <div class="field-value">${formatCurrency(data.premiumBudget)}</div>
       </div>
     </div>
 
@@ -222,19 +181,6 @@ function generateEmailHTML(data: TermLifeQuoteRequest): string {
       <div class="field">
         <div class="field-label">Additional Comments:</div>
         <div class="field-value">${data.additionalComments || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Consent -->
-    <div class="section">
-      <h2 class="section-title">Consent</h2>
-      <div class="field">
-        <div class="field-label">Transactional Messages:</div>
-        <div class="field-value">${data.transactionalConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Marketing Messages:</div>
-        <div class="field-value">${data.marketingConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
       </div>
     </div>
   </div>
@@ -261,36 +207,20 @@ Email: ${data.agentEmail}
 CLIENT INFORMATION
 ------------------
 Client Name: ${data.clientName || 'Not provided'}
-Date of Birth: ${formatDate(data.dateOfBirth)}
+${data.dobOrAge === 'age' ? 'Age' : 'Date of Birth'}: ${data.dobOrAge === 'age' ? (data.age || 'Not specified') : formatDate(data.dateOfBirth)}
 Gender: ${data.gender || 'Not specified'}
 State of Residence: ${data.stateOfResidence || 'Not specified'}
-Tobacco Use: ${data.tobaccoUse || 'Not specified'}
 Risk Class: ${data.riskClass || 'Not specified'}
 
 COVERAGE DETAILS
 ----------------
 Death Benefit Amount: ${formatCurrency(data.deathBenefitAmount)}
-Level Premium Period: ${data.levelPremiumPeriod || 'Not specified'}
-Term Duration: ${data.termDuration || 'Not specified'}
+Term Duration: ${data.termDuration ? data.termDuration + ' Years' : 'Not specified'}
 Conversion Options: ${data.conversionOptions || 'Not specified'}
-
-HEALTH INFORMATION
-------------------
-Medical Concerns: ${data.medicalConcerns || 'None provided'}
-Current Medications: ${data.currentMedications || 'None provided'}
-
-FINANCIAL INFORMATION
----------------------
-Premium Budget: ${formatCurrency(data.premiumBudget)}
 
 ADDITIONAL INFORMATION
 ----------------------
 Additional Comments: ${data.additionalComments || 'None provided'}
-
-CONSENT
--------
-Transactional Messages: ${data.transactionalConsent ? 'Agreed' : 'Not agreed'}
-Marketing Messages: ${data.marketingConsent ? 'Agreed' : 'Not agreed'}
 
 ---
 Valor Financial Specialists Insurance Platform
@@ -302,9 +232,30 @@ export async function POST(request: NextRequest) {
     const body: TermLifeQuoteRequest = await request.json();
 
     // Validation
+    if (!body.agentName) {
+      return NextResponse.json(
+        { error: 'Agent name is required' },
+        { status: 400 }
+      );
+    }
+
     if (!body.agentEmail) {
       return NextResponse.json(
         { error: 'Agent email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.stateOfResidence) {
+      return NextResponse.json(
+        { error: 'State of residence is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.deathBenefitAmount) {
+      return NextResponse.json(
+        { error: 'Death benefit amount is required' },
         { status: 400 }
       );
     }
