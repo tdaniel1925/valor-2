@@ -188,13 +188,13 @@ export async function callClientForQuoteRequest(clientPhone: string, clientName:
  * Schedule a call for later
  * Use case: Queue calls for specific times or after certain events
  */
-export async function scheduleCallForQuote(quoteId: string, delayMinutes: number = 30) {
+export async function scheduleCallForQuote(quoteId: string, userId: string, delayMinutes: number = 30) {
   // In a real implementation, you'd use a job queue (like Bull, BullMQ, etc.)
   // For now, this is a placeholder showing the concept
-  
+
   setTimeout(async () => {
     try {
-      await callClientAboutQuote(quoteId);
+      await callClientAboutQuote(quoteId, userId);
     } catch (error) {
       console.error('Failed to make scheduled call:', error);
     }
