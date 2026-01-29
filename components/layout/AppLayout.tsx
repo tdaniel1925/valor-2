@@ -91,6 +91,69 @@ const businessNavigation: NavItem[] = [
           </svg>
         ),
       },
+      {
+        name: "Income Focused",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
+      {
+        name: "Long Term Care",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
+      {
+        name: "Term Life",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
+      {
+        name: "Inforce Policy Review",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
+      {
+        name: "Death Benefit Focused",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
+      {
+        name: "Disability Insurance",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
+      {
+        name: "Annuity Quoting Form",
+        href: "https://quotes.valorfs.com/",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        ),
+      },
     ],
   },
   {
@@ -349,6 +412,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedSections[item.name.toLowerCase().replace(/\s+/g, '')];
+    const isExternalLink = item.href.startsWith('http://') || item.href.startsWith('https://');
 
     return (
       <div key={item.name}>
@@ -389,6 +453,22 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
               </div>
             )}
           </>
+        ) : isExternalLink ? (
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              isChild && "text-sm",
+              darkMode
+                ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+            )}
+          >
+            {item.icon}
+            {item.name}
+          </a>
         ) : (
           <Link
             href={item.href}
