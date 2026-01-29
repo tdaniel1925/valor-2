@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Loader2, Upload } from 'lucide-react';
 
@@ -21,40 +21,33 @@ export default function IncomeFocusedQuotePage() {
 
     // Client Information
     clientName: '',
+    dobOrAge: 'dob',
     dateOfBirth: '',
+    age: '',
     gender: '',
     stateOfResidence: '',
+    riskClass: '',
 
     // Financial Objectives
     initialPremium: '',
-    incomeStartDate: '',
+    premiumFrequency: '',
+    incomeAge: '',
     preferredFaceAmount: '',
-    levelPremiumPeriod: '',
+    fundingDuration: '',
     otherRidersRequested: '',
     additionalContributions: '',
+    additionalContributionsType: '',
 
     // Product Preferences
     preferredSolution: '',
 
     // Additional Information
-    retirementAssets: '',
-    socialSecurityPension: '',
     healthIssues: '',
-
-    // Consent
-    transactionalConsent: false,
-    marketingConsent: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-
-    if (type === 'checkbox') {
-      const checkbox = e.target as HTMLInputElement;
-      setFormData(prev => ({ ...prev, [name]: checkbox.checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +72,7 @@ export default function IncomeFocusedQuotePage() {
             const base64 = reader.result as string;
             resolve({
               filename: selectedFile.name,
-              content: base64.split(',')[1], // Remove data:mime;base64, prefix
+              content: base64.split(',')[1],
               contentType: selectedFile.type,
             });
           };
@@ -107,7 +100,6 @@ export default function IncomeFocusedQuotePage() {
 
       setSubmitStatus('success');
 
-      // Reset form after 2 seconds
       setTimeout(() => {
         router.push('/dashboard');
       }, 2000);
@@ -171,19 +163,20 @@ export default function IncomeFocusedQuotePage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Agent Name
+                  Agent Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="agentName"
                   value={formData.agentName}
                   onChange={handleChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email <span className="text-red-500">*</span>
+                  Agent Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -215,19 +208,56 @@ export default function IncomeFocusedQuotePage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Date of Birth OR Age
+                </label>
+                <div className="space-y-3">
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="dobOrAge"
+                        value="dob"
+                        checked={formData.dobOrAge === 'dob'}
+                        onChange={handleChange}
+                        className="text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Date of Birth</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="dobOrAge"
+                        value="age"
+                        checked={formData.dobOrAge === 'age'}
+                        onChange={handleChange}
+                        className="text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Age</span>
+                    </label>
+                  </div>
+                  {formData.dobOrAge === 'dob' ? (
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      placeholder="Age"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    />
+                  )}
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -243,15 +273,34 @@ export default function IncomeFocusedQuotePage() {
                     <option value="Female">Female</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Risk Class
+                  </label>
+                  <select
+                    name="riskClass"
+                    value={formData.riskClass}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Preferred Plus">Preferred Plus</option>
+                    <option value="Preferred">Preferred</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Preferred Tobacco">Preferred Tobacco</option>
+                    <option value="Standard Tobacco">Standard Tobacco</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  State of Residence
+                  State of Residence <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="stateOfResidence"
                   value={formData.stateOfResidence}
                   onChange={handleChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Select state...</option>
@@ -285,43 +334,60 @@ export default function IncomeFocusedQuotePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Income Start Date
+                    Premium Frequency
                   </label>
-                  <input
-                    type="date"
-                    name="incomeStartDate"
-                    value={formData.incomeStartDate}
+                  <select
+                    name="premiumFrequency"
+                    value={formData.premiumFrequency}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
+                  >
+                    <option value="">Select...</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Semi-Annual">Semi-Annual</option>
+                    <option value="Annual">Annual</option>
+                  </select>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Preferred Face Amount
-                  </label>
-                  <input
-                    type="text"
-                    name="preferredFaceAmount"
-                    value={formData.preferredFaceAmount}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Level Premium Period
-                  </label>
-                  <input
-                    type="text"
-                    name="levelPremiumPeriod"
-                    value={formData.levelPremiumPeriod}
-                    onChange={handleChange}
-                    placeholder="e.g., 10, 15, 20, 25, 30"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Preferred Face Amount (if any)
+                </label>
+                <input
+                  type="text"
+                  name="preferredFaceAmount"
+                  value={formData.preferredFaceAmount}
+                  onChange={handleChange}
+                  placeholder="$"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Funding Duration
+                </label>
+                <input
+                  type="text"
+                  name="fundingDuration"
+                  value={formData.fundingDuration}
+                  onChange={handleChange}
+                  placeholder="e.g., 10, 15, 20, 25, 30"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Income Age
+                </label>
+                <input
+                  type="number"
+                  name="incomeAge"
+                  value={formData.incomeAge}
+                  onChange={handleChange}
+                  placeholder="e.g., 65"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -339,13 +405,26 @@ export default function IncomeFocusedQuotePage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Any Additional Contributions
                 </label>
-                <input
-                  type="text"
-                  name="additionalContributions"
-                  value={formData.additionalContributions}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    name="additionalContributions"
+                    value={formData.additionalContributions}
+                    onChange={handleChange}
+                    placeholder="Amount"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                  <select
+                    name="additionalContributionsType"
+                    value={formData.additionalContributionsType}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Select type...</option>
+                    <option value="Lump Sum">Lump Sum</option>
+                    <option value="1035 Exchange">1035 Exchange</option>
+                  </select>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -380,37 +459,10 @@ export default function IncomeFocusedQuotePage() {
             <CardHeader>
               <CardTitle>Additional Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Current Retirement Assets
-                  </label>
-                  <input
-                    type="text"
-                    name="retirementAssets"
-                    value={formData.retirementAssets}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Social Security/Pension Income
-                  </label>
-                  <input
-                    type="text"
-                    name="socialSecurityPension"
-                    value={formData.socialSecurityPension}
-                    onChange={handleChange}
-                    placeholder="$"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-              </div>
+            <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Health Issues or Other Things to Know About
+                  Additional Comments (health, medications, etc.)
                 </label>
                 <textarea
                   name="healthIssues"
@@ -455,39 +507,6 @@ export default function IncomeFocusedQuotePage() {
                   </label>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="transactionalConsent"
-                  checked={formData.transactionalConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive transactional messages about my quote request
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketingConsent"
-                  checked={formData.marketingConsent}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to receive marketing messages about insurance products and services
-                </span>
-              </label>
             </CardContent>
           </Card>
 

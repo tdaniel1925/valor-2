@@ -19,29 +19,28 @@ interface IncomeFocusedQuoteRequest {
 
   // Client Information
   clientName: string;
+  dobOrAge: string;
   dateOfBirth: string;
+  age: string;
   gender: string;
   stateOfResidence: string;
+  riskClass: string;
 
   // Financial Objectives
   initialPremium: string;
-  incomeStartDate: string;
+  premiumFrequency: string;
+  incomeAge: string;
   preferredFaceAmount: string;
-  levelPremiumPeriod: string;
+  fundingDuration: string;
   otherRidersRequested: string;
   additionalContributions: string;
+  additionalContributionsType: string;
 
   // Product Preferences
   preferredSolution: string;
 
   // Additional Information
-  retirementAssets: string;
-  socialSecurityPension: string;
   healthIssues: string;
-
-  // Consent
-  transactionalConsent: boolean;
-  marketingConsent: boolean;
 
   // File Attachment
   attachment?: FileAttachment | null;
@@ -49,19 +48,16 @@ interface IncomeFocusedQuoteRequest {
 
 function formatCurrency(value: string): string {
   if (!value) return 'Not specified';
-  // Remove non-numeric characters except decimal point
   const numericValue = value.replace(/[^0-9.]/g, '');
   if (!numericValue) return value;
   return `$${parseFloat(numericValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-function formatDate(dateStr: string): string {
-  if (!dateStr) return 'Not specified';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
 function generateEmailHTML(data: IncomeFocusedQuoteRequest): string {
+  const dobOrAgeDisplay = data.dobOrAge === 'dob'
+    ? (data.dateOfBirth ? new Date(data.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not specified')
+    : (data.age || 'Not specified');
+
   return `
 <!DOCTYPE html>
 <html>
@@ -170,12 +166,16 @@ function generateEmailHTML(data: IncomeFocusedQuoteRequest): string {
         <div class="field-value">${data.clientName || 'Not provided'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Date of Birth:</div>
-        <div class="field-value">${formatDate(data.dateOfBirth)}</div>
+        <div class="field-label">${data.dobOrAge === 'dob' ? 'Date of Birth' : 'Age'}:</div>
+        <div class="field-value">${dobOrAgeDisplay}</div>
       </div>
       <div class="field">
         <div class="field-label">Gender:</div>
         <div class="field-value">${data.gender || 'Not specified'}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Risk Class:</div>
+        <div class="field-value">${data.riskClass || 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">State of Residence:</div>
@@ -191,16 +191,20 @@ function generateEmailHTML(data: IncomeFocusedQuoteRequest): string {
         <div class="field-value">${formatCurrency(data.initialPremium)}</div>
       </div>
       <div class="field">
-        <div class="field-label">Income Start Date:</div>
-        <div class="field-value">${formatDate(data.incomeStartDate)}</div>
+        <div class="field-label">Premium Frequency:</div>
+        <div class="field-value">${data.premiumFrequency || 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">Preferred Face Amount:</div>
-        <div class="field-value">${data.preferredFaceAmount || 'Not specified'}</div>
+        <div class="field-value">${data.preferredFaceAmount ? formatCurrency(data.preferredFaceAmount) : 'Not specified'}</div>
       </div>
       <div class="field">
-        <div class="field-label">Level Premium Period:</div>
-        <div class="field-value">${data.levelPremiumPeriod || 'Not specified'}</div>
+        <div class="field-label">Funding Duration:</div>
+        <div class="field-value">${data.fundingDuration || 'Not specified'}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Income Age:</div>
+        <div class="field-value">${data.incomeAge || 'Not specified'}</div>
       </div>
       <div class="field">
         <div class="field-label">Other Riders Requested:</div>
@@ -208,7 +212,7 @@ function generateEmailHTML(data: IncomeFocusedQuoteRequest): string {
       </div>
       <div class="field">
         <div class="field-label">Additional Contributions:</div>
-        <div class="field-value">${data.additionalContributions || 'None'}</div>
+        <div class="field-value">${data.additionalContributions || 'None'} ${data.additionalContributionsType ? '(' + data.additionalContributionsType + ')' : ''}</div>
       </div>
     </div>
 
@@ -228,29 +232,8 @@ function generateEmailHTML(data: IncomeFocusedQuoteRequest): string {
     <div class="section">
       <h2 class="section-title">Additional Information</h2>
       <div class="field">
-        <div class="field-label">Current Retirement Assets:</div>
-        <div class="field-value">${data.retirementAssets || 'Not specified'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Social Security/Pension Income:</div>
-        <div class="field-value">${formatCurrency(data.socialSecurityPension)}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Health Issues / Notes:</div>
+        <div class="field-label">Additional Comments (health, medications, etc.):</div>
         <div class="field-value">${data.healthIssues || 'None provided'}</div>
-      </div>
-    </div>
-
-    <!-- Consent -->
-    <div class="section">
-      <h2 class="section-title">Consent</h2>
-      <div class="field">
-        <div class="field-label">Transactional Messages:</div>
-        <div class="field-value">${data.transactionalConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
-      </div>
-      <div class="field">
-        <div class="field-label">Marketing Messages:</div>
-        <div class="field-value">${data.marketingConsent ? '✓ Agreed' : '✗ Not agreed'}</div>
       </div>
     </div>
   </div>
@@ -265,6 +248,10 @@ function generateEmailHTML(data: IncomeFocusedQuoteRequest): string {
 }
 
 function generateEmailText(data: IncomeFocusedQuoteRequest): string {
+  const dobOrAgeDisplay = data.dobOrAge === 'dob'
+    ? (data.dateOfBirth ? new Date(data.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not specified')
+    : (data.age || 'Not specified');
+
   return `
 INCOME SOLUTION QUOTE REQUEST
 ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
@@ -277,18 +264,20 @@ Email: ${data.agentEmail}
 CLIENT INFORMATION
 ------------------
 Client Name: ${data.clientName || 'Not provided'}
-Date of Birth: ${formatDate(data.dateOfBirth)}
+${data.dobOrAge === 'dob' ? 'Date of Birth' : 'Age'}: ${dobOrAgeDisplay}
 Gender: ${data.gender || 'Not specified'}
+Risk Class: ${data.riskClass || 'Not specified'}
 State of Residence: ${data.stateOfResidence || 'Not specified'}
 
 FINANCIAL OBJECTIVES
 --------------------
 Initial Premium: ${formatCurrency(data.initialPremium)}
-Income Start Date: ${formatDate(data.incomeStartDate)}
-Preferred Face Amount: ${data.preferredFaceAmount || 'Not specified'}
-Level Premium Period: ${data.levelPremiumPeriod || 'Not specified'}
+Premium Frequency: ${data.premiumFrequency || 'Not specified'}
+Preferred Face Amount: ${data.preferredFaceAmount ? formatCurrency(data.preferredFaceAmount) : 'Not specified'}
+Funding Duration: ${data.fundingDuration || 'Not specified'}
+Income Age: ${data.incomeAge || 'Not specified'}
 Other Riders Requested: ${data.otherRidersRequested || 'None'}
-Additional Contributions: ${data.additionalContributions || 'None'}
+Additional Contributions: ${data.additionalContributions || 'None'} ${data.additionalContributionsType ? '(' + data.additionalContributionsType + ')' : ''}
 
 PRODUCT PREFERENCES
 -------------------
@@ -296,14 +285,7 @@ Preferred Solution: ${data.preferredSolution || 'Not specified'}
 
 ADDITIONAL INFORMATION
 ----------------------
-Current Retirement Assets: ${data.retirementAssets || 'Not specified'}
-Social Security/Pension Income: ${formatCurrency(data.socialSecurityPension)}
-Health Issues / Notes: ${data.healthIssues || 'None provided'}
-
-CONSENT
--------
-Transactional Messages: ${data.transactionalConsent ? 'Agreed' : 'Not agreed'}
-Marketing Messages: ${data.marketingConsent ? 'Agreed' : 'Not agreed'}
+Additional Comments (health, medications, etc.): ${data.healthIssues || 'None provided'}
 
 ---
 Valor Financial Specialists Insurance Platform
@@ -318,6 +300,20 @@ export async function POST(request: NextRequest) {
     if (!body.agentEmail) {
       return NextResponse.json(
         { error: 'Agent email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.agentName) {
+      return NextResponse.json(
+        { error: 'Agent name is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.stateOfResidence) {
+      return NextResponse.json(
+        { error: 'State of residence is required' },
         { status: 400 }
       );
     }
