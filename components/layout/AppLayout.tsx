@@ -396,6 +396,7 @@ interface AppLayoutProps {
 export default function AppLayout({ children, user }: AppLayoutProps) {
   const pathname = usePathname();
   const [darkMode, setDarkMode] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     quotes: false,
     illustrations: false,
@@ -444,6 +445,11 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       localStorage.setItem('expandedSections', JSON.stringify(newSections));
       return newSections;
     });
+  };
+
+  // Close mobile menu when navigating
+  const handleNavClick = () => {
+    setMobileMenuOpen(false);
   };
 
   // Render navigation item with optional children
@@ -511,6 +517,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
         ) : (
           <Link
             href={item.href}
+            onClick={handleNavClick}
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
               isChild && "text-sm",
@@ -533,7 +540,289 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
 
   return (
     <div className={cn("min-h-screen flex", darkMode ? "bg-gray-900" : "bg-gray-50")}>
-      {/* Sidebar */}
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setMobileMenuOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        aria-label="Open menu"
+      >
+        <svg className="w-6 h-6 text-gray-900 dark:text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Mobile drawer overlay */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <aside
+            className={cn(
+              "lg:hidden fixed inset-y-0 left-0 w-72 z-50 transform transition-transform duration-300 ease-in-out",
+              darkMode ? "bg-gray-800" : "bg-white"
+            )}
+          >
+            <div className="flex flex-col h-full">
+              {/* Mobile drawer header */}
+              <div className={cn(
+                "flex items-center justify-between h-16 px-6 border-b",
+                darkMode ? "border-gray-700" : "border-gray-200"
+              )}>
+                <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">V</span>
+                  </div>
+                  <span className={cn("font-bold", darkMode ? "text-white" : "text-gray-900")}>
+                    Valor
+                  </span>
+                </Link>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Mobile drawer navigation */}
+              <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                {/* Main Section */}
+                {mainNavigation.map((item) => renderNavItem(item))}
+
+                {/* Business Section */}
+                <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <div className="px-3 mb-2">
+                    <p className={cn(
+                      "text-xs font-semibold uppercase tracking-wider",
+                      darkMode ? "text-gray-500" : "text-gray-400"
+                    )}>
+                      Business
+                    </p>
+                  </div>
+                  {businessNavigation.map((item) => renderNavItem(item))}
+                </div>
+
+                {/* Applications Section */}
+                <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <div className="px-3 mb-2">
+                    <p className={cn(
+                      "text-xs font-semibold uppercase tracking-wider",
+                      darkMode ? "text-gray-500" : "text-gray-400"
+                    )}>
+                      Applications
+                    </p>
+                  </div>
+                  {applicationsNavigation.map((item) => renderNavItem(item))}
+                </div>
+
+                {/* Reports Section (ADMIN, MANAGER, EXECUTIVE) */}
+                <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <div className="px-3 mb-2">
+                    <p className={cn(
+                      "text-xs font-semibold uppercase tracking-wider",
+                      darkMode ? "text-gray-500" : "text-gray-400"
+                    )}>
+                      Reports
+                    </p>
+                  </div>
+                  {reportsNavigation.map((item) => renderNavItem(item))}
+                </div>
+
+                {/* Administration Section (ADMIN only) */}
+                <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <div className="px-3 mb-2">
+                    <p className={cn(
+                      "text-xs font-semibold uppercase tracking-wider",
+                      darkMode ? "text-gray-500" : "text-gray-400"
+                    )}>
+                      Administration
+                    </p>
+                  </div>
+                  {adminNavigation.map((item) => renderNavItem(item))}
+                </div>
+
+                {/* Learning & Support Section */}
+                <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <div className="px-3 mb-2">
+                    <p className={cn(
+                      "text-xs font-semibold uppercase tracking-wider",
+                      darkMode ? "text-gray-500" : "text-gray-400"
+                    )}>
+                      Learning & Support
+                    </p>
+                  </div>
+                  <Link
+                    href="/training"
+                    onClick={handleNavClick}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      pathname.startsWith('/training')
+                        ? darkMode
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-blue-50 text-blue-600"
+                        : darkMode
+                        ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Training
+                  </Link>
+                  <Link
+                    href="/resources"
+                    onClick={handleNavClick}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      pathname.startsWith('/resources')
+                        ? darkMode
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-blue-50 text-blue-600"
+                        : darkMode
+                        ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    Resources
+                  </Link>
+                  <Link
+                    href="/help"
+                    onClick={handleNavClick}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      pathname.startsWith('/help')
+                        ? darkMode
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-blue-50 text-blue-600"
+                        : darkMode
+                        ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Help Center
+                  </Link>
+                  <Link
+                    href="/knowledge-base"
+                    onClick={handleNavClick}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      pathname.startsWith('/knowledge-base')
+                        ? darkMode
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-blue-50 text-blue-600"
+                        : darkMode
+                        ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Knowledge Base
+                  </Link>
+                  <Link
+                    href="/community"
+                    onClick={handleNavClick}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      pathname.startsWith('/community')
+                        ? darkMode
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-blue-50 text-blue-600"
+                        : darkMode
+                        ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Community
+                  </Link>
+                </div>
+              </nav>
+
+              {/* Mobile drawer user section */}
+              <div className={cn(
+                "flex-shrink-0 border-t p-4",
+                darkMode ? "border-gray-700" : "border-gray-200"
+              )}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center",
+                    darkMode ? "bg-blue-900/30" : "bg-blue-100"
+                  )}>
+                    <span className={cn(
+                      "font-semibold text-sm",
+                      darkMode ? "text-blue-400" : "text-blue-600"
+                    )}>
+                      {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      "text-sm font-medium truncate",
+                      darkMode ? "text-white" : "text-gray-900"
+                    )}>
+                      {user?.firstName && user?.lastName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user?.email}
+                    </p>
+                    <form action="/auth/signout" method="post">
+                      <button
+                        type="submit"
+                        className={cn(
+                          "text-xs",
+                          darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
+                        )}
+                      >
+                        Sign out
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <button
+                  onClick={toggleDarkMode}
+                  className={cn(
+                    "w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors min-h-[44px]",
+                    darkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  )}
+                >
+                  {darkMode ? (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      Light Mode
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                      Dark Mode
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
+
+      {/* Desktop Sidebar - hide on mobile */}
       <aside className="hidden lg:flex lg:flex-shrink-0">
         <div className={cn(
           "flex flex-col w-64 border-r",
@@ -776,27 +1065,8 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
         </div>
       </aside>
 
-      {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">V</span>
-            </div>
-            <span className="font-bold text-gray-900">Valor</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            {user && (
-              <span className="text-sm text-gray-600">
-                {user.firstName || user.email}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Main content area */}
-      <div className="flex-1 flex flex-col lg:pt-0 pt-16">
+      <div className="flex-1 flex flex-col">
         {/* Top header bar for desktop - aligned with sidebar header height */}
         <div className={cn(
           "hidden lg:flex items-center h-16 border-b px-6",
@@ -811,16 +1081,109 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
           </div>
         </div>
 
-        {/* Main content */}
+        {/* Main content - add padding bottom on mobile for bottom nav */}
         <main className={cn(
-          "flex-1 overflow-y-auto",
+          "flex-1 overflow-y-auto pb-16 lg:pb-0",
           darkMode ? "bg-gray-900" : "bg-gray-50"
         )}>
           {children}
         </main>
 
+        {/* Bottom mobile navigation bar */}
+        <nav className={cn(
+          "lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t safe-bottom",
+          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        )}>
+          <div className="grid grid-cols-5 h-16">
+            <Link
+              href="/dashboard"
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-colors min-h-[44px]",
+                pathname === "/dashboard"
+                  ? darkMode
+                    ? "text-blue-400"
+                    : "text-blue-600"
+                  : darkMode
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span className="text-xs font-medium">Home</span>
+            </Link>
+            <Link
+              href="/cases"
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-colors min-h-[44px]",
+                pathname.startsWith("/cases")
+                  ? darkMode
+                    ? "text-blue-400"
+                    : "text-blue-600"
+                  : darkMode
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-xs font-medium">Cases</span>
+            </Link>
+            <Link
+              href="/quotes"
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-colors min-h-[44px]",
+                pathname.startsWith("/quotes")
+                  ? darkMode
+                    ? "text-blue-400"
+                    : "text-blue-600"
+                  : darkMode
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span className="text-xs font-medium">Quotes</span>
+            </Link>
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-colors min-h-[44px]",
+                darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span className="text-xs font-medium">Menu</span>
+            </button>
+            <Link
+              href="/profile"
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-colors min-h-[44px]",
+                pathname.startsWith("/profile")
+                  ? darkMode
+                    ? "text-blue-400"
+                    : "text-blue-600"
+                  : darkMode
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="text-xs font-medium">Profile</span>
+            </Link>
+          </div>
+        </nav>
+
         {/* Chatbot Widget */}
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+        <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 lg:bottom-6">
           <Chatbot darkMode={darkMode} />
         </div>
       </div>

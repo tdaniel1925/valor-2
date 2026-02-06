@@ -133,43 +133,55 @@ export default function DisabilityQuotePage() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
             Disability Insurance Quote Request
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Request a customized disability insurance quote
           </p>
         </div>
 
         {submitStatus === 'success' && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            <div>
-              <p className="font-medium text-green-900 dark:text-green-100">Quote request submitted successfully!</p>
-              <p className="text-sm text-green-700 dark:text-green-300">Redirecting to dashboard...</p>
+          <div className="rounded-lg bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 p-4 mb-6 sm:mb-8">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base font-medium text-green-800 dark:text-green-200">
+                  Quote request submitted successfully!
+                </p>
+                <p className="text-xs sm:text-sm text-green-700 dark:text-green-300 mt-1">
+                  Redirecting to dashboard...
+                </p>
+              </div>
             </div>
           </div>
         )}
 
         {submitStatus === 'error' && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <div>
-              <p className="font-medium text-red-900 dark:text-red-100">Failed to submit quote request</p>
-              <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+          <div className="rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4 mb-6 sm:mb-8">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base font-medium text-red-800 dark:text-red-200">
+                  Failed to submit quote request
+                </p>
+                <p className="text-xs sm:text-sm text-red-700 dark:text-red-300 mt-1">
+                  {errorMessage}
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Agent Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Agent Information</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Agent Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Agent Name
@@ -179,7 +191,7 @@ export default function DisabilityQuotePage() {
                   name="agentName"
                   value={formData.agentName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
               <div>
@@ -192,18 +204,18 @@ export default function DisabilityQuotePage() {
                   value={formData.agentEmail}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Client Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Information</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Client Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Client Name
@@ -213,22 +225,23 @@ export default function DisabilityQuotePage() {
                   name="clientName"
                   value={formData.clientName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
               <div>
-                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                <label className="flex items-center gap-2 mb-2 cursor-pointer min-h-[44px]">
                   <input
                     type="checkbox"
                     name="useAge"
                     checked={formData.useAge}
                     onChange={handleChange}
+                    className="w-5 h-5 sm:w-4 sm:h-4"
                   />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300">
                     Use Age instead of Date of Birth
                   </span>
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Date of Birth
@@ -239,7 +252,7 @@ export default function DisabilityQuotePage() {
                       value={formData.dateOfBirth}
                       onChange={handleChange}
                       disabled={formData.useAge}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -253,12 +266,12 @@ export default function DisabilityQuotePage() {
                       onChange={handleChange}
                       disabled={!formData.useAge}
                       placeholder="Years"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] disabled:opacity-50"
                     />
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -267,7 +280,7 @@ export default function DisabilityQuotePage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   >
                     <option value="">Select...</option>
                     <option value="Male">Male</option>
@@ -283,7 +296,7 @@ export default function DisabilityQuotePage() {
                     value={formData.stateOfResidence}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   >
                     <option value="">Select state...</option>
                     {usStates.map(state => (
@@ -300,7 +313,7 @@ export default function DisabilityQuotePage() {
                   name="riskClass"
                   value={formData.riskClass}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 >
                   <option value="">Select...</option>
                   <option value="Preferred Elite">Preferred Elite</option>
@@ -310,7 +323,7 @@ export default function DisabilityQuotePage() {
                   <option value="Substandard">Substandard</option>
                 </select>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Occupation
@@ -320,7 +333,7 @@ export default function DisabilityQuotePage() {
                     name="occupation"
                     value={formData.occupation}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   />
                 </div>
                 <div>
@@ -334,7 +347,7 @@ export default function DisabilityQuotePage() {
                     onChange={handleChange}
                     required
                     placeholder="$"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   />
                 </div>
               </div>
@@ -346,7 +359,7 @@ export default function DisabilityQuotePage() {
                   name="employmentType"
                   value={formData.employmentType}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 >
                   <option value="">Select...</option>
                   <option value="W-2 Employee">W-2 Employee</option>
@@ -359,11 +372,11 @@ export default function DisabilityQuotePage() {
           </Card>
 
           {/* Coverage Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Coverage Details</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Coverage Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Monthly Benefit
@@ -375,21 +388,22 @@ export default function DisabilityQuotePage() {
                   onChange={handleChange}
                   disabled={formData.calculateSixtyPercent}
                   placeholder="$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] disabled:opacity-50"
                 />
-                <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                <label className="flex items-center gap-2 mt-2 cursor-pointer min-h-[44px]">
                   <input
                     type="checkbox"
                     name="calculateSixtyPercent"
                     checked={formData.calculateSixtyPercent}
                     onChange={handleChange}
+                    className="w-5 h-5 sm:w-4 sm:h-4"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                     Calculate 60% of income
                   </span>
                 </label>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Elimination Period
@@ -398,7 +412,7 @@ export default function DisabilityQuotePage() {
                     name="eliminationPeriod"
                     value={formData.eliminationPeriod}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   >
                     <option value="">Select...</option>
                     <option value="30 Days">30 Days</option>
@@ -415,7 +429,7 @@ export default function DisabilityQuotePage() {
                     name="benefitPeriod"
                     value={formData.benefitPeriod}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   >
                     <option value="">Select...</option>
                     <option value="2 Years">2 Years</option>
@@ -429,17 +443,17 @@ export default function DisabilityQuotePage() {
           </Card>
 
           {/* Existing Coverage */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Existing Coverage</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Existing Coverage</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Existing Disability Coverage <span className="text-red-500">*</span>
                 </label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                     <input
                       type="radio"
                       name="hasExistingCoverage"
@@ -447,10 +461,11 @@ export default function DisabilityQuotePage() {
                       checked={formData.hasExistingCoverage === 'Yes'}
                       onChange={handleChange}
                       required
+                      className="w-5 h-5 sm:w-4 sm:h-4"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                    <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">Yes</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                     <input
                       type="radio"
                       name="hasExistingCoverage"
@@ -458,8 +473,9 @@ export default function DisabilityQuotePage() {
                       checked={formData.hasExistingCoverage === 'No'}
                       onChange={handleChange}
                       required
+                      className="w-5 h-5 sm:w-4 sm:h-4"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                    <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">No</span>
                   </label>
                 </div>
               </div>
@@ -467,29 +483,31 @@ export default function DisabilityQuotePage() {
               {formData.hasExistingCoverage === 'Yes' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Through work?
                     </label>
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2 cursor-pointer">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                         <input
                           type="radio"
                           name="existingThroughWork"
                           value="Yes"
                           checked={formData.existingThroughWork === 'Yes'}
                           onChange={handleChange}
+                          className="w-5 h-5 sm:w-4 sm:h-4"
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                        <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">Yes</span>
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                         <input
                           type="radio"
                           name="existingThroughWork"
                           value="No"
                           checked={formData.existingThroughWork === 'No'}
                           onChange={handleChange}
+                          className="w-5 h-5 sm:w-4 sm:h-4"
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                        <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">No</span>
                       </label>
                     </div>
                   </div>
@@ -505,7 +523,7 @@ export default function DisabilityQuotePage() {
                         value={formData.groupCoverageAmount}
                         onChange={handleChange}
                         placeholder="$"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                       />
                     </div>
                   )}
@@ -520,7 +538,7 @@ export default function DisabilityQuotePage() {
                       value={formData.personalCoverageAmount}
                       onChange={handleChange}
                       placeholder="$"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                     />
                   </div>
                 </>
@@ -529,11 +547,11 @@ export default function DisabilityQuotePage() {
           </Card>
 
           {/* Additional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Additional Information</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Additional Comments
@@ -543,31 +561,31 @@ export default function DisabilityQuotePage() {
                   value={formData.additionalComments}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* File Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Supporting Documentation</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Supporting Documentation</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Please attach any relevant medical information or financial documentation that may assist with underwriting.
                 </label>
                 <div className="mt-2">
-                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                  <label className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 sm:p-8 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer min-h-[120px] flex flex-col items-center justify-center">
                     <div className="flex flex-col items-center gap-2">
                       <Upload className="h-8 w-8 text-gray-400" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                         {selectedFile ? selectedFile.name : 'Click to upload file'}
                       </span>
                       {selectedFile && (
-                        <span className="text-xs text-gray-500 dark:text-gray-500">
+                        <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">
                           {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                         </span>
                       )}
@@ -585,19 +603,20 @@ export default function DisabilityQuotePage() {
           </Card>
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end mt-6">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.back()}
               disabled={isSubmitting}
+              className="w-full sm:w-auto px-6 py-3 text-base font-medium min-h-[44px]"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="min-w-[200px]"
+              className="w-full sm:w-auto px-6 py-3 text-base font-medium min-h-[44px]"
             >
               {isSubmitting ? (
                 <>

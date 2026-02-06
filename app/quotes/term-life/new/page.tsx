@@ -89,43 +89,55 @@ export default function TermLifeQuotePage() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
             Term Life Quote Request
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Request a customized term life insurance quote
           </p>
         </div>
 
         {submitStatus === 'success' && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            <div>
-              <p className="font-medium text-green-900 dark:text-green-100">Quote request submitted successfully!</p>
-              <p className="text-sm text-green-700 dark:text-green-300">Redirecting to dashboard...</p>
+          <div className="rounded-lg bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base font-medium text-green-800 dark:text-green-200">
+                  Quote request submitted successfully!
+                </p>
+                <p className="text-xs sm:text-sm text-green-700 dark:text-green-300 mt-1">
+                  Redirecting to dashboard...
+                </p>
+              </div>
             </div>
           </div>
         )}
 
         {submitStatus === 'error' && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <div>
-              <p className="font-medium text-red-900 dark:text-red-100">Failed to submit quote request</p>
-              <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+          <div className="rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base font-medium text-red-800 dark:text-red-200">
+                  Failed to submit quote request
+                </p>
+                <p className="text-xs sm:text-sm text-red-700 dark:text-red-300 mt-1">
+                  {errorMessage || 'Please try again or contact support.'}
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Agent Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Agent Information</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Agent Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Agent Name <span className="text-red-500">*</span>
@@ -136,7 +148,7 @@ export default function TermLifeQuotePage() {
                   value={formData.agentName}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
               <div>
@@ -149,18 +161,18 @@ export default function TermLifeQuotePage() {
                   value={formData.agentEmail}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Client Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Information</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Client Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Client Name
@@ -170,35 +182,35 @@ export default function TermLifeQuotePage() {
                   name="clientName"
                   value={formData.clientName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   DOB or Age
                 </label>
-                <div className="flex gap-6 mb-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                     <input
                       type="radio"
                       name="dobOrAge"
                       value="dob"
                       checked={formData.dobOrAge === 'dob'}
                       onChange={handleChange}
-                      className="cursor-pointer"
+                      className="w-5 h-5 sm:w-4 sm:h-4 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Date of Birth</span>
+                    <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">Date of Birth</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                     <input
                       type="radio"
                       name="dobOrAge"
                       value="age"
                       checked={formData.dobOrAge === 'age'}
                       onChange={handleChange}
-                      className="cursor-pointer"
+                      className="w-5 h-5 sm:w-4 sm:h-4 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Age</span>
+                    <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">Age</span>
                   </label>
                 </div>
                 {formData.dobOrAge === 'dob' ? (
@@ -207,7 +219,7 @@ export default function TermLifeQuotePage() {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   />
                 ) : (
                   <input
@@ -218,11 +230,11 @@ export default function TermLifeQuotePage() {
                     placeholder="Enter age"
                     min="0"
                     max="120"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   />
                 )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
@@ -231,7 +243,7 @@ export default function TermLifeQuotePage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   >
                     <option value="">Select...</option>
                     <option value="Male">Male</option>
@@ -247,7 +259,7 @@ export default function TermLifeQuotePage() {
                     value={formData.stateOfResidence}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   >
                     <option value="">Select state...</option>
                     {usStates.map(state => (
@@ -264,7 +276,7 @@ export default function TermLifeQuotePage() {
                   name="riskClass"
                   value={formData.riskClass}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 >
                   <option value="">Select...</option>
                   <option value="Preferred Plus">Preferred Plus</option>
@@ -278,11 +290,11 @@ export default function TermLifeQuotePage() {
           </Card>
 
           {/* Coverage Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Coverage Details</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Coverage Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Death Benefit Amount <span className="text-red-500">*</span>
@@ -294,7 +306,7 @@ export default function TermLifeQuotePage() {
                   onChange={handleChange}
                   placeholder="$"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 />
               </div>
               <div>
@@ -305,7 +317,7 @@ export default function TermLifeQuotePage() {
                   name="termDuration"
                   value={formData.termDuration}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 >
                   <option value="">Select...</option>
                   <option value="1">1 Year</option>
@@ -323,28 +335,28 @@ export default function TermLifeQuotePage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Conversion Options
                 </label>
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                     <input
                       type="radio"
                       name="conversionOptions"
                       value="Yes"
                       checked={formData.conversionOptions === 'Yes'}
                       onChange={handleChange}
-                      className="cursor-pointer"
+                      className="w-5 h-5 sm:w-4 sm:h-4 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                    <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">Yes</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                     <input
                       type="radio"
                       name="conversionOptions"
                       value="No"
                       checked={formData.conversionOptions === 'No'}
                       onChange={handleChange}
-                      className="cursor-pointer"
+                      className="w-5 h-5 sm:w-4 sm:h-4 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                    <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">No</span>
                   </label>
                 </div>
               </div>
@@ -352,11 +364,11 @@ export default function TermLifeQuotePage() {
           </Card>
 
           {/* Additional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl">Additional Information</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Additional Comments
@@ -366,34 +378,35 @@ export default function TermLifeQuotePage() {
                   value={formData.additionalComments}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end mt-6">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.back()}
               disabled={isSubmitting}
+              className="w-full sm:w-auto px-6 py-3 text-base font-medium min-h-[44px]"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="min-w-[200px]"
+              className="w-full sm:w-auto px-6 py-3 text-base font-medium min-h-[44px]"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Submitting...
                 </>
               ) : (
-                'Submit Request'
+                'Submit Quote Request'
               )}
             </Button>
           </div>
