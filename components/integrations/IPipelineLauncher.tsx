@@ -105,10 +105,29 @@ export function IPipelineLauncher({
         }),
       });
 
-      const data = await response.json();
-
+      // Check if response is OK first
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate iPipeline SSO request');
+        let errorMessage = 'Failed to generate iPipeline SSO request';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // Response wasn't JSON, use status text
+          errorMessage = `${errorMessage} (${response.status}: ${response.statusText})`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Now safely parse JSON
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        throw new Error('Invalid response from SSO endpoint - received non-JSON response');
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'SSO request failed');
       }
 
       if (data.samlResponse && data.acsUrl) {
@@ -174,7 +193,7 @@ export function IPipelineLauncher({
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border-2">
           <DialogHeader>
             <DialogTitle>Launch iPipeline Product</DialogTitle>
             <DialogDescription>
@@ -265,7 +284,7 @@ export function IPipelineLauncher({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border-2">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {status === 'loading' && (
@@ -290,15 +309,15 @@ export function IPipelineLauncher({
           <DialogDescription asChild>
             <div>
               {status === 'loading' && (
-                <span>Please wait while we authenticate your session with iPipeline {productInfo.name}...</span>
+                <span className="text-gray-700 dark:text-gray-300">Please wait while we authenticate your session with iPipeline {productInfo.name}...</span>
               )}
               {status === 'success' && (
-                <span>iPipeline {productInfo.name} has been opened in a new window. You can close this dialog.</span>
+                <span className="text-gray-700 dark:text-gray-300">iPipeline {productInfo.name} has been opened in a new window. You can close this dialog.</span>
               )}
               {status === 'error' && (
-                <div className="space-y-2">
-                  <span className="block text-red-600">{error}</span>
-                  <span className="block text-sm text-gray-500">
+                <div className="space-y-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg mt-2">
+                  <span className="block text-red-700 dark:text-red-300 font-semibold">{error}</span>
+                  <span className="block text-sm text-red-600 dark:text-red-400">
                     If this problem persists, please contact support.
                   </span>
                 </div>

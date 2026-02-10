@@ -208,39 +208,36 @@ export default function IPipelineIntegrationPage() {
               </CardContent>
             </Card>
 
-            {/* Quick Launch */}
+            {/* SAML SSO Information */}
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 border-blue-200 dark:border-blue-700">
               <CardHeader>
-                <CardTitle className="text-xl">Quick Launch</CardTitle>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Info className="h-5 w-5 text-blue-600" />
+                  About iPipeline SAML SSO
+                </CardTitle>
                 <CardDescription>
-                  Launch any iPipeline product with SAML SSO authentication
+                  How our secure authentication works
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <IPipelineLauncher
-                    user={currentUser}
-                    showProductSelector
-                    variant="default"
-                    size="lg"
-                  />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Opens in a new window
-                  </span>
-                </div>
-
-                <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-4 mt-4">
-                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                    <Info className="h-4 w-4 text-blue-600" />
-                    About iPipeline SAML SSO
-                  </h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li>• Uses SAML 2.0 HTTP POST binding</li>
-                    <li>• Requires IdP metadata exchange with iPipeline</li>
-                    <li>• Automatic user provisioning on first login</li>
-                    <li>• Secure signed assertions with X.509 certificate</li>
-                  </ul>
-                </div>
+              <CardContent>
+                <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                    <span>Uses SAML 2.0 HTTP POST binding for secure authentication</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                    <span>Automatic user provisioning on first login</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                    <span>Digitally signed assertions with X.509 certificate</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                    <span>Opens in new window for seamless access</span>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
           </div>
