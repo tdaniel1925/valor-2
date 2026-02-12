@@ -31,8 +31,9 @@ export class IPipelineSAMLClient {
   private environment: IPipelineEnvironment;
 
   constructor() {
-    this.privateKey = process.env.IPIPELINE_SAML_PRIVATE_KEY || '';
-    this.certificate = process.env.IPIPELINE_SAML_CERTIFICATE || '';
+    // Handle both actual newlines and escaped \n in environment variables
+    this.privateKey = (process.env.IPIPELINE_SAML_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+    this.certificate = (process.env.IPIPELINE_SAML_CERTIFICATE || '').replace(/\\n/g, '\n');
     this.entityId = process.env.IPIPELINE_ENTITY_ID || 'https://valorinsurance.com/saml/idp';
     this.environment = (process.env.IPIPELINE_ENVIRONMENT as IPipelineEnvironment) || 'uat';
   }
