@@ -274,11 +274,17 @@ export class IPipelineSAMLClient {
    */
   private createSignature(signedInfo: string): string {
     try {
+      // Log for debugging (remove in production after fix)
+      console.log('Private key loaded:', this.privateKey ? 'YES' : 'NO');
+      console.log('Private key length:', this.privateKey?.length || 0);
+      console.log('Private key starts with:', this.privateKey?.substring(0, 30));
+
       const sign = crypto.createSign('RSA-SHA256');
       sign.update(signedInfo);
       return sign.sign(this.privateKey, 'base64');
     } catch (error) {
       console.error('Error creating SAML signature:', error);
+      console.error('Private key preview:', this.privateKey?.substring(0, 100));
       throw new Error('Failed to create SAML signature');
     }
   }
