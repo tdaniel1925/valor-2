@@ -14,10 +14,12 @@ function formatPEM(pem: string, type: string): string {
   // Remove all existing whitespace
   formatted = formatted.replace(/\s/g, '');
 
-  // Extract the base64 content (between BEGIN and END markers)
-  const beginMarker = `-----BEGIN${type}-----`;
-  const endMarker = `-----END${type}-----`;
+  // Create markers WITHOUT spaces (since we removed all whitespace above)
+  const typeNoSpaces = type.replace(/\s/g, '');
+  const beginMarker = `-----BEGIN${typeNoSpaces}-----`;
+  const endMarker = `-----END${typeNoSpaces}-----`;
 
+  // Extract the base64 content (between BEGIN and END markers)
   let content = formatted;
   if (formatted.includes(beginMarker)) {
     content = formatted.split(beginMarker)[1]?.split(endMarker)[0] || '';
@@ -26,7 +28,7 @@ function formatPEM(pem: string, type: string): string {
   // Add newlines every 64 characters (standard PEM format)
   const lines = content.match(/.{1,64}/g) || [];
 
-  // Reconstruct proper PEM format
+  // Reconstruct proper PEM format (WITH SPACE in markers)
   return `-----BEGIN ${type}-----\n${lines.join('\n')}\n-----END ${type}-----`;
 }
 
