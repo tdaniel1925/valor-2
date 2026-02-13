@@ -1,0 +1,109 @@
+==============================================
+VERCEL ENVIRONMENT VARIABLES
+Copy these EXACTLY into Vercel Dashboard
+==============================================
+
+Variable 1: NEXT_PUBLIC_APP_URL
+Value:
+https://valorfs.app
+
+---
+
+Variable 2: IPIPELINE_SSO_ENABLED
+Value:
+true
+
+---
+
+Variable 3: IPIPELINE_ENVIRONMENT
+Value:
+uat
+
+---
+
+Variable 4: IPIPELINE_ENTITY_ID
+Value:
+https://valorinsurance.com/saml/idp
+
+---
+
+Variable 5: IPIPELINE_SAML_CERTIFICATE
+Value (IMPORTANT: Copy WITH the quotes, newlines will be preserved):
+"-----BEGIN CERTIFICATE-----
+MIIDgTCCAmmgAwIBAgIUHtps5gYZXsSQI041H6JsX/Ue+AUwDQYJKoZIhvcNAQEL
+BQAwUDEbMBkGA1UEAwwSdmFsb3JpbnN1cmFuY2UuY29tMSQwIgYDVQQKDBtWYWxv
+ciBGaW5hbmNpYWwgU3BlY2lhbGlzdHMxCzAJBgNVBAYTAlVTMB4XDTI1MTIxNjA2
+MTI0MloXDTI2MTIxNjA2MTI0MlowUDEbMBkGA1UEAwwSdmFsb3JpbnN1cmFuY2Uu
+Y29tMSQwIgYDVQQKDBtWYWxvciBGaW5hbmNpYWwgU3BlY2lhbGlzdHMxCzAJBgNV
+BAYTAlVTMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj1BTkt87aiXj
+19giv3ZBlMImd/ZQYm6WIscPyuZ0T340zKmJJtTM6hM84/MtVw/ICifTeRXVNivK
+1rOtgvgz1UQ2uGZzhNaAzXxitO5OtycsWuzhp386+7oRL7OJXegtD8CFC9H+3aze
+A6/XmVQ6nBDGYZAclDfuEvxPRq0pVsJNQlvsiGwg0WgQHvWyeIjFgxlGKIThUiC/
+cpp+NbeYX2mCGud8UY0v756M1qcQA3gW1V+wrYO2CbC1TVsa7POHfi/lvrpCCYG/
+l2mnwbMo9ruCT8GOpKYSF0T0EYKtWjjLJ3STw4KZzn7cOPMrQQ57kZv84hA5Z/lX
+7kUyVpWXfQIDAQABo1MwUTAdBgNVHQ4EFgQU+iBdRs7PRF/4aea7UII5dI7ltnIw
+HwYDVR0jBBgwFoAU+iBdRs7PRF/4aea7UII5dI7ltnIwDwYDVR0TAQH/BAUwAwEB
+/zANBgkqhkiG9w0BAQsFAAOCAQEAJx4gCtsIC+Ei9ocgX5rWg8FCO7E+5ZvvFQ0Y
+yZWpwqSB5Q3H6q9BHES5M7EEUvsIyrJnHbpNCcr/if4RV6tyXvJ5gdgHfRreX/IH
+CuQfllZAVbAoXMjT+L9HNAeV650uPOeXC+a8FROTadRFIYgKhp+WIlH+FlXNA94k
+ztuv+M/O9vhzG1b+pyx3bk2e1AoKjkvHkOnSHWQiFQcMcyR+KyGFOSheGOGq6EEM
+dNhUg+hc6jO3d7o5FAAHeBWj4YQJL1s1kd2iIufmp52lWmwX1EV4etorPpRjF3P4
+Qg5Mezwt6wnUSE0xhhaKyhLY/t9IbKUWyezJTS3bwK94d5Kh+g==
+-----END CERTIFICATE-----"
+
+---
+
+Variable 6: IPIPELINE_SAML_PRIVATE_KEY
+Value (IMPORTANT: Copy WITH the quotes, newlines will be preserved):
+"-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCPUFOS3ztqJePX
+2CK/dkGUwiZ39lBibpYixw/K5nRPfjTMqYkm1MzqEzzj8y1XD8gKJ9N5FdU2K8rW
+s62C+DPVRDa4ZnOE1oDNfGK07k63Jyxa7OGnfzr7uhEvs4ld6C0PwIUL0f7drN4D
+r9eZVDqcEMZhkByUN+4S/E9GrSlWwk1CW+yIbCDRaBAe9bJ4iMWDGUYohOFSIL9y
+mn41t5hfaYIa53xRjS/vnozWpxADeBbVX7Ctg7YJsLVNWxrs84d+L+W+ukIJgb+X
+aafBsyj2u4JPwY6kphIXRPQRgq1aOMsndJPDgpnOftw48ytBDnuRm/ziEDln+Vfu
+RTJWlZd9AgMBAAECggEAAIrHZ7MtLnSsfnJtRax08Gepq1TBvap7KjJRuwGPEApu
+qF/rJ2EP6qlV98pBmVwIFYUa6t93l4yj010usgjwMDkjq/qz4HP0CkJuOWmQlW9r
+816M7FqZRZVliLriYuE6X0/AoqJTyMSfLhzXfZVYA4qI9hZ70hg533KDI+8TK5HG
+TBvaA+5dZd/iW2JSEhlnUTqsyO479Uslp8OVs+QLieKJpg8dloM9/tvm/D9rCFjH
+C3BfUrU8g9aZVCzsLBez3zemQ3GO+TCXKEqfKoNuzkRrqemgiNyKj/KLQVSl+cX5
+Jn+i/QkFoDb+ronFzZ1vceJ+v9Z8F6XQRDZaQMacFQKBgQDJiy3wMtVwXCBT+3TW
+FR1IF/PKV7DyfnGOBqiH+V45UVsXvhwkJFpHygzvH6SzC5/ACR2ulkpoEI3LLi6E
+rQCa7L7GGLnPdXfyU8Xd4VdpWxVrC1JqCOk6hWhY7INPxOqj+CtN++XOjNjCPQp+
+UvN4AwrVOlRIIJd4A5MlEE+ZYwKBgQC2CV9Kvbpb/8Phq51WzuSltIG1hOQSF4gJ
+vUcGM1lT3izgqzhfH3M02+OXGPY/fzhFpur6Nn32fH/yrsEY+31N0iCt3BV4PBRe
+l3JhmsjqDpLO3sQ5uRtXtvYL96Bxs3jFU9lgIorjoRQi/niP+1Eu9u2BlgD4PMlU
+UHTPlP9RnwKBgErMt+D0zNhlqK3inmsx7Osr0JQhVY+6M+TVPckxWLIHKrq2GPWk
+9Ei+iWxaHyNARircd0KrjrPuqOFmo2ckWhwlj2wwEw4W98xdIQuHLYzxfBJ9Yjnu
+UrkgeCjApr99QuRWH6RSv+iXx37XbsSRfsDkyCl4+3zFc9Hb6cmQsyonAoGAWkfl
+qdTU80Gy7V5Gp0Hu5jvSxKrGzi47etETw4B+AflDep2QVKTtZz7S7iIkJrO6vdid
+20BhUnjGoB6JiBFaQNlA+dkYEMyDMbKcuMmicWqO5uhWm2YxqFwGRUMnoJxo/jyq
+p2IaTfCaYwyf0JDM36T5f/ZcPsEu/JD2jekQg3MCgYEArul6xZT6mgHEhigzpXnV
+aKZi0rj/MRXyqRXpIPB5iUJJGqChIneOcR9K0jy5A86hw0ODeLdtyRafLIEiXa6H
+JkbBM/wEbS5VM1S1Y6naXEW+tL2ICZvlKZYzp/X7C+1PuAzLUPnwPHFSh19ObNvM
+6Msq80dSmuhOXVU7UnriQOU=
+-----END PRIVATE KEY-----"
+
+==============================================
+INSTRUCTIONS:
+==============================================
+
+1. Go to: https://vercel.com/your-project/settings/environment-variables
+
+2. For EACH variable above:
+   - Click "Add New"
+   - Name: (copy the variable name exactly)
+   - Value: (copy the value WITH quotes if shown)
+   - Environment: Select "Production" only
+   - Click "Save"
+
+3. After adding all 6 variables, click "Redeploy" to apply them
+
+4. Wait ~2 minutes for deployment
+
+5. Test at: https://valorfs.app/integrations/ipipeline
+
+IMPORTANT NOTES:
+- The certificate and private key MUST include the quotes and line breaks
+- Make sure you select "Production" environment for all variables
+- Don't forget to click "Redeploy" after adding all variables

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+    entityID="https://valorinsurance.com/saml/idp">
+  <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:KeyDescriptor use="signing">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>MIIDgTCCAmmgAwIBAgIUHtps5gYZXsSQI041H6JsX/Ue+AUwDQYJKoZIhvcNAQELBQAwUDEbMBkGA1UEAwwSdmFsb3JpbnN1cmFuY2UuY29tMSQwIgYDVQQKDBtWYWxvciBGaW5hbmNpYWwgU3BlY2lhbGlzdHMxCzAJBgNVBAYTAlVTMB4XDTI1MTIxNjA2MTI0MloXDTI2MTIxNjA2MTI0MlowUDEbMBkGA1UEAwwSdmFsb3JpbnN1cmFuY2UuY29tMSQwIgYDVQQKDBtWYWxvciBGaW5hbmNpYWwgU3BlY2lhbGlzdHMxCzAJBgNVBAYTAlVTMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj1BTkt87aiXj19giv3ZBlMImd/ZQYm6WIscPyuZ0T340zKmJJtTM6hM84/MtVw/ICifTeRXVNivK1rOtgvgz1UQ2uGZzhNaAzXxitO5OtycsWuzhp386+7oRL7OJXegtD8CFC9H+3azeA6/XmVQ6nBDGYZAclDfuEvxPRq0pVsJNQlvsiGwg0WgQHvWyeIjFgxlGKIThUiC/cpp+NbeYX2mCGud8UY0v756M1qcQA3gW1V+wrYO2CbC1TVsa7POHfi/lvrpCCYG/l2mnwbMo9ruCT8GOpKYSF0T0EYKtWjjLJ3STw4KZzn7cOPMrQQ57kZv84hA5Z/lX7kUyVpWXfQIDAQABo1MwUTAdBgNVHQ4EFgQU+iBdRs7PRF/4aea7UII5dI7ltnIwHwYDVR0jBBgwFoAU+iBdRs7PRF/4aea7UII5dI7ltnIwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAJx4gCtsIC+Ei9ocgX5rWg8FCO7E+5ZvvFQ0YyZWpwqSB5Q3H6q9BHES5M7EEUvsIyrJnHbpNCcr/if4RV6tyXvJ5gdgHfRreX/IHCuQfllZAVbAoXMjT+L9HNAeV650uPOeXC+a8FROTadRFIYgKhp+WIlH+FlXNA94kztuv+M/O9vhzG1b+pyx3bk2e1AoKjkvHkOnSHWQiFQcMcyR+KyGFOSheGOGq6EEMdNhUg+hc6jO3d7o5FAAHeBWj4YQJL1s1kd2iIufmp52lWmwX1EV4etorPpRjF3P4Qg5Mezwt6wnUSE0xhhaKyhLY/t9IbKUWyezJTS3bwK94d5Kh+g==</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </md:KeyDescriptor>
+    <md:SingleSignOnService
+        Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        Location="https://valor-2.vercel.app/api/integrations/ipipeline/sso"/>
+  </md:IDPSSODescriptor>
+  <md:Organization>
+    <md:OrganizationName xml:lang="en">Valor Insurance</md:OrganizationName>
+    <md:OrganizationDisplayName xml:lang="en">Valor Financial Specialists</md:OrganizationDisplayName>
+    <md:OrganizationURL xml:lang="en">https://valor-2.vercel.app</md:OrganizationURL>
+  </md:Organization>
+  <md:ContactPerson contactType="technical">
+    <md:Company>Valor Financial Specialists</md:Company>
+    <md:EmailAddress>support@valorinsurance.com</md:EmailAddress>
+  </md:ContactPerson>
+</md:EntityDescriptor>

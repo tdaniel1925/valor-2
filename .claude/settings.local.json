@@ -79,7 +79,22 @@
       "Bash(\"app\\help\\articles\\[slug]\\page.tsx\")",
       "Bash(\"app\\api\\help\\articles\\[slug]\\feedback\\route.ts\")",
       "Bash(npx prisma migrate:*)",
-      "Bash(set:*)"
+      "Bash(set:*)",
+      "Bash(npm update:*)",
+      "Bash(openssl req:*)",
+      "Bash(MSYS_NO_PATHCONV=1 openssl req:*)",
+      "Bash(timeout /t 8 /nobreak)",
+      "Bash(clip)",
+      "Bash(clip.exe:*)",
+      "WebFetch(domain:links.valorfs.com)",
+      "Bash(for dir in long-term-care term-life inforce-review death-benefit disability)",
+      "Bash(do)",
+      "Bash(if [ -f \"app/quotes/$dir/new/page.tsx\" ])",
+      "Bash(then)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
