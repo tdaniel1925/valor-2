@@ -4,13 +4,38 @@ import { NextResponse } from 'next/server';
  * TEMPORARY: Test endpoint to verify env vars are loaded
  * DELETE THIS FILE after debugging
  */
+
+function formatPEM(pem: string, type: string): string {
+  if (!pem) return '';
+
+  // First, replace escaped \n with actual newlines
+  let formatted = pem.replace(/\\n/g, '\n');
+
+  // Remove all existing whitespace
+  formatted = formatted.replace(/\s/g, '');
+
+  // Extract the base64 content (between BEGIN and END markers)
+  const beginMarker = `-----BEGIN${type}-----`;
+  const endMarker = `-----END${type}-----`;
+
+  let content = formatted;
+  if (formatted.includes(beginMarker)) {
+    content = formatted.split(beginMarker)[1]?.split(endMarker)[0] || '';
+  }
+
+  // Add newlines every 64 characters (standard PEM format)
+  const lines = content.match(/.{1,64}/g) || [];
+
+  // Reconstruct proper PEM format
+  return `-----BEGIN ${type}-----\n${lines.join('\n')}\n-----END ${type}-----`;
+}
+
 export async function GET() {
   const privateKey = process.env.IPIPELINE_SAML_PRIVATE_KEY || '';
   const certificate = process.env.IPIPELINE_SAML_CERTIFICATE || '';
 
-  // Convert escaped \n to actual newlines
-  const processedKey = privateKey.replace(/\\n/g, '\n');
-  const processedCert = certificate.replace(/\\n/g, '\n');
+  const formattedKey = formatPEM(privateKey, 'PRIVATE KEY');
+  const formattedCert = formatPEM(certificate, 'CERTIFICATE');
 
   return NextResponse.json({
     env: {
@@ -22,18 +47,17 @@ export async function GET() {
     privateKey: {
       exists: !!privateKey,
       rawLength: privateKey.length,
-      processedLength: processedKey.length,
+      formattedLength: formattedKey.length,
       startsWithRaw: privateKey.substring(0, 50),
-      startsWithProcessed: processedKey.substring(0, 50),
-      hasEscapedNewlines: privateKey.includes('\\n'),
-      hasActualNewlines: privateKey.includes('\n'),
+      startsWithFormatted: formattedKey.substring(0, 100),
+      hasNewlinesInFormatted: formattedKey.includes('\n'),
+      lineCount: formattedKey.split('\n').length,
     },
     certificate: {
       exists: !!certificate,
       rawLength: certificate.length,
-      processedLength: processedCert.length,
-      startsWithRaw: certificate.substring(0, 50),
-      startsWithProcessed: processedCert.substring(0, 50),
+      formattedLength: formattedCert.length,
+      startsWithFormatted: formattedCert.substring(0, 100),
     },
   });
 }
