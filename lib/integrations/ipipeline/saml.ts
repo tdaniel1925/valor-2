@@ -32,10 +32,40 @@ export class IPipelineSAMLClient {
 
   constructor() {
     // Handle both actual newlines and escaped \n in environment variables
-    this.privateKey = (process.env.IPIPELINE_SAML_PRIVATE_KEY || '').replace(/\\n/g, '\n');
-    this.certificate = (process.env.IPIPELINE_SAML_CERTIFICATE || '').replace(/\\n/g, '\n');
+    // Also handle single-line PEM format (reformat to proper PEM with newlines every 64 chars)
+    this.privateKey = this.formatPEM(process.env.IPIPELINE_SAML_PRIVATE_KEY || '', 'PRIVATE KEY');
+    this.certificate = this.formatPEM(process.env.IPIPELINE_SAML_CERTIFICATE || '', 'CERTIFICATE');
     this.entityId = process.env.IPIPELINE_ENTITY_ID || 'https://valorinsurance.com/saml/idp';
     this.environment = (process.env.IPIPELINE_ENVIRONMENT as IPipelineEnvironment) || 'uat';
+  }
+
+  /**
+   * Format PEM string properly with newlines
+   * Handles: escaped \n, single-line format, or already-formatted PEM
+   */
+  private formatPEM(pem: string, type: string): string {
+    if (!pem) return '';
+
+    // First, replace escaped \n with actual newlines
+    let formatted = pem.replace(/\\n/g, '\n');
+
+    // Remove all existing whitespace
+    formatted = formatted.replace(/\s/g, '');
+
+    // Extract the base64 content (between BEGIN and END markers)
+    const beginMarker = `-----BEGIN${type}-----`;
+    const endMarker = `-----END${type}-----`;
+
+    let content = formatted;
+    if (formatted.includes(beginMarker)) {
+      content = formatted.split(beginMarker)[1]?.split(endMarker)[0] || '';
+    }
+
+    // Add newlines every 64 characters (standard PEM format)
+    const lines = content.match(/.{1,64}/g) || [];
+
+    // Reconstruct proper PEM format
+    return `-----BEGIN ${type}-----\n${lines.join('\n')}\n-----END ${type}-----`;
   }
 
   /**
