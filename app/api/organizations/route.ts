@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 
 // GET /api/organizations - Get all organizations (tenant-scoped)
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
 // POST /api/organizations - Create new organization (tenant-scoped)
 export async function POST(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
 // PUT /api/organizations - Update organization (tenant-scoped)
 export async function PUT(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
@@ -263,7 +263,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/organizations - Delete organization (tenant-scoped)
 export async function DELETE(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(

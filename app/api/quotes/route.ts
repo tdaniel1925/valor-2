@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 
 // GET /api/quotes - Get all quotes for current tenant
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(

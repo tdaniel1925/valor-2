@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import prisma from "@/lib/db/prisma";
 
 // GET /api/cases - Get all cases for current tenant
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(

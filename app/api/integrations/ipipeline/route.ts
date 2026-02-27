@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { iPipelineSAMLClient } from "@/lib/integrations/ipipeline/saml";
 import { requireAuth } from "@/lib/auth/server-auth";
-import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 
 /**
  * GET /api/integrations/ipipeline
@@ -10,7 +10,7 @@ import { getTenantContext } from "@/lib/auth/get-tenant-context";
  */
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(

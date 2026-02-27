@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTenantContext } from '@/lib/auth/get-tenant-context';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { requireAuth } from '@/lib/auth/server-auth';
 import { parseSmartOfficeExcel } from '@/lib/smartoffice/excel-parser';
 import { importSmartOfficeData } from '@/lib/smartoffice/import-service';
@@ -12,7 +12,7 @@ import { importSmartOfficeData } from '@/lib/smartoffice/import-service';
  */
 export async function POST(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
@@ -102,12 +102,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Set max file size to 50MB
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
-  },
-};

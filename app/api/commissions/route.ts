@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
@@ -11,7 +11,7 @@ import { requireAuth } from "@/lib/auth/server-auth";
 export async function GET(request: NextRequest) {
   try {
     // Get tenant context from middleware
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Get tenant context from middleware
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(

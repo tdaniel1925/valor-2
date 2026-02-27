@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/audit-logs - Fetch audit logs with filtering (tenant-scoped)
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 // POST /api/audit-logs - Create a new audit log entry (tenant-scoped)
 export async function POST(request: NextRequest) {
   try {
-    const tenantContext = getTenantContext(request);
+    const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
       return NextResponse.json(
