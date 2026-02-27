@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     // Build where clause - filter by tenant AND authenticated user
     const where: any = {
       tenantId: tenantContext.tenantId,
-      agentId: user.id,
+      userId: user.id,
     };
 
     if (caseId) {
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         db.commission.findMany({
           where,
           include: {
-            agent: {
+            user: {
               select: {
                 id: true,
                 firstName: true,
