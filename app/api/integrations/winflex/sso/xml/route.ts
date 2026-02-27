@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * WinFlex SSO XML Generator
@@ -89,10 +91,22 @@ function escapeXml(str: string): string {
 /**
  * POST /api/integrations/winflex/sso/xml
  *
- * Generates and returns the SSO XML for browser-based form submission
+ * Generates and returns the SSO XML for browser-based form submission (tenant-scoped)
  */
 export async function POST(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    await requireAuth(request);
+
     // Check if WinFlex integration is enabled
     if (process.env.WINFLEX_ENABLED !== "true") {
       return NextResponse.json(

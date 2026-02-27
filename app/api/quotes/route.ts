@@ -1,16 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 
-// GET /api/quotes - Get all quotes for current user
+// GET /api/quotes - Get all quotes for current tenant
 export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // For demo purposes, using the demo user ID
     // TODO: Replace with actual auth user ID from Supabase
     const userId = "demo-user-id";
 
-    const quotes = await prisma.quote.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
+    // Use tenant-scoped database client with RLS
+    const quotes = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.quote.findMany({
+        where: {
+          tenantId: tenantContext.tenantId,
+          agentId: userId,
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          case: {
+            select: {
+              id: true,
+              clientName: true,
+              status: true,
+            },
+          },
+        },
+      });
     });
 
     return NextResponse.json({ quotes });

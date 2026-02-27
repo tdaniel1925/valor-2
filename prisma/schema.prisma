@@ -12,6 +12,64 @@ datasource db {
 }
 
 // ============================================
+// MULTI-TENANCY FOUNDATION
+// ============================================
+
+enum TenantStatus {
+  ACTIVE
+  TRIAL
+  SUSPENDED
+  CHURNED
+}
+
+model Tenant {
+  id              String   @id @default(uuid())
+  name            String   // Agency name (e.g., "Acme Insurance Agency")
+  slug            String   @unique  // For subdomain (e.g., "acme-insurance")
+
+  // Email configuration for SmartOffice sync
+  emailSlug       String   @unique  // {slug}@reports.valorfs.app
+  emailVerified   Boolean  @default(false)
+  lastSyncAt      DateTime?
+
+  // Future billing (not implemented yet)
+  plan            String?  @default("free")
+  status          TenantStatus @default(ACTIVE)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations (ALL data scoped to tenant)
+  users           User[]
+  organizations   Organization[]
+  cases           Case[]
+  quotes          Quote[]
+  commissions     Commission[]
+  contracts       Contract[]
+  goals           Goal[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  productInfo     ProductInfo[]
+  helpArticles    HelpArticle[]
+  faqs            FAQ[]
+  resources       Resource[]
+  courses         Course[]
+  trainingEvents  TrainingEvent[]
+
+  // SmartOffice Intelligence
+  smartOfficePolicies  SmartOfficePolicy[]
+  smartOfficeAgents    SmartOfficeAgent[]
+  smartOfficeReports   SmartOfficeCustomReport[]
+  smartOfficeChatHistory SmartOfficeChatHistory[]
+  syncLogs        SmartOfficeSyncLog[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("tenants")
+}
+
+// ============================================
 // USER MANAGEMENT
 // ============================================
 
@@ -31,6 +89,11 @@ enum UserStatus {
 
 model User {
   id                String         @id @default(uuid())
+
+  // Tenant scoping (multi-tenancy)
+  tenantId          String
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   email             String         @unique
   firstName         String
   lastName          String
@@ -62,9 +125,15 @@ model User {
   auditLogs         AuditLog[]
   goals             Goal[]
 
+  // SmartOffice Intelligence System
+  smartOfficeAgents SmartOfficeAgent[]  @relation("SmartOfficeAgentLink")
+  smartOfficeReports SmartOfficeCustomReport[] @relation("CreatedSmartOfficeReports")
+  smartOfficeChatHistory SmartOfficeChatHistory[] @relation("SmartOfficeChatHistory")
+
   @@index([email])
   @@index([role])
   @@index([status])
+  @@index([tenantId])
   @@map("users")
 }
 
@@ -105,6 +174,11 @@ model UserProfile {
 
 model Organization {
   id              String               @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   name            String
   type            String               // MGA, IMO, Agency, etc.
   parentId        String?
@@ -128,6 +202,7 @@ model Organization {
   members         OrganizationMember[]
   contracts       Contract[]
 
+  @@index([tenantId])
   @@index([parentId])
   @@index([type])
   @@map("organizations")
@@ -167,6 +242,11 @@ enum ContractStatus {
 
 model Contract {
   id                String         @id @default(uuid())
+
+  // Tenant scoping
+  tenantId          String
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId            String
   user              User           @relation(fields: [userId], references: [id])
   organizationId    String?
@@ -187,6 +267,7 @@ model Contract {
   approvedAt        DateTime?
   updatedAt         DateTime       @updatedAt
 
+  @@index([tenantId])
   @@index([userId])
   @@index([status])
   @@index([carrierName])
@@ -218,6 +299,11 @@ enum QuoteStatus {
 
 model Quote {
   id              String       @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId          String
   user            User         @relation(fields: [userId], references: [id])
 
@@ -247,6 +333,7 @@ model Quote {
   // Relations
   cases           Case[]
 
+  @@index([tenantId])
   @@index([userId])
   @@index([status])
   @@index([type])
@@ -270,6 +357,11 @@ enum CaseStatus {
 
 model Case {
   id                String       @id @default(uuid())
+
+  // Tenant scoping
+  tenantId          String
+  tenant            Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId            String
   user              User         @relation(fields: [userId], references: [id])
   quoteId           String?
@@ -310,6 +402,7 @@ model Case {
   notes             CaseNote[]
   commissions       Commission[]
 
+  @@index([tenantId])
   @@index([userId])
   @@index([status])
   @@index([carrier])
@@ -351,6 +444,11 @@ enum CommissionType {
 
 model Commission {
   id              String           @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId          String
   user            User             @relation(fields: [userId], references: [id])
   caseId          String?
@@ -373,6 +471,7 @@ model Commission {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
+  @@index([tenantId])
   @@index([userId])
   @@index([status])
   @@index([caseId])
@@ -393,6 +492,11 @@ enum NotificationType {
 
 model Notification {
   id        String           @id @default(uuid())
+
+  // Tenant scoping
+  tenantId  String
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId    String
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -404,6 +508,7 @@ model Notification {
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
 
+  @@index([tenantId])
   @@index([userId])
   @@index([isRead])
   @@map("notifications")
@@ -411,6 +516,11 @@ model Notification {
 
 model AuditLog {
   id          String   @id @default(uuid())
+
+  // Tenant scoping
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId      String?
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
@@ -424,6 +534,7 @@ model AuditLog {
 
   createdAt   DateTime @default(now())
 
+  @@index([tenantId])
   @@index([userId])
   @@index([action])
   @@index([entityType])
@@ -443,6 +554,11 @@ enum GoalType {
 
 model Goal {
   id          String    @id @default(uuid())
+
+  // Tenant scoping
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -456,6 +572,7 @@ model Goal {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  @@index([tenantId])
   @@index([userId])
   @@index([type])
   @@index([startDate])
@@ -497,6 +614,11 @@ enum EnrollmentStatus {
 
 model Course {
   id              String        @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   title           String
   description     String        @db.Text
   thumbnail       String?
@@ -519,6 +641,7 @@ model Course {
   enrollments     Enrollment[]
   certifications  Certification[]
 
+  @@index([tenantId])
   @@index([status])
   @@index([category])
   @@index([instructorId])
@@ -629,6 +752,11 @@ model Certification {
 
 model TrainingEvent {
   id              String      @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   title           String
   description     String?     @db.Text
   courseId        String?
@@ -648,6 +776,7 @@ model TrainingEvent {
   // Relations
   attendees       EventAttendee[]
 
+  @@index([tenantId])
   @@index([startDate])
   @@index([instructorId])
   @@map("training_events")
@@ -692,6 +821,11 @@ enum ResourceStatus {
 
 model Resource {
   id              String          @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   title           String
   description     String?         @db.Text
   type            ResourceType
@@ -724,6 +858,7 @@ model Resource {
   // Relations
   favorites       ResourceFavorite[]
 
+  @@index([tenantId])
   @@index([type])
   @@index([status])
   @@index([category])
@@ -748,6 +883,11 @@ model ResourceFavorite {
 
 model ProductInfo {
   id              String      @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   carrier         String
   productName     String
   productType     String      // TERM_LIFE, WHOLE_LIFE, ANNUITY, etc.
@@ -773,6 +913,7 @@ model ProductInfo {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  @@index([tenantId])
   @@index([carrier])
   @@index([productType])
   @@index([isActive])
@@ -806,6 +947,11 @@ enum ArticleCategory {
 
 model HelpArticle {
   id              String          @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   title           String
   slug            String          @unique
   category        ArticleCategory
@@ -843,6 +989,7 @@ model HelpArticle {
   // Relations
   feedback        ArticleFeedback[]
 
+  @@index([tenantId])
   @@index([slug])
   @@index([category])
   @@index([status])
@@ -869,6 +1016,11 @@ model ArticleFeedback {
 
 model FAQ {
   id              String      @id @default(uuid())
+
+  // Tenant scoping
+  tenantId        String
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   question        String
   answer          String      @db.Text
   category        String
@@ -881,7 +1033,257 @@ model FAQ {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  @@index([tenantId])
   @@index([category])
   @@index([isActive])
   @@map("faqs")
+}
+
+// ============================================
+// SMARTOFFICE INTELLIGENCE SYSTEM
+// ============================================
+
+enum SmartOfficePolicyType {
+  LIFE
+  ANNUITY
+  OTHER
+}
+
+enum SmartOfficePolicyStatus {
+  ACTIVE
+  PENDING
+  ISSUED
+  DECLINED
+  LAPSED
+  SURRENDERED
+  UNKNOWN
+}
+
+model SmartOfficePolicy {
+  id                    String                  @id @default(uuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Core Policy Data
+  policyNumber          String                  @unique
+  primaryAdvisor        String
+  productName           String
+  carrierName           String
+  primaryInsured        String
+
+  // Status & Dates
+  statusDate            DateTime?
+  type                  SmartOfficePolicyType
+  status                SmartOfficePolicyStatus @default(UNKNOWN)
+
+  // Financial Data
+  targetAmount          Float?
+  commAnnualizedPrem    Float?
+  weightedPremium       Float?
+  firstYearCommission   Float?
+  renewalCommission     Float?
+
+  // Additional Fields (JSON for flexibility)
+  additionalData        Json?
+
+  // Metadata
+  importDate            DateTime                @default(now())
+  lastSyncDate          DateTime                @default(now())
+  sourceFile            String?
+  rawData               Json?                   // Store original row for reference
+
+  // Search optimization
+  searchText            String?                 @db.Text // Concatenated searchable fields
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([tenantId])
+  @@index([policyNumber])
+  @@index([primaryAdvisor])
+  @@index([carrierName])
+  @@index([type])
+  @@index([status])
+  @@index([statusDate])
+  @@index([lastSyncDate])
+  @@map("smartoffice_policies")
+}
+
+model SmartOfficeAgent {
+  id                    String                  @id @default(uuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Core Agent Data
+  lastName              String
+  firstName             String
+  fullName              String                  // "Last, First" format
+
+  // Contact Information
+  email                 String?
+  phones                String?                 @db.Text // Multiple phones concatenated
+  addresses             String?                 @db.Text // Multiple addresses
+
+  // Organizational
+  supervisor            String?
+  subSource             String?
+  contractList          String?                 @db.Text // Multiple contracts
+
+  // Identification
+  ssn                   String?
+  npn                   String?
+
+  // Additional Fields (JSON for flexibility)
+  additionalData        Json?
+
+  // Metadata
+  importDate            DateTime                @default(now())
+  lastSyncDate          DateTime                @default(now())
+  sourceFile            String?
+  rawData               Json?                   // Store original row for reference
+
+  // Search optimization
+  searchText            String?                 @db.Text
+
+  // Link to existing User if matched
+  linkedUserId          String?
+  linkedUser            User?                   @relation("SmartOfficeAgentLink", fields: [linkedUserId], references: [id])
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([tenantId])
+  @@index([fullName])
+  @@index([email])
+  @@index([npn])
+  @@index([supervisor])
+  @@index([subSource])
+  @@index([lastSyncDate])
+  @@index([linkedUserId])
+  @@map("smartoffice_agents")
+}
+
+model SmartOfficeSyncLog {
+  id                    String                  @id @default(uuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Sync details
+  syncType              String                  // "policies", "agents", "full"
+  status                String                  // "started", "success", "failed", "partial"
+
+  // Statistics
+  filesProcessed        Int                     @default(0)
+  recordsProcessed      Int                     @default(0)
+  recordsCreated        Int                     @default(0)
+  recordsUpdated        Int                     @default(0)
+  recordsSkipped        Int                     @default(0)
+  recordsFailed         Int                     @default(0)
+
+  // Timing
+  startedAt             DateTime                @default(now())
+  completedAt           DateTime?
+  duration              Int?                    // milliseconds
+
+  // Error tracking
+  errors                Json?                   // Array of error objects
+  warnings              Json?                   // Array of warning objects
+
+  // File info
+  filesProcessedList    String[]                // List of filenames
+
+  // Triggered by
+  triggeredBy           String?                 // "scheduler", "manual:userId", "api"
+
+  createdAt             DateTime                @default(now())
+
+  @@index([tenantId])
+  @@index([syncType])
+  @@index([status])
+  @@index([startedAt])
+  @@map("smartoffice_sync_logs")
+}
+
+model SmartOfficeCustomReport {
+  id                    String                  @id @default(uuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Report metadata
+  name                  String
+  description           String?                 @db.Text
+  reportType            String                  // "policies", "agents", "combined"
+
+  // Report configuration
+  filters               Json                    // Filter criteria
+  columns               String[]                // Selected columns
+  groupBy               String[]                // Grouping fields
+  sortBy                Json?                   // Sort configuration
+
+  // Scheduling
+  isScheduled           Boolean                 @default(false)
+  schedule              String?                 // Cron expression
+  recipients            String[]                // Email addresses
+
+  // Ownership & Access
+  createdBy             String
+  creator               User                    @relation("CreatedSmartOfficeReports", fields: [createdBy], references: [id])
+  isPublic              Boolean                 @default(false)
+  sharedWith            String[]                // User IDs
+
+  // Usage stats
+  runCount              Int                     @default(0)
+  lastRunAt             DateTime?
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([tenantId])
+  @@index([createdBy])
+  @@index([reportType])
+  @@index([isScheduled])
+  @@map("smartoffice_custom_reports")
+}
+
+model SmartOfficeChatHistory {
+  id                    String                  @id @default(uuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // User & Session
+  userId                String
+  user                  User                    @relation("SmartOfficeChatHistory", fields: [userId], references: [id], onDelete: Cascade)
+  sessionId             String                  // Groups related messages
+
+  // Message details
+  role                  String                  // "user" or "assistant"
+  message               String                  @db.Text
+
+  // Context & Results
+  queryType             String?                 // "search", "aggregate", "compare", "report"
+  sqlGenerated          String?                 @db.Text // SQL query generated (if any)
+  resultsCount          Int?
+  results               Json?                   // Store query results
+
+  // Metadata
+  tokensUsed            Int?
+  responseTime          Int?                    // milliseconds
+
+  createdAt             DateTime                @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("smartoffice_chat_history")
 }

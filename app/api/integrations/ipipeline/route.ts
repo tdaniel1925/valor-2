@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { iPipelineSAMLClient } from "@/lib/integrations/ipipeline/saml";
 import { requireAuth } from "@/lib/auth/server-auth";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
 
 /**
  * GET /api/integrations/ipipeline
  *
- * Returns iPipeline SAML SSO integration status
+ * Returns iPipeline SAML SSO integration status (tenant-scoped)
  */
 export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // Require authentication to view integration status
     await requireAuth(request);
 

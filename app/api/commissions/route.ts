@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/commissions
- * List commissions with filters
+ * List commissions with filters (tenant-scoped)
  */
 export async function GET(request: NextRequest) {
   try {
+    // Get tenant context from middleware
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // Require authentication and get user ID from session
     const user = await requireAuth(request);
 
@@ -19,9 +31,10 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "100");
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    // Build where clause - always filter by authenticated user
+    // Build where clause - filter by tenant AND authenticated user
     const where: any = {
-      userId: user.id,
+      tenantId: tenantContext.tenantId,
+      agentId: user.id,
     };
 
     if (caseId) {
@@ -36,58 +49,62 @@ export async function GET(request: NextRequest) {
       where.type = type;
     }
 
-    // Get commissions with user and case info
-    const [commissions, total] = await Promise.all([
-      prisma.commission.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
+    // Use tenant-scoped database client with RLS
+    const result = await withTenantContext(tenantContext.tenantId, async (db) => {
+      // Get commissions with user and case info
+      const [commissions, total] = await Promise.all([
+        db.commission.findMany({
+          where,
+          include: {
+            agent: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+            case: {
+              select: {
+                id: true,
+                clientName: true,
+                policyNumber: true,
+                carrier: true,
+              },
             },
           },
-          case: {
-            select: {
-              id: true,
-              clientName: true,
-              policyNumber: true,
-              carrier: true,
-            },
+          orderBy: {
+            createdAt: "desc",
           },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: limit,
-        skip: offset,
-      }),
-      prisma.commission.count({ where }),
-    ]);
+          take: limit,
+          skip: offset,
+        }),
+        db.commission.count({ where }),
+      ]);
 
-    // Calculate totals by status
-    const totals = await prisma.commission.groupBy({
-      by: ["status"],
-      where,
-      _sum: {
-        amount: true,
-        splitAmount: true,
-      },
-      _count: true,
+      // Calculate totals by status
+      const totals = await db.commission.groupBy({
+        by: ["status"],
+        where,
+        _sum: {
+          amount: true,
+        },
+        _count: true,
+      });
+
+      return { commissions, total, totals };
     });
 
     return NextResponse.json({
       success: true,
       data: {
-        commissions,
-        totals,
+        commissions: result.commissions,
+        totals: result.totals,
         pagination: {
-          total,
+          total: result.total,
           limit,
           offset,
-          hasMore: offset + limit < total,
+          hasMore: offset + limit < result.total,
         },
       },
     });
@@ -105,10 +122,20 @@ export async function GET(request: NextRequest) {
 
 /**
  * PATCH /api/commissions
- * Update commission status
+ * Update commission status (tenant-scoped)
  */
 export async function PATCH(request: NextRequest) {
   try {
+    // Get tenant context from middleware
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // Require authentication
     const user = await requireAuth(request);
 
@@ -122,22 +149,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Check if user owns this commission
-    const existingCommission = await prisma.commission.findFirst({
-      where: {
-        id,
-        userId: user.id,
-      },
-    });
-
-    if (!existingCommission) {
-      return NextResponse.json(
-        { error: "Commission not found or you do not have permission to modify it" },
-        { status: 403 }
-      );
-    }
-
-    const validStatuses = ["PENDING", "PAID", "CANCELLED", "DISPUTED"];
+    const validStatuses = ["PENDING", "EXPECTED", "RECEIVED", "PAID", "SPLIT", "DISPUTED"];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { error: `status must be one of: ${validStatuses.join(", ")}` },
@@ -145,29 +157,49 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const updateData: any = { status };
+    // Use tenant-scoped database client with RLS
+    const commission = await withTenantContext(tenantContext.tenantId, async (db) => {
+      // Check if user owns this commission AND it belongs to the tenant
+      const existingCommission = await db.commission.findFirst({
+        where: {
+          id,
+          tenantId: tenantContext.tenantId,
+          agentId: user.id,
+        },
+      });
 
-    if (status === "PAID") {
-      updateData.paidAt = new Date();
-    }
+      if (!existingCommission) {
+        throw new Error("Commission not found or you do not have permission to modify it");
+      }
 
-    if (notes) {
-      updateData.notes = notes;
-    }
+      const updateData: any = { status };
 
-    const commission = await prisma.commission.update({
-      where: { id },
-      data: updateData,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
+      if (status === "PAID") {
+        updateData.paidDate = new Date();
+      }
+
+      if (status === "RECEIVED") {
+        updateData.receivedDate = new Date();
+      }
+
+      if (notes) {
+        updateData.notes = notes;
+      }
+
+      return await db.commission.update({
+        where: { id },
+        data: updateData,
+        include: {
+          agent: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
           },
         },
-      },
+      });
     });
 
     return NextResponse.json({
@@ -177,6 +209,9 @@ export async function PATCH(request: NextRequest) {
   } catch (error: any) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error.message === "Commission not found or you do not have permission to modify it") {
+      return NextResponse.json({ error: error.message }, { status: 403 });
     }
     console.error("Update commission error:", error);
     return NextResponse.json(

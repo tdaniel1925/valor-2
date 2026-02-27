@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { iPipelineSAMLClient } from "@/lib/integrations/ipipeline/saml";
 import { IPipelineProduct } from "@/lib/integrations/ipipeline/types";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * POST /api/integrations/ipipeline/sso
  *
- * Generates SAML assertion for iPipeline SSO
+ * Generates SAML assertion for iPipeline SSO (tenant-scoped)
  *
  * Request body:
  * {
@@ -27,6 +29,18 @@ import { IPipelineProduct } from "@/lib/integrations/ipipeline/types";
  */
 export async function POST(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    await requireAuth(request);
+
     // Check if iPipeline SSO is enabled
     if (process.env.IPIPELINE_SSO_ENABLED !== "true") {
       return NextResponse.json(

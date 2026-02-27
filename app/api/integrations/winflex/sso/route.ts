@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/server-auth";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
 
 /**
  * WinFlex SSO Integration
@@ -91,10 +92,22 @@ function escapeXml(str: string): string {
 /**
  * POST /api/integrations/winflex/sso
  *
- * Generates SSO credentials and returns the WinFlex redirect URL
+ * Generates SSO credentials and returns the WinFlex redirect URL (tenant-scoped)
  */
 export async function POST(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    await requireAuth(request);
+
     // Check if WinFlex integration is enabled
     if (process.env.WINFLEX_ENABLED !== "true") {
       return NextResponse.json(
@@ -178,10 +191,19 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/integrations/winflex/sso
  *
- * Returns WinFlex integration status
+ * Returns WinFlex integration status (tenant-scoped)
  */
 export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // Require authentication to view integration status
     await requireAuth(request);
 

@@ -1,28 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import prisma from "@/lib/db/prisma";
 
-// GET /api/cases - Get all cases for current user
+// GET /api/cases - Get all cases for current tenant
 export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // For demo purposes, using the demo user ID
     // TODO: Replace with actual auth user ID from Supabase
     const userId = "demo-user-id";
 
-    const cases = await prisma.case.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      include: {
-        quote: {
-          select: {
-            id: true,
-            type: true,
+    // Use tenant-scoped database client with RLS
+    const cases = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.case.findMany({
+        where: {
+          tenantId: tenantContext.tenantId,
+          agentId: userId,
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          quotes: {
+            select: {
+              id: true,
+              insuranceType: true,
+              carrier: true,
+              premium: true,
+              status: true,
+            },
           },
         },
-        notes: {
-          orderBy: { createdAt: "desc" },
-          take: 1,
-        },
-      },
+      });
     });
 
     return NextResponse.json({ cases });

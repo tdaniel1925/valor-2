@@ -5,15 +5,29 @@ import {
   updateUser,
   deleteUser,
 } from "@/lib/admin/user-management";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/admin/users
- * Get all users with filters (admin only)
+ * Get all users with filters (admin only, tenant-scoped)
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Add admin role check from Supabase auth
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    const user = await requireAuth(request);
+
+    // TODO: Add admin role check for user
+    // TODO: Update getUsers function to accept tenantId and use withTenantContext
     const { searchParams } = new URL(request.url);
 
     const result = await getUsers({
@@ -34,6 +48,9 @@ export async function GET(request: NextRequest) {
       data: result,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Get users error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to get users" },
@@ -44,21 +61,36 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/admin/users
- * Create a new user (admin only)
+ * Create a new user (admin only, tenant-scoped)
  */
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add admin role check
-    const body = await request.json();
-    const adminId = await getUserIdOrDemo();
+    const tenantContext = getTenantContext(request);
 
-    const user = await createUser(body, adminId);
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    const user = await requireAuth(request);
+
+    // TODO: Add admin role check
+    // TODO: Update createUser function to accept tenantId and use withTenantContext
+    const body = await request.json();
+
+    const newUser = await createUser(body, user.id);
 
     return NextResponse.json({
       success: true,
-      data: user,
+      data: newUser,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Create user error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create user" },
@@ -69,11 +101,24 @@ export async function POST(request: NextRequest) {
 
 /**
  * PATCH /api/admin/users
- * Update a user (admin only)
+ * Update a user (admin only, tenant-scoped)
  */
 export async function PATCH(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    const user = await requireAuth(request);
+
     // TODO: Add admin role check
+    // TODO: Update updateUser function to accept tenantId and use withTenantContext
     const body = await request.json();
     const { userId, ...updates } = body;
 
@@ -84,14 +129,16 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const adminId = await getUserIdOrDemo();
-    const user = await updateUser(userId, updates, adminId);
+    const updatedUser = await updateUser(userId, updates, user.id);
 
     return NextResponse.json({
       success: true,
-      data: user,
+      data: updatedUser,
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Update user error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to update user" },
@@ -102,11 +149,24 @@ export async function PATCH(request: NextRequest) {
 
 /**
  * DELETE /api/admin/users
- * Delete a user (soft delete) (admin only)
+ * Delete a user (soft delete) (admin only, tenant-scoped)
  */
 export async function DELETE(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    const user = await requireAuth(request);
+
     // TODO: Add admin role check
+    // TODO: Update deleteUser function to accept tenantId and use withTenantContext
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 
@@ -117,14 +177,16 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const adminId = await getUserIdOrDemo();
-    await deleteUser(userId, adminId);
+    await deleteUser(userId, user.id);
 
     return NextResponse.json({
       success: true,
       message: "User deleted successfully",
     });
   } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error("Delete user error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to delete user" },

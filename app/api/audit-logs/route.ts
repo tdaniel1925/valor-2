@@ -1,17 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
 
-// GET /api/audit-logs - Fetch audit logs with filtering
+// GET /api/audit-logs - Fetch audit logs with filtering (tenant-scoped)
 export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // Require authentication - only admins should view audit logs
     const authUser = await requireAuth(request);
 
     // Check if user has admin privileges
-    const user = await prisma.user.findUnique({
-      where: { id: authUser.id },
-      select: { role: true },
+    const user = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.user.findFirst({
+        where: {
+          id: authUser.id,
+          tenantId: tenantContext.tenantId,
+        },
+        select: { role: true },
+      });
     });
 
     if (user?.role !== 'ADMINISTRATOR' && user?.role !== 'EXECUTIVE') {
@@ -35,7 +50,9 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
 
-    const where: any = {};
+    const where: any = {
+      tenantId: tenantContext.tenantId,
+    };
 
     if (userId) where.userId = userId;
     if (action) where.action = action;
@@ -48,34 +65,38 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch logs with user information
-    const [logs, total] = await Promise.all([
-      prisma.auditLog.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-              role: true,
+    const result = await withTenantContext(tenantContext.tenantId, async (db) => {
+      const [logs, total] = await Promise.all([
+        db.auditLog.findMany({
+          where,
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+              },
             },
           },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.auditLog.count({ where }),
-    ]);
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+        }),
+        db.auditLog.count({ where }),
+      ]);
+
+      return { logs, total };
+    });
 
     return NextResponse.json({
-      logs,
+      logs: result.logs,
       pagination: {
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit),
       },
     });
   } catch (error) {
@@ -90,9 +111,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/audit-logs - Create a new audit log entry
+// POST /api/audit-logs - Create a new audit log entry (tenant-scoped)
 export async function POST(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
     // Require authentication
     const authUser = await requireAuth(request);
 
@@ -106,16 +136,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const log = await prisma.auditLog.create({
-      data: {
-        userId: authUser.id, // Always use authenticated user ID
-        action,
-        entityType: entityType || null,
-        entityId: entityId || null,
-        changes: changes || null,
-        ipAddress: ipAddress || null,
-        userAgent: userAgent || null,
-      },
+    const log = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.auditLog.create({
+        data: {
+          tenantId: tenantContext.tenantId,
+          userId: authUser.id, // Always use authenticated user ID
+          action,
+          entityType: entityType || null,
+          entityId: entityId || null,
+          changes: changes || null,
+          ipAddress: ipAddress || null,
+          userAgent: userAgent || null,
+        },
+      });
     });
 
     return NextResponse.json({ log });

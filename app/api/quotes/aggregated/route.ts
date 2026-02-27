@@ -6,9 +6,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { quoteAggregator } from '@/lib/integrations/quote-aggregator';
 import type { UnifiedQuoteRequest } from '@/lib/integrations/quote-aggregator';
+import { getTenantContext } from "@/lib/auth/get-tenant-context";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 export async function POST(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    await requireAuth(request);
+
     const body: UnifiedQuoteRequest = await request.json();
 
     // Validate required fields
@@ -97,10 +111,22 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Get health status of all quote providers
+ * Get health status of all quote providers (tenant-scoped)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantContext(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    // Require authentication
+    await requireAuth(request);
+
     const health = await quoteAggregator.getProvidersHealth();
 
     const allHealthy =

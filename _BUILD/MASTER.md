@@ -1,0 +1,173 @@
+# MASTER BUILD PLAN
+
+## Features (Dependency Order):
+
+1. ⬜ **Multi-Tenant Foundation** — Add Tenant model, update all schemas, implement RLS, update API routes
+   - **Complexity**: L (Large)
+   - **Duration**: 5-7 days
+   - **Files**: ~30 (schema, migrations, middleware, 80+ API route updates)
+   - **Tests**: 20 E2E + 15 unit tests
+   - **Dependencies**: None (foundational)
+   - **Blocker Risk**: High (touches entire codebase)
+
+2. ⬜ **Tenant Onboarding** — Signup flow, slug generation, email setup instructions
+   - **Complexity**: M (Medium)
+   - **Duration**: 2-3 days
+   - **Files**: 8
+   - **Tests**: 12 E2E
+   - **Dependencies**: Feature 1 (needs Tenant model)
+   - **Blocker Risk**: Low
+
+3. ⬜ **SmartOffice ETL Service** — Excel parsing, validation, webhook integration, upsert logic
+   - **Complexity**: L (Large)
+   - **Duration**: 4-5 days
+   - **Files**: 12
+   - **Tests**: 25 unit + 10 E2E
+   - **Dependencies**: Feature 1 (needs tenantId scoping)
+   - **Blocker Risk**: Medium (external dependency: Zapier)
+
+4. ⬜ **SmartOffice Dashboard** — Policy/agent grids, search, filters, export
+   - **Complexity**: M (Medium)
+   - **Duration**: 3-4 days
+   - **Files**: 10
+   - **Tests**: 15 E2E
+   - **Dependencies**: Feature 3 (needs data to display)
+   - **Blocker Risk**: Low
+
+5. ⬜ **AI Chat Assistant** — Natural language queries, SQL generation, safe execution
+   - **Complexity**: L (Large)
+   - **Duration**: 4-5 days
+   - **Files**: 8
+   - **Tests**: 18 unit + 8 E2E
+   - **Dependencies**: Feature 4 (shares data model)
+   - **Blocker Risk**: Medium (external dependency: Anthropic API)
+
+6. ⬜ **Testing & Polish** — E2E suite completion, performance optimization, accessibility
+   - **Complexity**: M (Medium)
+   - **Duration**: 3-4 days
+   - **Files**: N/A (test files)
+   - **Tests**: 30 comprehensive E2E scenarios
+   - **Dependencies**: All features complete
+   - **Blocker Risk**: Low
+
+---
+
+## Shared Dependencies
+
+### Install Commands
+```bash
+# Already installed (verified)
+npm install
+
+# Additional packages needed:
+npm install @anthropic-ai/sdk@latest
+npm install date-fns@latest
+npm install recharts@latest
+
+# Dev dependencies:
+npm install -D @playwright/test@latest
+npm install -D vitest@latest
+npm install -D @vitest/ui@latest
+```
+
+### Database Migrations
+```bash
+# Generate migration for multi-tenant schema
+npx prisma migrate dev --name add_multi_tenant_foundation
+
+# Generate migration for SmartOffice tables
+npx prisma migrate dev --name add_smartoffice_intelligence
+
+# Deploy to remote (after local testing)
+npx prisma migrate deploy
+
+# Generate Prisma client
+npx prisma generate
+```
+
+### Environment Setup
+- See `_BUILD/STARTUP.md` for complete setup instructions
+- Critical: Add Anthropic API key to `.env.local`
+- Critical: Configure Supabase Storage bucket & webhook
+- Critical: Set up Zapier integration (manual step)
+
+---
+
+## Infrastructure First (Pre-Feature-1 Setup)
+
+### DNS Configuration
+1. Add wildcard DNS for `*.valorfs.app` pointing to Vercel
+2. Verify DNS propagation: `nslookup test.valorfs.app`
+
+### Supabase Storage
+1. Create bucket: `smartoffice-reports` (private)
+2. Configure webhook: Storage INSERT → `https://valorfs.app/api/smartoffice/webhook`
+3. Generate webhook secret, add to env vars
+
+### Vercel Configuration
+1. Add environment variables (see `.env.example`)
+2. Enable Vercel Edge Middleware
+3. Configure custom domains in dashboard
+4. Set up preview deployments for PRs
+
+### Zapier Setup (After Feature 2 Complete)
+1. Create Zap: Gmail (New Email) → Extract Attachment → Upload to Supabase
+2. Filter: To address contains `@reports.valorfs.app`
+3. Test with sample email
+4. Enable Zap
+
+---
+
+## Critical Path
+
+**Week 1**: Feature 1 + Feature 2 (Multi-tenant + Onboarding)
+- **Milestone**: Users can sign up, get subdomain, and see empty dashboard
+- **Verification**: Playwright test signs up 3 tenants, verifies isolation
+
+**Week 2**: Feature 3 (ETL Service)
+- **Milestone**: Excel files automatically sync to database
+- **Verification**: Upload test file to Storage, verify data appears in UI
+
+**Week 3**: Feature 4 + start Feature 5 (Dashboard + AI Chat)
+- **Milestone**: Users can search policies, ask AI questions
+- **Verification**: E2E test: signup → sync → search → chat query
+
+**Week 4**: Complete Feature 5 + Feature 6 (AI Chat + Testing)
+- **Milestone**: All features complete, tests passing, launch-ready
+- **Verification**: Run full E2E suite (30 scenarios), Lighthouse >90
+
+---
+
+## Build Order Rationale
+
+1. **Foundation First**: Can't build features without tenant isolation
+2. **Onboarding Early**: Validates tenant creation logic before adding complexity
+3. **Data Pipeline Next**: ETL must work before dashboard has value
+4. **UI After Data**: Dashboard meaningless without data to display
+5. **AI Last**: Most complex, depends on stable data model
+6. **Polish Final**: Can't optimize until features are complete
+
+---
+
+## Risk Management
+
+### High-Risk Features (Extra attention needed):
+- **Feature 1** (Multi-Tenant): Touches entire codebase, potential for bugs
+  - Mitigation: Extensive testing, gradual API route updates, RLS safety net
+- **Feature 3** (ETL): External dependencies (Zapier, email, Excel format changes)
+  - Mitigation: Robust validation, error handling, manual upload fallback
+- **Feature 5** (AI Chat): SQL injection risk, API costs
+  - Mitigation: Parameterized queries only, query whitelisting, rate limiting
+
+### Potential Blockers:
+- DNS propagation delays (can take 24-48 hours)
+- Zapier reliability (monitor task history)
+- Anthropic API rate limits (start with low tier, upgrade if needed)
+- Database migration failures (test in staging first)
+
+---
+
+**Last Updated**: 2026-02-27
+**Total Estimated Duration**: 23-28 days (4-5.5 weeks)
+**Team Size Assumption**: 1 full-time developer
+**Parallel Work Possible**: Features 4 & 5 can overlap (different surfaces)
