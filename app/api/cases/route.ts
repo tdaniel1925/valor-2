@@ -24,11 +24,11 @@ export async function GET(request: NextRequest) {
       return await db.case.findMany({
         where: {
           tenantId: tenantContext.tenantId,
-          agentId: userId,
+          userId: userId,
         },
         orderBy: { createdAt: "desc" },
         include: {
-          quotes: {
+          quote: {
             select: {
               id: true,
               insuranceType: true,
