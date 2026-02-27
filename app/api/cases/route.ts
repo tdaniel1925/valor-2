@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
           quote: {
             select: {
               id: true,
-              insuranceType: true,
+              type: true,
               carrier: true,
               premium: true,
               status: true,
