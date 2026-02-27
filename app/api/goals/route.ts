@@ -103,8 +103,7 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           title,
           type,
-          targetAmount: parseFloat(target),
-          currentAmount: 0,
+          target: parseFloat(target),
           startDate: new Date(startDate),
           endDate: new Date(endDate),
           description,
@@ -173,7 +172,7 @@ export async function PATCH(request: NextRequest) {
 
       if (title) updateData.title = title;
       if (type) updateData.type = type;
-      if (target) updateData.targetAmount = parseFloat(target);
+      if (target) updateData.target = parseFloat(target);
       if (startDate) updateData.startDate = new Date(startDate);
       if (endDate) updateData.endDate = new Date(endDate);
       if (description !== undefined) updateData.description = description;
