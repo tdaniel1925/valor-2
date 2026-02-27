@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
         const userId = c.user.id;
         if (!acc[userId]) {
           acc[userId] = {
-            agent: c.user,
+            user: c.user,
             cases: 0,
             premium: 0,
             commission: 0,

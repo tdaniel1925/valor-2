@@ -190,7 +190,7 @@ export async function PATCH(request: NextRequest) {
         where: { id },
         data: updateData,
         include: {
-          agent: {
+          user: {
             select: {
               id: true,
               firstName: true,
