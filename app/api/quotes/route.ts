@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       return await db.quote.findMany({
         where: {
           tenantId: tenantContext.tenantId,
-          agentId: userId,
+          userId: userId,
         },
         orderBy: { createdAt: "desc" },
         include: {

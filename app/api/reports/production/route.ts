@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const period = searchParams.get('period') || 'month';
-    const agentId = searchParams.get('agentId');
+    const userId = searchParams.get('userId');
     const teamView = searchParams.get('teamView') === 'true';
 
     // Calculate date range
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    if (agentId && !teamView) {
-      where.userId = agentId;
+    if (userId && !teamView) {
+      where.userId = userId;
     }
 
     // Fetch cases
@@ -151,9 +151,9 @@ export async function GET(request: NextRequest) {
       const agentStats = cases.reduce((acc: any, c) => {
         if (!c.user) return acc;
 
-        const agentId = c.user.id;
-        if (!acc[agentId]) {
-          acc[agentId] = {
+        const userId = c.user.id;
+        if (!acc[userId]) {
+          acc[userId] = {
             agent: c.user,
             cases: 0,
             premium: 0,
@@ -163,15 +163,15 @@ export async function GET(request: NextRequest) {
           };
         }
 
-        acc[agentId].cases++;
-        acc[agentId].premium += c.premium || 0;
-        acc[agentId].commission += c.commissions.reduce((sum, comm) => sum + (comm.amount || 0), 0);
+        acc[userId].cases++;
+        acc[userId].premium += c.premium || 0;
+        acc[userId].commission += c.commissions.reduce((sum, comm) => sum + (comm.amount || 0), 0);
 
         if (['SUBMITTED', 'ISSUED', 'INFORCE'].includes(c.status)) {
-          acc[agentId].submitted++;
+          acc[userId].submitted++;
         }
         if (['ISSUED', 'INFORCE'].includes(c.status)) {
-          acc[agentId].issued++;
+          acc[userId].issued++;
         }
 
         return acc;

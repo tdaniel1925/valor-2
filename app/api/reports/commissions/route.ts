@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const period = searchParams.get('period') || 'month'; // month, quarter, year
-    const agentId = searchParams.get('agentId'); // optional filter
+    const userId = searchParams.get('userId'); // optional filter
 
     // Calculate date range based on period
     const now = new Date();
@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    if (agentId) {
-      where.agentId = agentId;
+    if (userId) {
+      where.userId = userId;
     }
 
     // Fetch commission data

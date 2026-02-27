@@ -20,7 +20,7 @@ function generateAgentAnalytics(period: string) {
     const policyCount = 25 - index;
 
     return {
-      agentId: agent.id,
+      userId: agent.id,
       agentName: agent.name,
       email: agent.email,
       organization: agent.org,

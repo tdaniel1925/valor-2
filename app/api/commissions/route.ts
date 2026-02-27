@@ -164,7 +164,7 @@ export async function PATCH(request: NextRequest) {
         where: {
           id,
           tenantId: tenantContext.tenantId,
-          agentId: user.id,
+          userId: user.id,
         },
       });
 

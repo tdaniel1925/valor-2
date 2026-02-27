@@ -187,9 +187,9 @@ export async function GET(request: NextRequest) {
     const agentPerformance = ytdCases.reduce((acc: any, c) => {
       if (!c.user) return acc;
 
-      const agentId = c.user.id;
-      if (!acc[agentId]) {
-        acc[agentId] = {
+      const userId = c.user.id;
+      if (!acc[userId]) {
+        acc[userId] = {
           agent: c.user,
           cases: 0,
           premium: 0,
@@ -197,9 +197,9 @@ export async function GET(request: NextRequest) {
         };
       }
 
-      acc[agentId].cases++;
-      acc[agentId].premium += c.premium || 0;
-      acc[agentId].commission += c.commissions.reduce(
+      acc[userId].cases++;
+      acc[userId].premium += c.premium || 0;
+      acc[userId].commission += c.commissions.reduce(
         (sum: number, comm: any) => sum + (comm.amount || 0),
         0
       );
