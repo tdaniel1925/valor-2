@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const status = searchParams.get('status');
     const advisor = searchParams.get('advisor');
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
 
     const result = await withTenantContext(tenantContext.tenantId, async (db) => {
       // Build where clause
@@ -60,6 +62,13 @@ export async function GET(request: NextRequest) {
       if (type) where.type = type;
       if (status) where.status = status;
       if (advisor) where.primaryAdvisor = { contains: advisor, mode: 'insensitive' };
+
+      // Date filters
+      if (dateFrom || dateTo) {
+        where.statusDate = {};
+        if (dateFrom) where.statusDate.gte = new Date(dateFrom);
+        if (dateTo) where.statusDate.lte = new Date(dateTo);
+      }
 
       // Fetch data
       const [policies, total] = await Promise.all([

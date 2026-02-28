@@ -23,8 +23,12 @@ export async function GET(request: NextRequest) {
     await requireAuth(request);
 
     const stats = await withTenantContext(tenantContext.tenantId, async (db) => {
+      // Calculate start of current month
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
       // Get counts
-      const [totalPolicies, totalAgents, lastSync] = await Promise.all([
+      const [totalPolicies, totalAgents, lastSync, pendingCount, thisMonthCount] = await Promise.all([
         db.smartOfficePolicy.count({
           where: { tenantId: tenantContext.tenantId },
         }),
@@ -38,6 +42,22 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { completedAt: 'desc' },
         }),
+        // Count pending policies
+        db.smartOfficePolicy.count({
+          where: {
+            tenantId: tenantContext.tenantId,
+            status: 'PENDING',
+          },
+        }),
+        // Count policies from this month
+        db.smartOfficePolicy.count({
+          where: {
+            tenantId: tenantContext.tenantId,
+            statusDate: {
+              gte: firstDayOfMonth,
+            },
+          },
+        }),
       ]);
 
       // Calculate total premium
@@ -49,12 +69,35 @@ export async function GET(request: NextRequest) {
         },
       });
 
+      // Get top 5 carriers by policy count
+      const carrierCounts = await db.smartOfficePolicy.groupBy({
+        by: ['carrierName'],
+        where: { tenantId: tenantContext.tenantId },
+        _count: {
+          id: true,
+        },
+        orderBy: {
+          _count: {
+            id: 'desc',
+          },
+        },
+        take: 5,
+      });
+
+      const topCarriers = carrierCounts.map(c => ({
+        name: c.carrierName,
+        count: c._count.id,
+      }));
+
       return {
         totalPolicies,
         totalAgents,
         totalPremium: premiumResult._sum.commAnnualizedPrem || 0,
         totalWeightedPremium: premiumResult._sum.weightedPremium || 0,
         lastSync: lastSync?.completedAt || null,
+        pendingCount,
+        thisMonthCount,
+        topCarriers,
       };
     });
 

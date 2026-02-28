@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw } from 'lucide-react';
+import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import QuickActionCard from '@/components/smartoffice/QuickActionCard';
 
 interface Policy {
   id: string;
@@ -33,9 +35,14 @@ interface Stats {
   totalAgents: number;
   totalPremium: number;
   lastSync: string | null;
+  pendingCount: number;
+  thisMonthCount: number;
+  topCarriers: { name: string; count: number }[];
 }
 
 export default function SmartOfficeDashboardPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'policies' | 'agents'>('policies');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,6 +54,9 @@ export default function SmartOfficeDashboardPage() {
     totalAgents: 0,
     totalPremium: 0,
     lastSync: null,
+    pendingCount: 0,
+    thisMonthCount: 0,
+    topCarriers: [],
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -55,19 +65,22 @@ export default function SmartOfficeDashboardPage() {
     totalPages: 0,
   });
 
+  // Get active filter from URL
+  const activeFilter = searchParams.get('filter') || null;
+
   // Fetch stats
   useEffect(() => {
     fetchStats();
   }, []);
 
-  // Fetch data when tab changes or search happens
+  // Fetch data when tab changes, search happens, or filter changes
   useEffect(() => {
     if (activeTab === 'policies') {
       fetchPolicies();
     } else {
       fetchAgents();
     }
-  }, [activeTab, pagination.page]);
+  }, [activeTab, pagination.page, activeFilter]);
 
   // Debounced search
   useEffect(() => {
@@ -102,6 +115,14 @@ export default function SmartOfficeDashboardPage() {
         limit: pagination.limit.toString(),
         ...(searchTerm && { search: searchTerm }),
       });
+
+      // Add filter based on active quick action
+      if (activeFilter === 'pending') {
+        params.append('status', 'PENDING');
+      } else if (activeFilter === 'this-month') {
+        const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        params.append('dateFrom', firstDayOfMonth.toISOString());
+      }
 
       const response = await fetch(`/api/smartoffice/policies?${params}`);
       const data = await response.json();
@@ -156,6 +177,24 @@ export default function SmartOfficeDashboardPage() {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString();
   };
+
+  // Quick action handlers
+  const handleQuickAction = (filterType: string | null) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (filterType) {
+      params.set('filter', filterType);
+    } else {
+      params.delete('filter');
+    }
+
+    // Reset to first page when applying filter
+    setPagination(prev => ({ ...prev, page: 1 }));
+    setSearchTerm('');
+
+    // Update URL
+    router.push(`/smartoffice?${params.toString()}`);
+  };;
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -230,6 +269,62 @@ export default function SmartOfficeDashboardPage() {
               {stats.lastSync ? formatDate(stats.lastSync) : 'Never'}
             </p>
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <QuickActionCard
+              title="My Policies"
+              value={stats.totalPolicies}
+              icon={FileSpreadsheet}
+              subtitle="View all policies"
+              colorClass="text-blue-600"
+              onClick={() => handleQuickAction(null)}
+              isClickable={activeFilter !== null}
+            />
+            <QuickActionCard
+              title="Pending Cases"
+              value={stats.pendingCount}
+              icon={Clock}
+              subtitle="Policies awaiting action"
+              colorClass="text-yellow-600"
+              onClick={() => handleQuickAction('pending')}
+            />
+            <QuickActionCard
+              title="This Month"
+              value={stats.thisMonthCount}
+              icon={TrendingUp}
+              subtitle={`Since ${new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
+              colorClass="text-green-600"
+              onClick={() => handleQuickAction('this-month')}
+            />
+            <QuickActionCard
+              title="Top Carriers"
+              value={stats.topCarriers.length > 0 ? stats.topCarriers[0].name : 'N/A'}
+              icon={Building2}
+              subtitle={stats.topCarriers.length > 0 ? `${stats.topCarriers[0].count} policies` : 'No data'}
+              colorClass="text-purple-600"
+              isClickable={false}
+            />
+          </div>
+
+          {/* Active Filter Badge */}
+          {activeFilter && (
+            <div className="mt-4 flex items-center gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                <Filter className="w-4 h-4" />
+                Active filter: {activeFilter === 'pending' ? 'Pending Cases' : 'This Month'}
+              </span>
+              <button
+                onClick={() => handleQuickAction(null)}
+                className="text-sm text-gray-600 hover:text-gray-900 underline"
+              >
+                Clear filter
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
