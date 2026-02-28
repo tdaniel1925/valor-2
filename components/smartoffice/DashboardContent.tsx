@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2 } from 'lucide-react';
+import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2, Save } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuickActionCard from '@/components/smartoffice/QuickActionCard';
@@ -12,6 +12,8 @@ import PremiumTrendChart from '@/components/smartoffice/charts/PremiumTrendChart
 import CarrierBreakdownChart from '@/components/smartoffice/charts/CarrierBreakdownChart';
 import StatusFunnelChart from '@/components/smartoffice/charts/StatusFunnelChart';
 import AgentPerformanceChart from '@/components/smartoffice/charts/AgentPerformanceChart';
+import SavedFilters from '@/components/smartoffice/SavedFilters';
+import SaveFilterDialog from '@/components/smartoffice/SaveFilterDialog';
 
 interface Policy {
   id: string;
@@ -71,6 +73,7 @@ export default function DashboardContent() {
     total: 0,
     totalPages: 0,
   });
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   // Get active filter from URL
   const activeFilter = searchParams.get('filter') || null;
@@ -303,6 +306,45 @@ export default function DashboardContent() {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
+  const getCurrentFilters = () => {
+    const filters: Record<string, any> = {};
+    const statusParam = searchParams.get('status');
+    if (statusParam) filters.status = statusParam;
+    const carrierParam = searchParams.get('carrier');
+    if (carrierParam) filters.carrier = carrierParam;
+    const typeParam = searchParams.get('type');
+    if (typeParam) filters.type = typeParam;
+    const dateFrom = searchParams.get('dateFrom');
+    if (dateFrom) filters.dateFrom = dateFrom;
+    const dateTo = searchParams.get('dateTo');
+    if (dateTo) filters.dateTo = dateTo;
+    const premiumMin = searchParams.get('premiumMin');
+    if (premiumMin) filters.premiumMin = premiumMin;
+    const premiumMax = searchParams.get('premiumMax');
+    if (premiumMax) filters.premiumMax = premiumMax;
+    return filters;
+  };
+
+  const handleSaveFilter = async (name: string, isDefault: boolean) => {
+    const response = await fetch('/api/smartoffice/saved-filters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        filters: getCurrentFilters(),
+        isDefault,
+      }),
+    });
+
+    if (!response.ok) {
+      const result = await response.json();
+      throw new Error(result.error || 'Failed to save filter');
+    }
+
+    // Reload page to refresh SavedFilters component
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -507,6 +549,16 @@ export default function DashboardContent() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+              <SavedFilters />
+              <button
+                onClick={() => setShowSaveDialog(true)}
+                disabled={Object.keys(getCurrentFilters()).length === 0}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                title="Save current filter"
+              >
+                <Save className="w-4 h-4" />
+                Save Filter
+              </button>
               <FilterPanel
                 onApplyFilters={handleApplyFilters}
                 onClearFilters={handleClearFilters}
@@ -771,6 +823,13 @@ export default function DashboardContent() {
           </div>
         </div>
       </div>
+
+      <SaveFilterDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        currentFilters={getCurrentFilters()}
+        onSave={handleSaveFilter}
+      />
     </div>
   );
 }

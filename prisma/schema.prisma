@@ -64,6 +64,7 @@ model Tenant {
   smartOfficeChatHistory SmartOfficeChatHistory[]
   syncLogs        SmartOfficeSyncLog[]
   policyNotes     PolicyNote[]
+  savedFilters    SavedFilter[]
 
   @@index([slug])
   @@index([status])
@@ -131,6 +132,7 @@ model User {
   smartOfficeReports SmartOfficeCustomReport[] @relation("CreatedSmartOfficeReports")
   smartOfficeChatHistory SmartOfficeChatHistory[] @relation("SmartOfficeChatHistory")
   policyNotes       PolicyNote[]
+  savedFilters      SavedFilter[]
 
   @@index([email])
   @@index([role])
@@ -1133,6 +1135,25 @@ model PolicyNote {
   @@index([tenantId, policyId])
   @@index([userId])
   @@map("policy_notes")
+}
+
+model SavedFilter {
+  id          String   @id @default(uuid())
+  tenantId    String
+  userId      String
+
+  name        String   // User-defined name like "Pending >7 days"
+  filters     Json     // Stores { status, carrier, agent, dateFrom, dateTo, search, sortBy, sortOrder }
+  isDefault   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId])
+  @@map("saved_filters")
 }
 
 model SmartOfficeAgent {
