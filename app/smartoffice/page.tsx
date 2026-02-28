@@ -300,37 +300,40 @@ export default function SmartOfficeDashboardPage() {
   };;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 md:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               SmartOffice Intelligence
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm md:text-base text-gray-600">
               View, search, and analyze your SmartOffice data
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2 md:gap-3">
             <button
               onClick={() => {
                 fetchStats();
                 if (activeTab === 'policies') fetchPolicies();
                 else fetchAgents();
               }}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 inline-flex items-center gap-2"
+              className="px-3 md:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 inline-flex items-center gap-2 text-sm md:text-base"
+              aria-label="Refresh data"
             >
-              <RefreshCw className="w-5 h-5" />
-              Refresh
+              <RefreshCw className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
             <Link
               href="/smartoffice/import"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center gap-2"
+              className="px-4 md:px-6 py-2 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center gap-2 text-sm md:text-base"
+              aria-label="Import SmartOffice data"
             >
-              <Upload className="w-5 h-5" />
-              Import Data
+              <Upload className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Import Data</span>
+              <span className="sm:hidden">Import</span>
             </Link>
           </div>
         </div>
@@ -503,24 +506,34 @@ export default function SmartOfficeDashboardPage() {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="text-gray-600 mt-4">Loading data...</p>
+              <div className="space-y-4">
+                {/* Loading skeleton */}
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="animate-pulse flex space-x-4">
+                    <div className="flex-1 space-y-3 py-1">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 bg-gray-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : policies.length === 0 && agents.length === 0 && !searchTerm ? (
-              <div className="text-center py-12">
-                <FileSpreadsheet className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <div className="text-center py-12 px-4">
+                <FileSpreadsheet className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">
                   No Data Yet
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  Import your first SmartOffice report to get started
+                <p className="text-sm md:text-base text-gray-600 mb-6 max-w-md mx-auto">
+                  Import your first SmartOffice report to get started with AI-powered insights
                 </p>
                 <Link
                   href="/smartoffice/import"
-                  className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm md:text-base"
                 >
                   Import Data
                 </Link>
@@ -530,10 +543,26 @@ export default function SmartOfficeDashboardPage() {
                 {/* Policies Table */}
                 {activeTab === 'policies' && (
                   <div className="overflow-x-auto">
-                    {searching && <div className="text-center py-4 text-gray-600">Searching...</div>}
+                    {searching && (
+                      <div className="text-center py-4">
+                        <div className="inline-flex items-center gap-2 text-gray-600">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <span>Searching...</span>
+                        </div>
+                      </div>
+                    )}
                     {!searching && policies.length === 0 ? (
-                      <div className="text-center py-8 text-gray-600">
-                        No policies found matching "{searchTerm}"
+                      <div className="text-center py-12 px-4">
+                        <Search className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-base font-medium text-gray-900 mb-2">
+                          No Results Found
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                          No policies found matching "{searchTerm}"
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Try adjusting your search or filters
+                        </p>
                       </div>
                     ) : (
                       <table className="min-w-full divide-y divide-gray-200">
@@ -611,10 +640,26 @@ export default function SmartOfficeDashboardPage() {
                 {/* Agents Table */}
                 {activeTab === 'agents' && (
                   <div className="overflow-x-auto">
-                    {searching && <div className="text-center py-4 text-gray-600">Searching...</div>}
+                    {searching && (
+                      <div className="text-center py-4">
+                        <div className="inline-flex items-center gap-2 text-gray-600">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <span>Searching...</span>
+                        </div>
+                      </div>
+                    )}
                     {!searching && agents.length === 0 ? (
-                      <div className="text-center py-8 text-gray-600">
-                        No agents found matching "{searchTerm}"
+                      <div className="text-center py-12 px-4">
+                        <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-base font-medium text-gray-900 mb-2">
+                          No Results Found
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                          No agents found matching "{searchTerm}"
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Try adjusting your search or filters
+                        </p>
                       </div>
                     ) : (
                       <table className="min-w-full divide-y divide-gray-200">
