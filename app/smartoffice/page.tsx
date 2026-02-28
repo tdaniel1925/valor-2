@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import QuickActionCard from '@/components/smartoffice/QuickActionCard';
 import SmartOfficeChat from '@/components/smartoffice/SmartOfficeChat';
 import FilterPanel, { FilterValues } from '@/components/smartoffice/FilterPanel';
+import ExportButton from '@/components/smartoffice/ExportButton';
 
 interface Policy {
   id: string;
@@ -493,10 +494,11 @@ export default function SmartOfficeDashboardPage() {
                 onClearFilters={handleClearFilters}
                 initialFilters={advancedFilters}
               />
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center gap-2">
-                <Download className="w-5 h-5" />
-                Export
-              </button>
+              <ExportButton
+                exportType={activeTab}
+                currentFilters={searchParams}
+                disabled={loading}
+              />
             </div>
           </div>
 
