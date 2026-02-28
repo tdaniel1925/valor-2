@@ -110,6 +110,13 @@
 - ⬜ Email verification templates (needs Supabase configuration)
 - ⬜ Test complete signup flow with email verification on production domain
 
+🚀 Phase 4 Deploying to Production (2026-02-28)
+- ✅ Fixed Next.js 16 Suspense requirement (commit e5d9801)
+- ✅ SmartOffice Dashboard code complete (all 8 milestones)
+- 🔄 Vercel auto-deploying after Suspense fix
+- ⬜ Set ANTHROPIC_API_KEY in Vercel for AI chat
+- ⬜ Verify dashboard at https://{tenant}.valorfs.app/smartoffice
+
 ## Context Docs:
 - `_BUILD/CONTEXT/README.md` - Instructions for reference docs
 - `SmartOffice Reports/` - 3 sample Excel files analyzed
@@ -135,6 +142,7 @@
 
 ## Files Created (Phase 4 - Milestone 3):
 1. `components/smartoffice/QuickActionCard.tsx` - Reusable clickable metric card
+2. `components/smartoffice/DashboardContent.tsx` - Dashboard logic extracted for Suspense (Next.js 16 fix)
 
 ## Files Modified (Phase 4 - Milestone 3):
 1. `app/api/smartoffice/stats/route.ts` - Added pendingCount, thisMonthCount, topCarriers
