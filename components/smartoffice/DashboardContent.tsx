@@ -8,6 +8,10 @@ import QuickActionCard from '@/components/smartoffice/QuickActionCard';
 import SmartOfficeChat from '@/components/smartoffice/SmartOfficeChat';
 import FilterPanel, { FilterValues } from '@/components/smartoffice/FilterPanel';
 import ExportButton from '@/components/smartoffice/ExportButton';
+import PremiumTrendChart from '@/components/smartoffice/charts/PremiumTrendChart';
+import CarrierBreakdownChart from '@/components/smartoffice/charts/CarrierBreakdownChart';
+import StatusFunnelChart from '@/components/smartoffice/charts/StatusFunnelChart';
+import AgentPerformanceChart from '@/components/smartoffice/charts/AgentPerformanceChart';
 
 interface Policy {
   id: string;
@@ -436,6 +440,17 @@ export default function DashboardContent() {
         {/* AI Chat */}
         <div className="mb-8">
           <SmartOfficeChat />
+        </div>
+
+        {/* Charts & Visualizations */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Insights & Analytics</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <PremiumTrendChart />
+            <CarrierBreakdownChart />
+            <StatusFunnelChart />
+            <AgentPerformanceChart />
+          </div>
         </div>
 
         {/* Tabs */}
