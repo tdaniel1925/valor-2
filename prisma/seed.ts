@@ -30,14 +30,14 @@ async function main() {
   const demoTenant = await prisma.tenant.create({
     data: {
       id: "demo-tenant-id",
-      subdomain: "demo",
+      slug: "demo",
       name: "Valor Demo Organization",
+      emailSlug: "demo",
       status: "ACTIVE",
-      settings: {},
     },
   });
   const tenantId = demoTenant.id;
-  console.log(`  ✅ Created tenant: ${demoTenant.name} (${demoTenant.subdomain})`);
+  console.log(`  ✅ Created tenant: ${demoTenant.name} (${demoTenant.slug})`);
 
   // Create Organizations (Hierarchical)
   console.log("🏢 Creating organizations...");
@@ -245,7 +245,6 @@ async function main() {
   await prisma.organizationMember.createMany({
     data: [
       {
-        tenantId,
         organizationId: valorHQ.id,
         userId: adminUser.id,
         role: "ADMINISTRATOR",
@@ -253,7 +252,6 @@ async function main() {
         isActive: true,
       },
       {
-        tenantId,
         organizationId: valorHQ.id,
         userId: executiveUser.id,
         role: "EXECUTIVE",
@@ -261,7 +259,6 @@ async function main() {
         isActive: true,
       },
       {
-        tenantId,
         organizationId: westCoastMGA.id,
         userId: managerUser.id,
         role: "MANAGER",
@@ -269,7 +266,6 @@ async function main() {
         isActive: true,
       },
       {
-        tenantId,
         organizationId: sfAgency.id,
         userId: demoUser.id,
         role: "AGENT",
@@ -277,7 +273,6 @@ async function main() {
         isActive: true,
       },
       {
-        tenantId,
         organizationId: sfAgency.id,
         userId: agentUser.id,
         role: "AGENT",
@@ -340,6 +335,7 @@ async function main() {
 
   const quote1 = await prisma.quote.create({
     data: {
+      tenantId,
       userId: demoUser.id,
       clientName: "John Smith",
       clientEmail: "john.smith@email.com",
@@ -359,6 +355,7 @@ async function main() {
 
   const quote2 = await prisma.quote.create({
     data: {
+      tenantId,
       userId: demoUser.id,
       clientName: "Mary Williams",
       clientEmail: "mary.w@email.com",
@@ -588,6 +585,7 @@ async function main() {
 
   const case1 = await prisma.case.create({
     data: {
+      tenantId,
       userId: demoUser.id,
       quoteId: quote1.id,
       clientName: "John Smith",
@@ -612,6 +610,7 @@ async function main() {
 
   const case2 = await prisma.case.create({
     data: {
+      tenantId,
       userId: demoUser.id,
       quoteId: quote2.id,
       clientName: "Mary Williams",
@@ -635,6 +634,7 @@ async function main() {
   // Additional cases
   const case3 = await prisma.case.create({
     data: {
+      tenantId,
       userId: demoUser.id,
       clientName: "Robert Chen",
       clientEmail: "robert.chen@email.com",
@@ -657,6 +657,7 @@ async function main() {
 
   const case4 = await prisma.case.create({
     data: {
+      tenantId,
       userId: agentUser.id,
       clientName: "Jennifer Martinez",
       clientEmail: "j.martinez@email.com",
@@ -680,6 +681,7 @@ async function main() {
 
   const case5 = await prisma.case.create({
     data: {
+      tenantId,
       userId: demoUser.id,
       clientName: "David Kim",
       clientEmail: "dkim@email.com",
@@ -705,7 +707,6 @@ async function main() {
   await prisma.caseNote.createMany({
     data: [
       {
-        tenantId,
         caseId: case1.id,
         content: "Application submitted successfully",
         isInternal: false,
@@ -713,7 +714,6 @@ async function main() {
         createdAt: new Date("2024-10-15"),
       },
       {
-        tenantId,
         caseId: case1.id,
         content: "Client completed medical exam",
         isInternal: false,
@@ -721,7 +721,6 @@ async function main() {
         createdAt: new Date("2024-10-25"),
       },
       {
-        tenantId,
         caseId: case2.id,
         content: "Application submitted to carrier",
         isInternal: false,
@@ -729,7 +728,6 @@ async function main() {
         createdAt: new Date("2024-11-05"),
       },
       {
-        tenantId,
         caseId: case2.id,
         content: "Carrier requested additional medical records",
         isInternal: true,
@@ -737,7 +735,6 @@ async function main() {
         createdAt: new Date("2024-11-12"),
       },
       {
-        tenantId,
         caseId: case3.id,
         content: "Application submitted with all requirements",
         isInternal: false,
@@ -745,7 +742,6 @@ async function main() {
         createdAt: new Date("2024-10-20"),
       },
       {
-        tenantId,
         caseId: case3.id,
         content: "Approved at standard rates - great news!",
         isInternal: false,
@@ -753,7 +749,6 @@ async function main() {
         createdAt: new Date("2024-11-15"),
       },
       {
-        tenantId,
         caseId: case4.id,
         content: "Initial application submitted",
         isInternal: false,
@@ -761,7 +756,6 @@ async function main() {
         createdAt: new Date("2024-09-15"),
       },
       {
-        tenantId,
         caseId: case4.id,
         content: "Policy issued and delivered to client",
         isInternal: false,
@@ -769,7 +763,6 @@ async function main() {
         createdAt: new Date("2024-10-25"),
       },
       {
-        tenantId,
         caseId: case5.id,
         content: "Application submitted - waiting on medical exam",
         isInternal: false,
@@ -777,7 +770,6 @@ async function main() {
         createdAt: new Date("2024-11-12"),
       },
       {
-        tenantId,
         caseId: case5.id,
         content: "Followed up with client about scheduling exam",
         isInternal: true,
