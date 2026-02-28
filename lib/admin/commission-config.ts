@@ -72,6 +72,7 @@ export async function updateMemberCommissionSplit(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: member.tenantId,
       userId: updatedBy,
       action: "COMMISSION_SPLIT_UPDATE",
       entityType: "ORGANIZATION",
@@ -292,6 +293,7 @@ export async function autoBalanceCommissionSplits(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: members[0].tenantId,
       userId: updatedBy,
       action: "COMMISSION_SPLIT_AUTO_BALANCE",
       entityType: "ORGANIZATION",
@@ -386,12 +388,22 @@ export async function setDefaultCommissionSplit(
     throw new Error("Default split must be between 0 and 100");
   }
 
+  // Get organization to access tenantId
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+  });
+
+  if (!organization) {
+    throw new Error("Organization not found");
+  }
+
   // Store in organization metadata or a separate config table
   // For now, we'll use the organization's name as a simple approach
   // In production, you'd want a separate configuration table
 
   await prisma.auditLog.create({
     data: {
+      tenantId: organization.tenantId,
       userId: updatedBy,
       action: "DEFAULT_COMMISSION_SPLIT_UPDATE",
       entityType: "ORGANIZATION",
