@@ -31,6 +31,7 @@ export interface UpdateOrganizationInput {
  * Create a new organization
  */
 export async function createOrganization(
+  tenantId: string,
   input: CreateOrganizationInput,
   createdBy: string
 ) {
@@ -55,6 +56,7 @@ export async function createOrganization(
   const organization = await prisma.organization.create({
     data: {
       ...data,
+      tenantId,
       type: data.type as any,
       parentId,
       status: "ACTIVE",
@@ -64,6 +66,7 @@ export async function createOrganization(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: createdBy,
       action: "ORGANIZATION_CREATE",
       entityType: "ORGANIZATION",
@@ -126,6 +129,7 @@ export async function updateOrganization(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: currentOrg.tenantId,
       userId: updatedBy,
       action: "ORGANIZATION_UPDATE",
       entityType: "ORGANIZATION",
@@ -186,6 +190,7 @@ export async function deleteOrganization(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: organization.tenantId,
       userId: deletedBy,
       action: "ORGANIZATION_DELETE",
       entityType: "ORGANIZATION",
@@ -414,6 +419,7 @@ export async function moveOrganization(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: organization.tenantId,
       userId: movedBy,
       action: "ORGANIZATION_MOVE",
       entityType: "ORGANIZATION",

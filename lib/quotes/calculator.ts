@@ -378,12 +378,14 @@ function generateSurrenderSchedule(
  * Save quote to database
  */
 export async function saveQuote(
+  tenantId: string,
   userId: string,
   quoteData: any,
   quoteResult: any
 ) {
   return await prisma.quote.create({
     data: {
+      tenantId,
       userId,
       clientName: quoteData.clientName,
       clientAge: quoteData.age,

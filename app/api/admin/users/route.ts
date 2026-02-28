@@ -78,10 +78,9 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth(request);
 
     // TODO: Add admin role check
-    // TODO: Update createUser function to accept tenantId and use withTenantContext
     const body = await request.json();
 
-    const newUser = await createUser(body, user.id);
+    const newUser = await createUser(tenantContext.tenantId, body, user.id);
 
     return NextResponse.json({
       success: true,

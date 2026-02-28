@@ -28,6 +28,13 @@ export async function updateMemberCommissionSplit(
       userId,
       isActive: true,
     },
+    include: {
+      organization: {
+        select: {
+          tenantId: true,
+        },
+      },
+    },
   });
 
   if (!member) {
@@ -72,7 +79,7 @@ export async function updateMemberCommissionSplit(
   // Create audit log
   await prisma.auditLog.create({
     data: {
-      tenantId: member.tenantId,
+      tenantId: member.organization.tenantId,
       userId: updatedBy,
       action: "COMMISSION_SPLIT_UPDATE",
       entityType: "ORGANIZATION",
@@ -268,6 +275,13 @@ export async function autoBalanceCommissionSplits(
       organizationId,
       isActive: true,
     },
+    include: {
+      organization: {
+        select: {
+          tenantId: true,
+        },
+      },
+    },
   });
 
   if (members.length === 0) {
@@ -293,7 +307,7 @@ export async function autoBalanceCommissionSplits(
   // Create audit log
   await prisma.auditLog.create({
     data: {
-      tenantId: members[0].tenantId,
+      tenantId: members[0].organization.tenantId,
       userId: updatedBy,
       action: "COMMISSION_SPLIT_AUTO_BALANCE",
       entityType: "ORGANIZATION",

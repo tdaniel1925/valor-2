@@ -31,6 +31,7 @@ export interface UpdateUserInput {
  * Create a new user with Supabase Auth and database record
  */
 export async function createUser(
+  tenantId: string,
   input: CreateUserInput,
   createdBy: string
 ): Promise<any> {
@@ -59,6 +60,7 @@ export async function createUser(
   const user = await prisma.user.create({
     data: {
       id: authUserId,
+      tenantId,
       email,
       firstName,
       lastName,
@@ -82,6 +84,7 @@ export async function createUser(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: createdBy,
       action: "USER_CREATE",
       entityType: "USER",
@@ -149,6 +152,7 @@ export async function updateUser(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: currentUser.tenantId,
       userId: updatedBy,
       action: "USER_UPDATE",
       entityType: "USER",
@@ -194,6 +198,7 @@ export async function deleteUser(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: user.tenantId,
       userId: deletedBy,
       action: "USER_DELETE",
       entityType: "USER",
@@ -384,6 +389,16 @@ export async function assignUserToOrganization(
   commissionSplit?: number,
   assignedBy?: string
 ) {
+  // Fetch organization to get tenantId
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { tenantId: true },
+  });
+
+  if (!organization) {
+    throw new Error("Organization not found");
+  }
+
   // Check if already a member
   const existing = await prisma.organizationMember.findFirst({
     where: {
@@ -407,6 +422,7 @@ export async function assignUserToOrganization(
       if (assignedBy) {
         await prisma.auditLog.create({
           data: {
+            tenantId: organization.tenantId,
             userId: assignedBy,
             action: "ORGANIZATION_MEMBER_REACTIVATE",
             entityType: "ORGANIZATION",
@@ -439,6 +455,7 @@ export async function assignUserToOrganization(
   if (assignedBy) {
     await prisma.auditLog.create({
       data: {
+        tenantId: organization.tenantId,
         userId: assignedBy,
         action: "ORGANIZATION_MEMBER_ADD",
         entityType: "ORGANIZATION",
@@ -463,6 +480,16 @@ export async function removeUserFromOrganization(
   organizationId: string,
   removedBy?: string
 ) {
+  // Fetch organization to get tenantId
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { tenantId: true },
+  });
+
+  if (!organization) {
+    throw new Error("Organization not found");
+  }
+
   const member = await prisma.organizationMember.findFirst({
     where: {
       userId,
@@ -487,6 +514,7 @@ export async function removeUserFromOrganization(
   if (removedBy) {
     await prisma.auditLog.create({
       data: {
+        tenantId: organization.tenantId,
         userId: removedBy,
         action: "ORGANIZATION_MEMBER_REMOVE",
         entityType: "ORGANIZATION",

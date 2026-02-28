@@ -4,6 +4,7 @@ import {
   createOrganization,
 } from "@/lib/admin/organization-management";
 import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 
 /**
  * GET /api/admin/organizations
@@ -47,8 +48,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const adminId = await getUserIdOrDemo();
+    const tenantContext = getTenantFromRequest(request);
 
-    const organization = await createOrganization(body, adminId);
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Tenant context not found" },
+        { status: 400 }
+      );
+    }
+
+    const organization = await createOrganization(tenantContext.tenantId, body, adminId);
 
     return NextResponse.json({
       success: true,

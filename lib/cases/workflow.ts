@@ -95,6 +95,7 @@ export async function transitionCaseStatus(
   // Create audit log entry
   const transition = await prisma.auditLog.create({
     data: {
+      tenantId: currentCase.tenantId,
       userId,
       action: "CASE_STATUS_CHANGE",
       entityType: "CASE",
@@ -112,6 +113,7 @@ export async function transitionCaseStatus(
   if (currentCase.userId !== userId) {
     await prisma.notification.create({
       data: {
+        tenantId: currentCase.tenantId,
         userId: currentCase.userId,
         type: "CASE_UPDATE",
         title: "Case Status Updated",

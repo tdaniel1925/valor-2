@@ -28,22 +28,33 @@ export abstract class BaseWebhookHandler implements WebhookHandler {
   /**
    * Log webhook event to audit log
    */
-  protected async logWebhookEvent(event: WebhookEvent, success: boolean, error?: string) {
+  protected async logWebhookEvent(
+    event: WebhookEvent,
+    success: boolean,
+    tenantId?: string,
+    userId?: string,
+    error?: string
+  ) {
     try {
-      await prisma.auditLog.create({
-        data: {
-          action: `webhook.${event.event}`,
-          entityType: 'integration',
-          entityId: event.source,
-          changes: {
-            event: event.event,
-            source: event.source,
-            success,
-            error,
-            timestamp: event.timestamp,
+      // Only create audit log if we have tenant and user context
+      if (tenantId && userId) {
+        await prisma.auditLog.create({
+          data: {
+            tenantId,
+            userId,
+            action: `webhook.${event.event}`,
+            entityType: 'integration',
+            entityId: event.source,
+            changes: JSON.stringify({
+              event: event.event,
+              source: event.source,
+              success,
+              error,
+              timestamp: event.timestamp,
+            }),
           },
-        },
-      });
+        });
+      }
     } catch (err) {
       console.error('[WEBHOOK_LOG] Failed to log webhook event:', err);
     }
@@ -88,6 +99,8 @@ export class WinFlexWebhookHandler extends BaseWebhookHandler {
       await this.logWebhookEvent(
         event,
         false,
+        undefined,
+        undefined,
         error instanceof Error ? error.message : 'Unknown error'
       );
       throw error;
@@ -150,6 +163,8 @@ export class IPipelineWebhookHandler extends BaseWebhookHandler {
       await this.logWebhookEvent(
         event,
         false,
+        undefined,
+        undefined,
         error instanceof Error ? error.message : 'Unknown error'
       );
       throw error;
@@ -213,6 +228,8 @@ export class RateWatchWebhookHandler extends BaseWebhookHandler {
       await this.logWebhookEvent(
         event,
         false,
+        undefined,
+        undefined,
         error instanceof Error ? error.message : 'Unknown error'
       );
       throw error;
@@ -282,6 +299,8 @@ export class VapiWebhookHandler extends BaseWebhookHandler {
       await this.logWebhookEvent(
         event,
         false,
+        undefined,
+        undefined,
         error instanceof Error ? error.message : 'Unknown error'
       );
       throw error;

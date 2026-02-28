@@ -135,6 +135,7 @@ export async function uploadDocument(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: caseExists.tenantId,
       userId: uploadedBy,
       action: "DOCUMENT_UPLOAD",
       entityType: "CASE",
@@ -219,6 +220,7 @@ export async function deleteDocument(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: caseData.tenantId,
       userId: deletedBy,
       action: "DOCUMENT_DELETE",
       entityType: "CASE",
@@ -283,6 +285,7 @@ export async function updateDocumentMetadata(
   // Create audit log
   await prisma.auditLog.create({
     data: {
+      tenantId: caseData.tenantId,
       userId: updatedBy,
       action: "DOCUMENT_UPDATE",
       entityType: "CASE",

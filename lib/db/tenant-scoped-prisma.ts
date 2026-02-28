@@ -147,7 +147,7 @@ export function tenantQuery(tenantId: string) {
                 }
 
                 // Execute original method
-                return modelMethod.apply(modelTarget, args);
+                return (modelMethod as Function).apply(modelTarget, args);
               };
             }
 

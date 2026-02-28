@@ -255,6 +255,7 @@ async function calculateNewClientCount(
  * Create a new goal
  */
 export async function createGoal(data: {
+  tenantId: string;
   userId: string;
   title: string;
   type: any;
@@ -265,6 +266,7 @@ export async function createGoal(data: {
 }) {
   return await prisma.goal.create({
     data: {
+      tenantId: data.tenantId,
       userId: data.userId,
       title: data.title,
       type: data.type as any,

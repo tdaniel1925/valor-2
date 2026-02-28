@@ -149,10 +149,21 @@ export async function createCommissionRecords(
 ): Promise<void> {
   const { splits, totalAmount } = await calculateCommission(input);
 
+  // Get case to access tenantId
+  const caseData = await prisma.case.findUnique({
+    where: { id: input.caseId },
+    select: { tenantId: true },
+  });
+
+  if (!caseData) {
+    throw new Error("Case not found");
+  }
+
   // Create commission records for each split
   for (const split of splits) {
     await prisma.commission.create({
       data: {
+        tenantId: caseData.tenantId,
         userId: split.userId,
         caseId: input.caseId,
         type: input.type,

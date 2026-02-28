@@ -32,8 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save quote with tenant context
-    // TODO: Update saveQuote function to accept tenantId parameter
-    const savedQuote = await saveQuote(user.id, quoteData, quoteResult);
+    const savedQuote = await saveQuote(tenantContext.tenantId, user.id, quoteData, quoteResult);
 
     return NextResponse.json({
       success: true,
