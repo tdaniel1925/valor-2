@@ -16,6 +16,7 @@ async function seedHelpContent() {
   }
 
   const authorId = demoUser.id;
+  const tenantId = demoUser.tenantId;
 
   // Clear existing help content
   console.log("🧹 Clearing existing help content...");
@@ -748,7 +749,10 @@ For annuity sales:
   const createdArticles = [];
   for (const article of articles) {
     const created = await prisma.helpArticle.create({
-      data: article,
+      data: {
+        ...article,
+        tenantId,
+      },
     });
     createdArticles.push(created);
     console.log(`  ✓ Created: ${created.title}`);
@@ -950,7 +954,10 @@ Only Administrators and Managers can add new members.`,
 
   for (const faq of faqs) {
     const created = await prisma.fAQ.create({
-      data: faq,
+      data: {
+        ...faq,
+        tenantId,
+      },
     });
     console.log(`  ✓ Created FAQ: ${created.question}`);
   }

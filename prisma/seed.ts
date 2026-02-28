@@ -23,12 +23,28 @@ async function main() {
   await prisma.goal.deleteMany();
   await prisma.userProfile.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.tenant.deleteMany();
+
+  // Create Demo Tenant
+  console.log("🏢 Creating demo tenant...");
+  const demoTenant = await prisma.tenant.create({
+    data: {
+      id: "demo-tenant-id",
+      subdomain: "demo",
+      name: "Valor Demo Organization",
+      status: "ACTIVE",
+      settings: {},
+    },
+  });
+  const tenantId = demoTenant.id;
+  console.log(`  ✅ Created tenant: ${demoTenant.name} (${demoTenant.subdomain})`);
 
   // Create Organizations (Hierarchical)
   console.log("🏢 Creating organizations...");
 
   const valorHQ = await prisma.organization.create({
     data: {
+      tenantId,
       name: "Valor Financial Specialists HQ",
       type: "IMO",
       ein: "12-3456789",
@@ -44,6 +60,7 @@ async function main() {
 
   const westCoastMGA = await prisma.organization.create({
     data: {
+      tenantId,
       name: "West Coast MGA",
       type: "MGA",
       parentId: valorHQ.id,
@@ -59,6 +76,7 @@ async function main() {
 
   const sfAgency = await prisma.organization.create({
     data: {
+      tenantId,
       name: "SF Elite Insurance Agency",
       type: "Agency",
       parentId: westCoastMGA.id,
@@ -79,6 +97,7 @@ async function main() {
   const demoUser = await prisma.user.create({
     data: {
       id: "demo-user-id",
+      tenantId,
       email: "demo@valorfinancial.com",
       firstName: "Alex",
       lastName: "Thompson",
@@ -107,6 +126,7 @@ async function main() {
   // Admin User
   const adminUser = await prisma.user.create({
     data: {
+      tenantId,
       email: "admin@valorfinancial.com",
       firstName: "Jessica",
       lastName: "Rodriguez",
@@ -135,6 +155,7 @@ async function main() {
   // Executive User
   const executiveUser = await prisma.user.create({
     data: {
+      tenantId,
       email: "phil.martinez@valorfinancial.com",
       firstName: "Phil",
       lastName: "Martinez",
@@ -163,6 +184,7 @@ async function main() {
   // Manager User
   const managerUser = await prisma.user.create({
     data: {
+      tenantId,
       email: "michael.chen@valorfinancial.com",
       firstName: "Michael",
       lastName: "Chen",
@@ -191,6 +213,7 @@ async function main() {
   // Agent User 2
   const agentUser = await prisma.user.create({
     data: {
+      tenantId,
       email: "sarah.johnson@valorfinancial.com",
       firstName: "Sarah",
       lastName: "Johnson",
@@ -222,6 +245,7 @@ async function main() {
   await prisma.organizationMember.createMany({
     data: [
       {
+        tenantId,
         organizationId: valorHQ.id,
         userId: adminUser.id,
         role: "ADMINISTRATOR",
@@ -229,6 +253,7 @@ async function main() {
         isActive: true,
       },
       {
+        tenantId,
         organizationId: valorHQ.id,
         userId: executiveUser.id,
         role: "EXECUTIVE",
@@ -236,6 +261,7 @@ async function main() {
         isActive: true,
       },
       {
+        tenantId,
         organizationId: westCoastMGA.id,
         userId: managerUser.id,
         role: "MANAGER",
@@ -243,6 +269,7 @@ async function main() {
         isActive: true,
       },
       {
+        tenantId,
         organizationId: sfAgency.id,
         userId: demoUser.id,
         role: "AGENT",
@@ -250,6 +277,7 @@ async function main() {
         isActive: true,
       },
       {
+        tenantId,
         organizationId: sfAgency.id,
         userId: agentUser.id,
         role: "AGENT",
@@ -265,6 +293,7 @@ async function main() {
   const contracts = await prisma.contract.createMany({
     data: [
       {
+        tenantId,
         userId: demoUser.id,
         organizationId: sfAgency.id,
         carrierName: "Pacific Life",
@@ -278,6 +307,7 @@ async function main() {
         approvedAt: new Date("2023-12-15"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         organizationId: sfAgency.id,
         carrierName: "Nationwide",
@@ -291,6 +321,7 @@ async function main() {
         approvedAt: new Date("2024-01-20"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         organizationId: sfAgency.id,
         carrierName: "Mutual of Omaha",
@@ -348,6 +379,7 @@ async function main() {
     data: [
       // Whole Life
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Robert Chen",
         clientEmail: "robert.chen@email.com",
@@ -364,6 +396,7 @@ async function main() {
       },
       // Universal Life
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Jennifer Martinez",
         clientEmail: "j.martinez@email.com",
@@ -380,6 +413,7 @@ async function main() {
       },
       // Indexed Universal Life
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "David Kim",
         clientEmail: "dkim@email.com",
@@ -395,6 +429,7 @@ async function main() {
       },
       // 10-Year Term
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Amanda White",
         clientEmail: "awhite@email.com",
@@ -412,6 +447,7 @@ async function main() {
       },
       // 30-Year Term
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Michael Brown",
         clientEmail: "mbrown@email.com",
@@ -428,6 +464,7 @@ async function main() {
       },
       // Variable Annuity
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Patricia Davis",
         clientEmail: "pdavis@email.com",
@@ -444,6 +481,7 @@ async function main() {
       },
       // Indexed Annuity
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "James Wilson",
         clientEmail: "jwilson@email.com",
@@ -460,6 +498,7 @@ async function main() {
       },
       // Fixed Annuity
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Linda Garcia",
         clientEmail: "lgarcia@email.com",
@@ -476,6 +515,7 @@ async function main() {
       },
       // Whole Life - Declined
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Thomas Anderson",
         clientEmail: "tanderson@email.com",
@@ -492,6 +532,7 @@ async function main() {
       },
       // Term Life - Draft
       {
+        tenantId,
         userId: demoUser.id,
         clientName: "Sandra Lee",
         clientEmail: "slee@email.com",
@@ -508,6 +549,7 @@ async function main() {
       },
       // Variable Life
       {
+        tenantId,
         userId: agentUser.id,
         clientName: "Christopher Taylor",
         clientEmail: "ctaylor@email.com",
@@ -524,6 +566,7 @@ async function main() {
       },
       // Indexed Annuity for other agent
       {
+        tenantId,
         userId: agentUser.id,
         clientName: "Elizabeth Moore",
         clientEmail: "emoore@email.com",
@@ -662,6 +705,7 @@ async function main() {
   await prisma.caseNote.createMany({
     data: [
       {
+        tenantId,
         caseId: case1.id,
         content: "Application submitted successfully",
         isInternal: false,
@@ -669,6 +713,7 @@ async function main() {
         createdAt: new Date("2024-10-15"),
       },
       {
+        tenantId,
         caseId: case1.id,
         content: "Client completed medical exam",
         isInternal: false,
@@ -676,6 +721,7 @@ async function main() {
         createdAt: new Date("2024-10-25"),
       },
       {
+        tenantId,
         caseId: case2.id,
         content: "Application submitted to carrier",
         isInternal: false,
@@ -683,6 +729,7 @@ async function main() {
         createdAt: new Date("2024-11-05"),
       },
       {
+        tenantId,
         caseId: case2.id,
         content: "Carrier requested additional medical records",
         isInternal: true,
@@ -690,6 +737,7 @@ async function main() {
         createdAt: new Date("2024-11-12"),
       },
       {
+        tenantId,
         caseId: case3.id,
         content: "Application submitted with all requirements",
         isInternal: false,
@@ -697,6 +745,7 @@ async function main() {
         createdAt: new Date("2024-10-20"),
       },
       {
+        tenantId,
         caseId: case3.id,
         content: "Approved at standard rates - great news!",
         isInternal: false,
@@ -704,6 +753,7 @@ async function main() {
         createdAt: new Date("2024-11-15"),
       },
       {
+        tenantId,
         caseId: case4.id,
         content: "Initial application submitted",
         isInternal: false,
@@ -711,6 +761,7 @@ async function main() {
         createdAt: new Date("2024-09-15"),
       },
       {
+        tenantId,
         caseId: case4.id,
         content: "Policy issued and delivered to client",
         isInternal: false,
@@ -718,6 +769,7 @@ async function main() {
         createdAt: new Date("2024-10-25"),
       },
       {
+        tenantId,
         caseId: case5.id,
         content: "Application submitted - waiting on medical exam",
         isInternal: false,
@@ -725,6 +777,7 @@ async function main() {
         createdAt: new Date("2024-11-12"),
       },
       {
+        tenantId,
         caseId: case5.id,
         content: "Followed up with client about scheduling exam",
         isInternal: true,
@@ -741,6 +794,7 @@ async function main() {
     data: [
       // Paid commissions
       {
+        tenantId,
         userId: demoUser.id,
         caseId: case1.id,
         type: "FIRST_YEAR",
@@ -755,6 +809,7 @@ async function main() {
         paidAt: new Date("2024-12-05"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         caseId: case3.id,
         type: "FIRST_YEAR",
@@ -769,6 +824,7 @@ async function main() {
         paidAt: new Date("2024-11-15"),
       },
       {
+        tenantId,
         userId: agentUser.id,
         caseId: case4.id,
         type: "FIRST_YEAR",
@@ -784,6 +840,7 @@ async function main() {
       },
       // Pending commissions
       {
+        tenantId,
         userId: demoUser.id,
         caseId: case2.id,
         type: "FIRST_YEAR",
@@ -797,6 +854,7 @@ async function main() {
       },
       // Renewal commissions
       {
+        tenantId,
         userId: demoUser.id,
         type: "RENEWAL",
         status: "PAID",
@@ -810,6 +868,7 @@ async function main() {
         paidAt: new Date("2024-12-01"),
       },
       {
+        tenantId,
         userId: agentUser.id,
         type: "RENEWAL",
         status: "PAID",
@@ -824,6 +883,7 @@ async function main() {
       },
       // Override commissions for manager
       {
+        tenantId,
         userId: managerUser.id,
         caseId: case1.id,
         type: "OVERRIDE",
@@ -838,6 +898,7 @@ async function main() {
         paidAt: new Date("2024-12-05"),
       },
       {
+        tenantId,
         userId: managerUser.id,
         caseId: case4.id,
         type: "OVERRIDE",
@@ -853,6 +914,7 @@ async function main() {
       },
       // Bonus commission
       {
+        tenantId,
         userId: demoUser.id,
         type: "BONUS",
         status: "PAID",
@@ -866,6 +928,7 @@ async function main() {
       },
       // Trail commission
       {
+        tenantId,
         userId: demoUser.id,
         type: "TRAIL",
         status: "PAID",
@@ -887,6 +950,7 @@ async function main() {
   await prisma.notification.createMany({
     data: [
       {
+        tenantId,
         userId: demoUser.id,
         type: "CASE_UPDATE",
         title: "Case Approved",
@@ -895,6 +959,7 @@ async function main() {
         isRead: false,
       },
       {
+        tenantId,
         userId: demoUser.id,
         type: "COMMISSION_PAID",
         title: "Commission Paid",
@@ -903,6 +968,7 @@ async function main() {
         isRead: true,
       },
       {
+        tenantId,
         userId: demoUser.id,
         type: "CONTRACT_UPDATE",
         title: "Contract Approved",
@@ -919,6 +985,7 @@ async function main() {
   await prisma.auditLog.createMany({
     data: [
       {
+        tenantId,
         userId: demoUser.id,
         action: "LOGIN",
         entityType: "User",
@@ -927,6 +994,7 @@ async function main() {
         userAgent: "Mozilla/5.0",
       },
       {
+        tenantId,
         userId: demoUser.id,
         action: "CREATE_CASE",
         entityType: "Case",
@@ -935,6 +1003,7 @@ async function main() {
         userAgent: "Mozilla/5.0",
       },
       {
+        tenantId,
         userId: adminUser.id,
         action: "LOGIN",
         entityType: "User",
@@ -943,6 +1012,7 @@ async function main() {
         userAgent: "Mozilla/5.0",
       },
       {
+        tenantId,
         userId: managerUser.id,
         action: "VIEW_REPORT",
         entityType: "Report",
@@ -960,6 +1030,7 @@ async function main() {
     data: [
       // Revenue Goals
       {
+        tenantId,
         userId: demoUser.id,
         title: "Monthly Commission Target - December",
         description: "Earn $10,000 in commissions for December 2024",
@@ -969,6 +1040,7 @@ async function main() {
         endDate: new Date("2024-12-31"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         title: "Q1 2025 Revenue Goal",
         description: "Generate $30,000 in total commissions for Q1 2025",
@@ -978,6 +1050,7 @@ async function main() {
         endDate: new Date("2025-03-31"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         title: "Annual Revenue Target 2025",
         description: "Achieve $120,000 in annual commission income",
@@ -988,6 +1061,7 @@ async function main() {
       },
       // Production Goals
       {
+        tenantId,
         userId: demoUser.id,
         title: "Monthly Case Goal - December",
         description: "Submit 8 new cases in December 2024",
@@ -997,6 +1071,7 @@ async function main() {
         endDate: new Date("2024-12-31"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         title: "Q1 Policy Production",
         description: "Issue 25 new policies in Q1 2025",
@@ -1006,6 +1081,7 @@ async function main() {
         endDate: new Date("2025-03-31"),
       },
       {
+        tenantId,
         userId: demoUser.id,
         title: "Annuity Production Target",
         description: "Write $2,000,000 in annuity premium this year",
@@ -1016,6 +1092,7 @@ async function main() {
       },
       // Manager Goals
       {
+        tenantId,
         userId: managerUser.id,
         title: "Team Revenue Goal - Q1",
         description: "Team to generate $150,000 in commissions",
@@ -1025,6 +1102,7 @@ async function main() {
         endDate: new Date("2025-03-31"),
       },
       {
+        tenantId,
         userId: managerUser.id,
         title: "Team Case Production",
         description: "Team to submit 50 cases in Q1",
@@ -1035,6 +1113,7 @@ async function main() {
       },
       // Executive Goals
       {
+        tenantId,
         userId: executiveUser.id,
         title: "Organization Annual Revenue",
         description: "Organization to reach $5M in total production",
@@ -1044,6 +1123,7 @@ async function main() {
         endDate: new Date("2025-12-31"),
       },
       {
+        tenantId,
         userId: executiveUser.id,
         title: "Q1 Organization Growth",
         description: "Achieve 20% growth in Q1 vs Q4 2024",
