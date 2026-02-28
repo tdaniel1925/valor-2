@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { createdAt: "desc" },
         include: {
-          case: {
+          cases: {
             select: {
               id: true,
               clientName: true,
