@@ -691,7 +691,11 @@ export default function DashboardContent() {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                           {agents.map((agent) => (
-                            <tr key={agent.id} className="hover:bg-gray-50">
+                            <tr
+                              key={agent.id}
+                              onClick={() => router.push(`/smartoffice/agents/${agent.id}`)}
+                              className="hover:bg-gray-50 cursor-pointer transition-colors"
+                            >
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {agent.fullName}
                               </td>
