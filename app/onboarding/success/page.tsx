@@ -1,9 +1,10 @@
 "use client";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui";
 
-export default function OnboardingSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
 
@@ -68,5 +69,19 @@ export default function OnboardingSuccessPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function OnboardingSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full" />
+        </div>
+      }
+    >
+      <SuccessContent />
+    </Suspense>
   );
 }
