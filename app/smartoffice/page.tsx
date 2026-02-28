@@ -5,6 +5,7 @@ import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, R
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuickActionCard from '@/components/smartoffice/QuickActionCard';
+import SmartOfficeChat from '@/components/smartoffice/SmartOfficeChat';
 
 interface Policy {
   id: string;
@@ -325,6 +326,11 @@ export default function SmartOfficeDashboardPage() {
               </button>
             </div>
           )}
+        </div>
+
+        {/* AI Chat */}
+        <div className="mb-8">
+          <SmartOfficeChat />
         </div>
 
         {/* Tabs */}
