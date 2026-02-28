@@ -71,6 +71,9 @@ export async function validateTenantExists(
   tenantId: string
 ): Promise<{ exists: boolean; tenant: { id: string; name: string; slug: string } | null }> {
   try {
+    console.log(`[SmartOffice] Validating tenant: ${tenantId}`);
+    console.log(`[SmartOffice] DATABASE_URL configured: ${process.env.DATABASE_URL?.substring(0, 50)}...`);
+
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
       select: {
@@ -81,7 +84,10 @@ export async function validateTenantExists(
       },
     });
 
+    console.log(`[SmartOffice] Tenant query result:`, tenant);
+
     if (!tenant) {
+      console.warn(`[SmartOffice] Tenant not found in database: ${tenantId}`);
       return { exists: false, tenant: null };
     }
 
@@ -92,6 +98,8 @@ export async function validateTenantExists(
       console.warn(`[SmartOffice] Tenant ${tenantId} exists but is ${tenant.status}`);
       return { exists: false, tenant: null };
     }
+
+    console.log(`[SmartOffice] Tenant validated successfully: ${tenant.name} (${tenant.status})`);
 
     return {
       exists: true,
