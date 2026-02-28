@@ -63,6 +63,7 @@ model Tenant {
   smartOfficeReports   SmartOfficeCustomReport[]
   smartOfficeChatHistory SmartOfficeChatHistory[]
   syncLogs        SmartOfficeSyncLog[]
+  policyNotes     PolicyNote[]
 
   @@index([slug])
   @@index([status])
@@ -129,6 +130,7 @@ model User {
   smartOfficeAgents SmartOfficeAgent[]  @relation("SmartOfficeAgentLink")
   smartOfficeReports SmartOfficeCustomReport[] @relation("CreatedSmartOfficeReports")
   smartOfficeChatHistory SmartOfficeChatHistory[] @relation("SmartOfficeChatHistory")
+  policyNotes       PolicyNote[]
 
   @@index([email])
   @@index([role])
@@ -1100,6 +1102,9 @@ model SmartOfficePolicy {
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
 
+  // Relations
+  notes                 PolicyNote[]
+
   @@index([tenantId])
   @@index([policyNumber])
   @@index([primaryAdvisor])
@@ -1109,6 +1114,25 @@ model SmartOfficePolicy {
   @@index([statusDate])
   @@index([lastSyncDate])
   @@map("smartoffice_policies")
+}
+
+model PolicyNote {
+  id          String   @id @default(uuid())
+  tenantId    String
+  policyId    String
+  userId      String
+
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  policy      SmartOfficePolicy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, policyId])
+  @@index([userId])
+  @@map("policy_notes")
 }
 
 model SmartOfficeAgent {
