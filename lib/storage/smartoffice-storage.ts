@@ -71,19 +71,26 @@ export async function validateTenantExists(
   tenantId: string
 ): Promise<{ exists: boolean; tenant: { id: string; name: string; slug: string } | null }> {
   try {
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: tenantId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        status: true,
-      },
-    });
+    // Set tenant context for RLS
+    await prisma.$executeRaw`SET LOCAL app.current_tenant_id = ${tenantId}`;
 
-    if (!tenant) {
+    // Query tenant with RLS context set
+    const result = await prisma.$queryRaw<Array<{
+      id: string;
+      name: string;
+      slug: string;
+      status: string;
+    }>>`
+      SELECT id, name, slug, status
+      FROM tenants
+      WHERE id = ${tenantId}::uuid
+    `;
+
+    if (!result || result.length === 0) {
       return { exists: false, tenant: null };
     }
+
+    const tenant = result[0];
 
     // Check if tenant is active or in trial
     const isActive = tenant.status === "ACTIVE" || tenant.status === "TRIAL";
