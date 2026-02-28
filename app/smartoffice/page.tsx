@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuickActionCard from '@/components/smartoffice/QuickActionCard';
 import SmartOfficeChat from '@/components/smartoffice/SmartOfficeChat';
+import FilterPanel, { FilterValues } from '@/components/smartoffice/FilterPanel';
 
 interface Policy {
   id: string;
@@ -69,6 +70,36 @@ export default function SmartOfficeDashboardPage() {
   // Get active filter from URL
   const activeFilter = searchParams.get('filter') || null;
 
+  // Get advanced filters from URL
+  const getFiltersFromURL = (): FilterValues => {
+    const filters: FilterValues = {};
+
+    const statusParam = searchParams.get('status');
+    if (statusParam) filters.status = statusParam.split(',');
+
+    const carrierParam = searchParams.get('carrier');
+    if (carrierParam) filters.carrier = carrierParam.split(',');
+
+    const typeParam = searchParams.get('type');
+    if (typeParam) filters.type = typeParam.split(',');
+
+    const dateFrom = searchParams.get('dateFrom');
+    if (dateFrom) filters.dateFrom = dateFrom;
+
+    const dateTo = searchParams.get('dateTo');
+    if (dateTo) filters.dateTo = dateTo;
+
+    const premiumMin = searchParams.get('premiumMin');
+    if (premiumMin) filters.premiumMin = Number(premiumMin);
+
+    const premiumMax = searchParams.get('premiumMax');
+    if (premiumMax) filters.premiumMax = Number(premiumMax);
+
+    return filters;
+  };
+
+  const advancedFilters = getFiltersFromURL();
+
   // Fetch stats
   useEffect(() => {
     fetchStats();
@@ -81,7 +112,7 @@ export default function SmartOfficeDashboardPage() {
     } else {
       fetchAgents();
     }
-  }, [activeTab, pagination.page, activeFilter]);
+  }, [activeTab, pagination.page, activeFilter, searchParams]);
 
   // Debounced search
   useEffect(() => {
@@ -123,6 +154,29 @@ export default function SmartOfficeDashboardPage() {
       } else if (activeFilter === 'this-month') {
         const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         params.append('dateFrom', firstDayOfMonth.toISOString());
+      }
+
+      // Add advanced filters
+      if (advancedFilters.status && advancedFilters.status.length > 0) {
+        params.append('statusList', advancedFilters.status.join(','));
+      }
+      if (advancedFilters.carrier && advancedFilters.carrier.length > 0) {
+        params.append('carrierList', advancedFilters.carrier.join(','));
+      }
+      if (advancedFilters.type && advancedFilters.type.length > 0) {
+        params.append('typeList', advancedFilters.type.join(','));
+      }
+      if (advancedFilters.dateFrom) {
+        params.append('dateFrom', advancedFilters.dateFrom);
+      }
+      if (advancedFilters.dateTo) {
+        params.append('dateTo', advancedFilters.dateTo);
+      }
+      if (advancedFilters.premiumMin) {
+        params.append('premiumMin', advancedFilters.premiumMin.toString());
+      }
+      if (advancedFilters.premiumMax) {
+        params.append('premiumMax', advancedFilters.premiumMax.toString());
       }
 
       const response = await fetch(`/api/smartoffice/policies?${params}`);
@@ -183,6 +237,15 @@ export default function SmartOfficeDashboardPage() {
   const handleQuickAction = (filterType: string | null) => {
     const params = new URLSearchParams(searchParams);
 
+    // Clear advanced filters when using quick actions
+    params.delete('statusList');
+    params.delete('carrierList');
+    params.delete('typeList');
+    params.delete('dateFrom');
+    params.delete('dateTo');
+    params.delete('premiumMin');
+    params.delete('premiumMax');
+
     if (filterType) {
       params.set('filter', filterType);
     } else {
@@ -195,6 +258,44 @@ export default function SmartOfficeDashboardPage() {
 
     // Update URL
     router.push(`/smartoffice?${params.toString()}`);
+  };
+
+  // Advanced filter handlers
+  const handleApplyFilters = (filters: FilterValues) => {
+    const params = new URLSearchParams();
+
+    // Clear quick action filter
+    params.delete('filter');
+
+    if (filters.status && filters.status.length > 0) {
+      params.set('status', filters.status.join(','));
+    }
+    if (filters.carrier && filters.carrier.length > 0) {
+      params.set('carrier', filters.carrier.join(','));
+    }
+    if (filters.type && filters.type.length > 0) {
+      params.set('type', filters.type.join(','));
+    }
+    if (filters.dateFrom) {
+      params.set('dateFrom', filters.dateFrom);
+    }
+    if (filters.dateTo) {
+      params.set('dateTo', filters.dateTo);
+    }
+    if (filters.premiumMin) {
+      params.set('premiumMin', filters.premiumMin.toString());
+    }
+    if (filters.premiumMax) {
+      params.set('premiumMax', filters.premiumMax.toString());
+    }
+
+    setPagination(prev => ({ ...prev, page: 1 }));
+    router.push(`/smartoffice?${params.toString()}`);
+  };
+
+  const handleClearFilters = () => {
+    router.push('/smartoffice');
+    setPagination(prev => ({ ...prev, page: 1 }));
   };;
 
   return (
@@ -387,10 +488,11 @@ export default function SmartOfficeDashboardPage() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center gap-2">
-                <Filter className="w-5 h-5" />
-                Filters
-              </button>
+              <FilterPanel
+                onApplyFilters={handleApplyFilters}
+                onClearFilters={handleClearFilters}
+                initialFilters={advancedFilters}
+              />
               <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center gap-2">
                 <Download className="w-5 h-5" />
                 Export

@@ -32,13 +32,20 @@ export async function GET(request: NextRequest) {
     // Search
     const search = searchParams.get('search') || '';
 
-    // Filters
+    // Filters (single value - for quick actions)
     const carrier = searchParams.get('carrier');
     const type = searchParams.get('type');
     const status = searchParams.get('status');
     const advisor = searchParams.get('advisor');
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
+
+    // Advanced filters (multi-value)
+    const statusList = searchParams.get('statusList');
+    const carrierList = searchParams.get('carrierList');
+    const typeList = searchParams.get('typeList');
+    const premiumMin = searchParams.get('premiumMin');
+    const premiumMax = searchParams.get('premiumMax');
 
     const result = await withTenantContext(tenantContext.tenantId, async (db) => {
       // Build where clause
@@ -57,17 +64,38 @@ export async function GET(request: NextRequest) {
         ];
       }
 
-      // Apply filters
+      // Apply single-value filters (from quick actions)
       if (carrier) where.carrierName = { contains: carrier, mode: 'insensitive' };
       if (type) where.type = type;
       if (status) where.status = status;
       if (advisor) where.primaryAdvisor = { contains: advisor, mode: 'insensitive' };
+
+      // Apply multi-value filters (from advanced filter panel)
+      if (statusList) {
+        const statuses = statusList.split(',');
+        where.status = { in: statuses as any };
+      }
+      if (carrierList) {
+        const carriers = carrierList.split(',');
+        where.carrierName = { in: carriers };
+      }
+      if (typeList) {
+        const types = typeList.split(',');
+        where.type = { in: types as any };
+      }
 
       // Date filters
       if (dateFrom || dateTo) {
         where.statusDate = {};
         if (dateFrom) where.statusDate.gte = new Date(dateFrom);
         if (dateTo) where.statusDate.lte = new Date(dateTo);
+      }
+
+      // Premium range filters
+      if (premiumMin || premiumMax) {
+        where.commAnnualizedPrem = {};
+        if (premiumMin) where.commAnnualizedPrem.gte = parseFloat(premiumMin);
+        if (premiumMax) where.commAnnualizedPrem.lte = parseFloat(premiumMax);
       }
 
       // Fetch data
