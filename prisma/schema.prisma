@@ -65,6 +65,7 @@ model Tenant {
   syncLogs        SmartOfficeSyncLog[]
   policyNotes     PolicyNote[]
   savedFilters    SavedFilter[]
+  dashboardLayouts DashboardLayout[]
 
   @@index([slug])
   @@index([status])
@@ -133,6 +134,7 @@ model User {
   smartOfficeChatHistory SmartOfficeChatHistory[] @relation("SmartOfficeChatHistory")
   policyNotes       PolicyNote[]
   savedFilters      SavedFilter[]
+  dashboardLayouts  DashboardLayout[]
 
   @@index([email])
   @@index([role])
@@ -1154,6 +1156,28 @@ model SavedFilter {
 
   @@index([tenantId, userId])
   @@map("saved_filters")
+}
+
+model DashboardLayout {
+  id          String   @id @default(uuid())
+  tenantId    String
+  userId      String
+
+  name        String   // User-defined name like "My Day", "Month End"
+  description String?  // Optional description
+  layout      Json     // Grid layout config: [{i: 'widget-1', x: 0, y: 0, w: 2, h: 1, type: 'stats', config: {...}}]
+  isDefault   Boolean  @default(false)
+  isShared    Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId])
+  @@index([isDefault])
+  @@map("dashboard_layouts")
 }
 
 model SmartOfficeAgent {
