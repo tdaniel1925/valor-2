@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth-context';
-import { getTenantContext } from '@/lib/tenant-context';
+import { prisma as db } from '@/lib/db/prisma';
+import { getAuthenticatedUser } from '@/lib/auth/server-auth';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 
 // PUT - Update dashboard layout
 export async function PUT(
@@ -9,12 +9,12 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getCurrentUser();
+    const user = await getAuthenticatedUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const tenantContext = await getTenantContext();
+    const tenantContext = getTenantFromRequest(request);
     if (!tenantContext) {
       return NextResponse.json({ error: 'No tenant context' }, { status: 400 });
     }
@@ -77,12 +77,12 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getCurrentUser();
+    const user = await getAuthenticatedUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const tenantContext = await getTenantContext();
+    const tenantContext = getTenantFromRequest(request);
     if (!tenantContext) {
       return NextResponse.json({ error: 'No tenant context' }, { status: 400 });
     }

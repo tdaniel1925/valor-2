@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth-context';
-import { getTenantContext } from '@/lib/tenant-context';
+import { prisma as db } from '@/lib/db/prisma';
+import { getAuthenticatedUser } from '@/lib/auth/server-auth';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 // GET - Fetch widget data based on type
 export async function GET(request: Request) {
   try {
-    const user = await getCurrentUser();
+    const user = await getAuthenticatedUser(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const tenantContext = await getTenantContext();
+    const tenantContext = getTenantFromRequest(request);
     if (!tenantContext) {
       return NextResponse.json({ error: 'No tenant context' }, { status: 400 });
     }
@@ -191,7 +191,7 @@ async function getPendingListData(tenantId: string, config: any) {
     policyNumber: policy.policyNumber,
     insured: policy.primaryInsured,
     carrier: policy.carrierName,
-    daysP ending: policy.statusDate
+    daysPending: policy.statusDate
       ? Math.floor((new Date().getTime() - policy.statusDate.getTime()) / (1000 * 60 * 60 * 24))
       : 0,
     premium: policy.annualPremium,
