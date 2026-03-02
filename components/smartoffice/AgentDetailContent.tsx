@@ -66,7 +66,7 @@ export default function AgentDetailContent() {
   const fetchAgentDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/smartoffice/agents/${agentId}`);
+      const response = await fetch(`/api/smartoffice/agents/${agentId}`, { credentials: 'include' });
       const data = await response.json();
 
       if (!response.ok) {

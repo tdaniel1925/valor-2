@@ -29,7 +29,7 @@ export default function StatusFunnelChart() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/smartoffice/charts/status-funnel');
+      const response = await fetch('/api/smartoffice/charts/status-funnel', { credentials: 'include' });
       const result = await response.json();
 
       if (!response.ok) {

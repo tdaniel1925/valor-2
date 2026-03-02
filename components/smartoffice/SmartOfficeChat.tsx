@@ -51,6 +51,7 @@ export default function SmartOfficeChat() {
 
     try {
       const response = await fetch('/api/smartoffice/chat', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

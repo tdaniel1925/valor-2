@@ -22,7 +22,9 @@ function useWidgetData(type: string, config: any) {
       try {
         setLoading(true);
         const configParam = encodeURIComponent(JSON.stringify(config || {}));
-        const response = await fetch(`/api/smartoffice/widgets/data?type=${type}&config=${configParam}`);
+        const response = await fetch(`/api/smartoffice/widgets/data?type=${type}&config=${configParam}`, {
+          credentials: 'include',
+        });
         const result = await response.json();
 
         if (!response.ok) {

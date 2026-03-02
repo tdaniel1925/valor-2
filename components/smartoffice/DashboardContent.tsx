@@ -137,7 +137,9 @@ export default function DashboardContent() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/smartoffice/stats');
+      const response = await fetch('/api/smartoffice/stats', {
+        credentials: 'include',
+      });
       const data = await response.json();
       if (data.success) {
         setStats(data.data);
@@ -187,7 +189,9 @@ export default function DashboardContent() {
         params.append('premiumMax', advancedFilters.premiumMax.toString());
       }
 
-      const response = await fetch(`/api/smartoffice/policies?${params}`);
+      const response = await fetch(`/api/smartoffice/policies?${params}`, {
+        credentials: 'include',
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -211,7 +215,9 @@ export default function DashboardContent() {
         ...(searchTerm && { search: searchTerm }),
       });
 
-      const response = await fetch(`/api/smartoffice/agents?${params}`);
+      const response = await fetch(`/api/smartoffice/agents?${params}`, {
+        credentials: 'include',
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -328,6 +334,7 @@ export default function DashboardContent() {
   const handleSaveFilter = async (name: string, isDefault: boolean) => {
     const response = await fetch('/api/smartoffice/saved-filters', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,

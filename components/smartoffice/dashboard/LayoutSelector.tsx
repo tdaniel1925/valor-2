@@ -35,7 +35,7 @@ export default function LayoutSelector({
   const fetchLayouts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/smartoffice/dashboards');
+      const response = await fetch('/api/smartoffice/dashboards', { credentials: 'include' });
       const result = await response.json();
       if (result.success) {
         setLayouts(result.data);
@@ -54,6 +54,7 @@ export default function LayoutSelector({
 
     try {
       const response = await fetch(`/api/smartoffice/dashboards/${id}`, {
+        credentials: 'include',
         method: 'DELETE',
       });
 
@@ -74,6 +75,7 @@ export default function LayoutSelector({
       if (!layout) return;
 
       const response = await fetch(`/api/smartoffice/dashboards/${id}`, {
+        credentials: 'include',
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isDefault: !layout.isDefault }),
