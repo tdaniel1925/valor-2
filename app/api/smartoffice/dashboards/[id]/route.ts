@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma as db } from '@/lib/db/prisma';
 import { getAuthenticatedUser } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 
 // PUT - Update dashboard layout
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -73,7 +73,7 @@ export async function PUT(
 
 // DELETE - Delete dashboard layout
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
