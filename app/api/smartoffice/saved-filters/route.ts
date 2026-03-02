@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma as db } from '@/lib/db/prisma';
 import { getAuthenticatedUser } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 
 // GET - List all saved filters for user
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser(request);
     if (!user) {
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 }
 
 // POST - Create new saved filter
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser(request);
     if (!user) {

@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma as db } from '@/lib/db/prisma';
 import { getAuthenticatedUser } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 // GET - Fetch widget data based on type
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser(request);
     if (!user) {
