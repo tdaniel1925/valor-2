@@ -228,22 +228,32 @@ async function getCommissionData(tenantId: string, config: any) {
 async function getTopAgentsData(tenantId: string, config: any) {
   const { limit = 5, metric = 'premium' } = config;
 
+  // Fetch agents and policies separately since there's no direct relation
   const agents = await db.smartOfficeAgent.findMany({
     where: { tenantId },
-    include: {
-      policies: {
-        where: { status: 'INFORCE' },
-        select: { commAnnualizedPrem: true },
-      },
+  });
+
+  const policies = await db.smartOfficePolicy.findMany({
+    where: {
+      tenantId,
+      status: 'INFORCE'
+    },
+    select: {
+      primaryAdvisor: true,
+      commAnnualizedPrem: true
     },
   });
 
-  const agentStats = agents.map(agent => ({
-    id: agent.id,
-    name: `${agent.firstName} ${agent.lastName}`,
-    policyCount: agent.policies.length,
-    totalPremium: agent.policies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0),
-  }));
+  // Match policies to agents by primaryAdvisor (which matches agent fullName)
+  const agentStats = agents.map(agent => {
+    const agentPolicies = policies.filter(p => p.primaryAdvisor === agent.fullName);
+    return {
+      id: agent.id,
+      name: `${agent.firstName} ${agent.lastName}`,
+      policyCount: agentPolicies.length,
+      totalPremium: agentPolicies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0),
+    };
+  });
 
   const sorted = agentStats.sort((a, b) =>
     metric === 'count' ? b.policyCount - a.policyCount : b.totalPremium - a.totalPremium
