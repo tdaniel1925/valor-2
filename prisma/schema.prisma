@@ -1059,6 +1059,7 @@ enum SmartOfficePolicyStatus {
   ACTIVE
   PENDING
   ISSUED
+  INFORCE
   DECLINED
   LAPSED
   SURRENDERED
