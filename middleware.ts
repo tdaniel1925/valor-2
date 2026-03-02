@@ -101,12 +101,11 @@ export async function middleware(request: NextRequest) {
   );
 
   // Redirect to login if not authenticated and not on a public route
-  // TEMPORARILY DISABLED - No login page exists yet
-  // if (!user && !isPublicRoute) {
-  //   const loginUrl = new URL("/login", request.url);
-  //   loginUrl.searchParams.set("redirectTo", pathname);
-  //   return NextResponse.redirect(loginUrl);
-  // }
+  if (!user && !isPublicRoute) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirectTo", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   // Add user ID to request headers for API routes
   if (user) {
