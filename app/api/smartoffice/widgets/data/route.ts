@@ -81,7 +81,7 @@ async function getStatsData(tenantId: string, config: any) {
   const policies = await db.smartOfficePolicy.findMany({
     where: { tenantId },
     select: {
-      annualPremium: true,
+      commAnnualizedPrem: true,
       status: true,
     },
   });
@@ -91,7 +91,7 @@ async function getStatsData(tenantId: string, config: any) {
       return { value: policies.length, label: 'Total Policies' };
 
     case 'total-premium':
-      const totalPremium = policies.reduce((sum, p) => sum + (p.annualPremium || 0), 0);
+      const totalPremium = policies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0);
       return { value: totalPremium, label: 'Total Premium', format: 'currency' };
 
     case 'pending-count':
@@ -118,7 +118,7 @@ async function getMiniChartData(tenantId: string, config: any) {
     },
     select: {
       statusDate: true,
-      annualPremium: true,
+      commAnnualizedPrem: true,
     },
   });
 
@@ -127,7 +127,7 @@ async function getMiniChartData(tenantId: string, config: any) {
   policies.forEach(policy => {
     if (!policy.statusDate) return;
     const monthKey = policy.statusDate.toISOString().substring(0, 7);
-    monthlyData[monthKey] = (monthlyData[monthKey] || 0) + (policy.annualPremium || 0);
+    monthlyData[monthKey] = (monthlyData[monthKey] || 0) + (policy.commAnnualizedPrem || 0);
   });
 
   return Object.entries(monthlyData)
@@ -182,7 +182,7 @@ async function getPendingListData(tenantId: string, config: any) {
       primaryInsured: true,
       carrierName: true,
       statusDate: true,
-      annualPremium: true,
+      commAnnualizedPrem: true,
     },
   });
 
@@ -194,7 +194,7 @@ async function getPendingListData(tenantId: string, config: any) {
     daysPending: policy.statusDate
       ? Math.floor((new Date().getTime() - policy.statusDate.getTime()) / (1000 * 60 * 60 * 24))
       : 0,
-    premium: policy.annualPremium,
+    premium: policy.commAnnualizedPrem,
   }));
 }
 
@@ -209,11 +209,11 @@ async function getCommissionData(tenantId: string, config: any) {
       status: 'INFORCE',
     },
     select: {
-      annualPremium: true,
+      commAnnualizedPrem: true,
     },
   });
 
-  const totalPremium = policies.reduce((sum, p) => sum + (p.annualPremium || 0), 0);
+  const totalPremium = policies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0);
   const estimatedCommission = totalPremium * 0.05; // Assume 5% commission rate
   const progress = goal > 0 ? (estimatedCommission / goal) * 100 : 0;
 
@@ -233,7 +233,7 @@ async function getTopAgentsData(tenantId: string, config: any) {
     include: {
       policies: {
         where: { status: 'INFORCE' },
-        select: { annualPremium: true },
+        select: { commAnnualizedPrem: true },
       },
     },
   });
@@ -242,7 +242,7 @@ async function getTopAgentsData(tenantId: string, config: any) {
     id: agent.id,
     name: `${agent.firstName} ${agent.lastName}`,
     policyCount: agent.policies.length,
-    totalPremium: agent.policies.reduce((sum, p) => sum + (p.annualPremium || 0), 0),
+    totalPremium: agent.policies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0),
   }));
 
   const sorted = agentStats.sort((a, b) =>
