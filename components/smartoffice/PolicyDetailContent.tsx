@@ -77,7 +77,7 @@ export default function PolicyDetailContent() {
   const fetchPolicyDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/smartoffice/policies/${policyId}`);
+      const response = await fetch(`/api/smartoffice/policies/${policyId}`, { credentials: 'include' });
       const data = await response.json();
 
       if (!response.ok) {

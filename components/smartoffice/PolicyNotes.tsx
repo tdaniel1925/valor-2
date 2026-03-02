@@ -36,6 +36,7 @@ export default function PolicyNotes({ policyId, initialNotes, onNotesChange }: P
     setSubmitting(true);
     try {
       const response = await fetch(`/api/smartoffice/policies/${policyId}/notes`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,6 +69,7 @@ export default function PolicyNotes({ policyId, initialNotes, onNotesChange }: P
     setSubmitting(true);
     try {
       const response = await fetch(`/api/smartoffice/policies/${policyId}/notes/${noteId}`, {
+        credentials: 'include',
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -100,6 +102,7 @@ export default function PolicyNotes({ policyId, initialNotes, onNotesChange }: P
     setSubmitting(true);
     try {
       const response = await fetch(`/api/smartoffice/policies/${policyId}/notes/${noteId}`, {
+        credentials: 'include',
         method: 'DELETE',
       });
 

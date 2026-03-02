@@ -34,7 +34,7 @@ export default function CarrierBreakdownChart() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/smartoffice/charts/carrier-breakdown');
+      const response = await fetch('/api/smartoffice/charts/carrier-breakdown', { credentials: 'include' });
       const result = await response.json();
 
       if (!response.ok) {

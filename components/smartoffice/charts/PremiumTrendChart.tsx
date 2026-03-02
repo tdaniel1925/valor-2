@@ -26,7 +26,7 @@ export default function PremiumTrendChart() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/smartoffice/charts/premium-trend');
+      const response = await fetch('/api/smartoffice/charts/premium-trend', { credentials: 'include' });
       const result = await response.json();
 
       if (!response.ok) {

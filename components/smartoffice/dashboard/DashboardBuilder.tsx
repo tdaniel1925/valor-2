@@ -62,7 +62,7 @@ export default function DashboardBuilder({ layoutId, onSave }: DashboardBuilderP
 
   const loadLayout = async (id: string) => {
     try {
-      const response = await fetch(`/api/smartoffice/dashboards/${id}`);
+      const response = await fetch(`/api/smartoffice/dashboards/${id}`, { credentials: 'include' });
       const result = await response.json();
       if (result.success && result.data.layout) {
         setLayout(result.data.layout);

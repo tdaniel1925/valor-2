@@ -51,7 +51,7 @@ export default function FilterPanel({
 
   const fetchCarriers = async () => {
     try {
-      const response = await fetch('/api/smartoffice/policies?limit=1000');
+      const response = await fetch('/api/smartoffice/policies?limit=1000', { credentials: 'include' });
       const data = await response.json();
 
       if (data.success) {

@@ -21,7 +21,7 @@ export default function AgentPerformanceChart() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/smartoffice/charts/agent-performance');
+      const response = await fetch('/api/smartoffice/charts/agent-performance', { credentials: 'include' });
       const result = await response.json();
 
       if (!response.ok) {

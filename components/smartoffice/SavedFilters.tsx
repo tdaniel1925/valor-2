@@ -27,7 +27,7 @@ export default function SavedFilters() {
   const fetchFilters = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/smartoffice/saved-filters');
+      const response = await fetch('/api/smartoffice/saved-filters', { credentials: 'include' });
       const result = await response.json();
 
       if (!response.ok) {
@@ -58,6 +58,7 @@ export default function SavedFilters() {
     try {
       setDeletingId(id);
       const response = await fetch(`/api/smartoffice/saved-filters/${id}`, {
+        credentials: 'include',
         method: 'DELETE',
       });
 
@@ -76,6 +77,7 @@ export default function SavedFilters() {
   const toggleDefault = async (id: string, currentDefault: boolean) => {
     try {
       const response = await fetch(`/api/smartoffice/saved-filters/${id}`, {
+        credentials: 'include',
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isDefault: !currentDefault }),
