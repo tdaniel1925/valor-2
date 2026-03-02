@@ -146,7 +146,7 @@ export function PendingListWidget({ id, config, onRemove, onConfigure }: WidgetC
             </div>
           ))}
           {data.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-4">No pending policies >7 days</p>
+            <p className="text-sm text-gray-500 text-center py-4">No pending policies {'>'}7 days</p>
           )}
         </div>
       )}
@@ -287,7 +287,7 @@ export function QuickFiltersWidget({ id, config, onRemove, onConfigure }: Widget
             className="p-4 border-2 border-red-200 rounded-lg hover:bg-red-50 transition-colors text-left"
           >
             <div className="text-2xl font-bold text-red-600">{data.pendingOver7Days}</div>
-            <div className="text-sm text-gray-700">Pending >7d</div>
+            <div className="text-sm text-gray-700">Pending {'>'}7d</div>
           </button>
           <button
             onClick={() => handleFilterClick('thisMonth')}
