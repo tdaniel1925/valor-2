@@ -156,14 +156,25 @@ export async function updatePassword(newPassword: string) {
  * Get or create user in our database from Supabase auth user
  */
 export async function syncAuthUser(supabaseUser: any, prisma: any) {
-  // Check if user exists in our database
-  let user = await prisma.user.findUnique({
-    where: { id: supabaseUser.id },
-  });
+  const email = supabaseUser.email;
 
-  // Create user if doesn't exist
+  // Check if user exists by Supabase UUID first
+  let user = await prisma.user.findUnique({ where: { id: supabaseUser.id } });
+
+  // Fall back to email lookup (user may exist from seed or prior auth flow)
   if (!user) {
-    const email = supabaseUser.email;
+    user = await prisma.user.findUnique({ where: { email } });
+    if (user) {
+      // Sync the Supabase UUID onto the existing record
+      user = await prisma.user.update({
+        where: { email },
+        data: { id: supabaseUser.id },
+      });
+    }
+  }
+
+  // Create user if still not found
+  if (!user) {
     const [firstName, lastName] = (
       supabaseUser.user_metadata?.full_name || email.split("@")[0]
     ).split(" ");
@@ -173,7 +184,7 @@ export async function syncAuthUser(supabaseUser: any, prisma: any) {
     user = await prisma.user.create({
       data: {
         id: supabaseUser.id,
-        email: email,
+        email,
         firstName: firstName || "User",
         lastName: lastName || "",
         role: "AGENT",
