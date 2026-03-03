@@ -129,7 +129,7 @@ export async function resetPassword(email: string) {
   const supabase = createServerSupabaseClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/update-password`,
   });
 
   if (error) {
@@ -168,6 +168,8 @@ export async function syncAuthUser(supabaseUser: any, prisma: any) {
       supabaseUser.user_metadata?.full_name || email.split("@")[0]
     ).split(" ");
 
+    const tenantId = process.env.DEFAULT_TENANT_ID || "valor-default-tenant";
+
     user = await prisma.user.create({
       data: {
         id: supabaseUser.id,
@@ -177,6 +179,7 @@ export async function syncAuthUser(supabaseUser: any, prisma: any) {
         role: "AGENT",
         status: "ACTIVE",
         emailVerified: supabaseUser.email_confirmed_at ? true : false,
+        tenant: { connect: { id: tenantId } },
       },
     });
   }
