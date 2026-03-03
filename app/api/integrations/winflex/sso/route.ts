@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/server-auth";
-import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 
 /**
  * WinFlex SSO Integration
@@ -96,15 +95,6 @@ function escapeXml(str: string): string {
  */
 export async function POST(request: NextRequest) {
   try {
-    const tenantContext = getTenantFromRequest(request);
-
-    if (!tenantContext) {
-      return NextResponse.json(
-        { error: "Tenant context not found" },
-        { status: 400 }
-      );
-    }
-
     // Require authentication
     await requireAuth(request);
 
@@ -195,15 +185,6 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantFromRequest(request);
-
-    if (!tenantContext) {
-      return NextResponse.json(
-        { error: "Tenant context not found" },
-        { status: 400 }
-      );
-    }
-
     // Require authentication to view integration status
     await requireAuth(request);
 

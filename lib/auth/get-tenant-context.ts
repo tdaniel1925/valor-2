@@ -45,16 +45,25 @@ export function getTenantFromRequest(request: Request): TenantContext | null {
   const tenantName = request.headers.get('x-tenant-name');
   const subdomain = request.headers.get('x-subdomain');
 
-  if (!tenantId || !tenantSlug || !tenantName || !subdomain) {
-    return null;
+  if (tenantId && tenantSlug && tenantName && subdomain) {
+    return { tenantId, tenantSlug, tenantName, subdomain };
   }
 
-  return {
-    tenantId,
-    tenantSlug,
-    tenantName,
-    subdomain,
-  };
+  // Fallback: single-tenant mode — use DEFAULT_TENANT_ID env var.
+  // This covers cases where middleware headers are missing (e.g. local dev
+  // without the right env vars, or direct API calls in tests).
+  const defaultTenantId = process.env.DEFAULT_TENANT_ID;
+  if (defaultTenantId) {
+    const defaultSlug = process.env.DEFAULT_TENANT_SLUG || 'valor';
+    return {
+      tenantId: defaultTenantId,
+      tenantSlug: defaultSlug,
+      tenantName: process.env.DEFAULT_TENANT_NAME || 'Valor',
+      subdomain: defaultSlug,
+    };
+  }
+
+  return null;
 }
 
 /**
