@@ -57,6 +57,7 @@
     "recharts": "^2.15.4",
     "resend": "^6.4.2",
     "samlify": "^2.10.2",
+    "xml-crypto": "^6.1.2",
     "tailwind-merge": "^3.4.0",
     "uuid": "^13.0.0",
     "xlsx": "^0.18.5",
