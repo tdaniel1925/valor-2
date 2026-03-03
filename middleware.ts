@@ -1,9 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { resolveTenantContext } from "./lib/auth/tenant-context";
 
 export async function middleware(request: NextRequest) {
-  const hostname = request.headers.get("host") || "";
   const pathname = request.nextUrl.pathname;
 
   // Initialize response
@@ -14,32 +12,19 @@ export async function middleware(request: NextRequest) {
   });
 
   // ============================================
-  // TENANT RESOLUTION
+  // TENANT CONTEXT (single-tenant mode)
   // ============================================
 
-  // Try to resolve tenant from subdomain first (e.g. agency1.valorfs.app)
-  let tenantContext = await resolveTenantContext(hostname);
-
-  // Fallback: single-tenant mode using DEFAULT_TENANT_ID env var
-  // Used when running on root domain (valorfs.app) with no subdomain
-  if (!tenantContext) {
-    const defaultTenantId = process.env.DEFAULT_TENANT_ID;
-    if (defaultTenantId) {
-      tenantContext = {
-        tenantId: defaultTenantId,
-        tenantSlug: process.env.DEFAULT_TENANT_SLUG || "valor",
-        tenantName: process.env.DEFAULT_TENANT_NAME || "Valor",
-        subdomain: process.env.DEFAULT_TENANT_SLUG || "valor",
-      };
-    }
-  }
-
-  // Inject tenant headers so API routes can read them
-  if (tenantContext) {
-    response.headers.set("x-tenant-id", tenantContext.tenantId);
-    response.headers.set("x-tenant-slug", tenantContext.tenantSlug);
-    response.headers.set("x-tenant-name", tenantContext.tenantName);
-    response.headers.set("x-subdomain", tenantContext.subdomain);
+  // Inject the default tenant headers on every request.
+  // The app runs as a single tenant at valorfs.app — no subdomain routing needed.
+  const tenantId = process.env.DEFAULT_TENANT_ID;
+  if (tenantId) {
+    const tenantSlug = process.env.DEFAULT_TENANT_SLUG || "valor";
+    const tenantName = process.env.DEFAULT_TENANT_NAME || "Valor";
+    response.headers.set("x-tenant-id", tenantId);
+    response.headers.set("x-tenant-slug", tenantSlug);
+    response.headers.set("x-tenant-name", tenantName);
+    response.headers.set("x-subdomain", tenantSlug);
   }
 
   // ============================================
