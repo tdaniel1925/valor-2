@@ -49,13 +49,13 @@ export default function LandingPage() {
                   )}
                 </button>
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Get Started
@@ -83,7 +83,7 @@ export default function LandingPage() {
               </p>
               <div className="flex items-center gap-4">
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
                 >
                   Start free trial
@@ -293,7 +293,7 @@ export default function LandingPage() {
                   </li>
                 </ul>
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="block text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Start trial
@@ -328,7 +328,7 @@ export default function LandingPage() {
                   </li>
                 </ul>
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="block text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Start trial
@@ -379,7 +379,7 @@ export default function LandingPage() {
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link
-                href="/auth/login"
+                href="/login"
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
               >
                 Start free trial

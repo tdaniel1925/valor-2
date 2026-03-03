@@ -66,6 +66,27 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // ============================================
+  // AUTHENTICATION
+  // ============================================
+
+  // Check for a Supabase session cookie without importing @supabase/ssr
+  // (which is incompatible with Next.js Edge runtime v0.7.0).
+  // This is a lightweight presence check — actual JWT verification happens
+  // in requireAuth() inside each API route handler.
+  const hasSession = request.cookies.getAll().some(
+    (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
+  );
+
+  const publicPaths = ["/login", "/signup", "/reset-password", "/unauthorized", "/api/auth", "/api/webhooks", "/"];
+  const isPublic = publicPaths.some((p) => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + "/"));
+
+  if (!hasSession && !isPublic) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirectTo", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
