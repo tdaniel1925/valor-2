@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { signIn, syncAuthUser } from "@/lib/auth/supabase";
+import { createClient } from "@/lib/auth/supabase-server";
+import { syncAuthUser } from "@/lib/auth/supabase";
 import { prisma } from "@/lib/db/prisma";
 
 /**
@@ -18,31 +19,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sign in with Supabase Auth
-    const { user: supabaseUser, session } = await signIn(email, password);
+    // Use the SSR client so Supabase sets the session cookies via next/headers
+    const supabase = await createClient();
 
-    if (!supabaseUser || !session) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error || !data.user || !data.session) {
       return NextResponse.json(
-        { error: "Invalid email or password" },
+        { error: error?.message || "Invalid email or password" },
         { status: 401 }
       );
     }
 
-    // Sync user in our database
-    const user = await syncAuthUser(supabaseUser, prisma);
+    // Sync user record in our database
+    const user = await syncAuthUser(data.user, prisma);
 
     return NextResponse.json({
       success: true,
       data: {
         user,
-        session,
         message: "Signed in successfully",
       },
     });
   } catch (error: any) {
     console.error("Signin error:", error);
 
-    // Handle specific auth errors
     if (error.message?.includes("Invalid login credentials")) {
       return NextResponse.json(
         { error: "Invalid email or password" },
