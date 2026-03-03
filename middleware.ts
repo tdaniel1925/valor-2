@@ -1,11 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import {
-  resolveTenantContext,
-  isRootDomain,
-  pathRequiresTenant,
-  NO_TENANT_REQUIRED_PATHS,
-} from "./lib/auth/tenant-context";
+import { resolveTenantContext } from "./lib/auth/tenant-context";
 
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
@@ -22,38 +17,30 @@ export async function middleware(request: NextRequest) {
   // TENANT RESOLUTION
   // ============================================
 
-  // Check if we're on the root domain (no tenant)
-  if (isRootDomain(hostname)) {
-    // Root domain - no tenant context needed
-    // Allow access to marketing pages, login, signup, etc.
-    if (pathRequiresTenant(pathname)) {
-      // Path requires a tenant but we're on root domain
-      // Redirect to error page or show tenant selection
-      const errorUrl = new URL("/no-tenant", request.url);
-      return NextResponse.redirect(errorUrl);
-    }
-    // Root domain paths that don't require tenant - allow through
-    return response;
-  }
+  // Try to resolve tenant from subdomain first (e.g. agency1.valorfs.app)
+  let tenantContext = await resolveTenantContext(hostname);
 
-  // We have a subdomain - resolve tenant context
-  const tenantContext = await resolveTenantContext(hostname);
-
+  // Fallback: single-tenant mode using DEFAULT_TENANT_ID env var
+  // Used when running on root domain (valorfs.app) with no subdomain
   if (!tenantContext) {
-    // Invalid or non-existent tenant
-    if (pathRequiresTenant(pathname)) {
-      const errorUrl = new URL("/tenant-not-found", request.url);
-      return NextResponse.redirect(errorUrl);
+    const defaultTenantId = process.env.DEFAULT_TENANT_ID;
+    if (defaultTenantId) {
+      tenantContext = {
+        tenantId: defaultTenantId,
+        tenantSlug: process.env.DEFAULT_TENANT_SLUG || "valor",
+        tenantName: process.env.DEFAULT_TENANT_NAME || "Valor",
+        subdomain: process.env.DEFAULT_TENANT_SLUG || "valor",
+      };
     }
-    // Path doesn't require tenant - allow through (e.g., _next, favicon)
-    return response;
   }
 
-  // Add tenant information to request headers
-  response.headers.set("x-tenant-id", tenantContext.tenantId);
-  response.headers.set("x-tenant-slug", tenantContext.tenantSlug);
-  response.headers.set("x-tenant-name", tenantContext.tenantName);
-  response.headers.set("x-subdomain", tenantContext.subdomain);
+  // Inject tenant headers so API routes can read them
+  if (tenantContext) {
+    response.headers.set("x-tenant-id", tenantContext.tenantId);
+    response.headers.set("x-tenant-slug", tenantContext.tenantSlug);
+    response.headers.set("x-tenant-name", tenantContext.tenantName);
+    response.headers.set("x-subdomain", tenantContext.subdomain);
+  }
 
   // ============================================
   // AUTHENTICATION (Supabase)
@@ -91,8 +78,6 @@ export async function middleware(request: NextRequest) {
     "/login",
     "/signup",
     "/reset-password",
-    "/no-tenant",
-    "/tenant-not-found",
     "/unauthorized",
   ];
 
@@ -111,10 +96,6 @@ export async function middleware(request: NextRequest) {
   if (user) {
     response.headers.set("x-user-id", user.id);
     response.headers.set("x-user-email", user.email || "");
-
-    // TODO: Verify user belongs to the current tenant
-    // This should check: user.tenantId === tenantContext.tenantId
-    // If not, redirect to /unauthorized
   }
 
   return response;
