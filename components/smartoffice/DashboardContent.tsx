@@ -14,6 +14,7 @@ import StatusFunnelChart from '@/components/smartoffice/charts/StatusFunnelChart
 import AgentPerformanceChart from '@/components/smartoffice/charts/AgentPerformanceChart';
 import SavedFilters from '@/components/smartoffice/SavedFilters';
 import SaveFilterDialog from '@/components/smartoffice/SaveFilterDialog';
+import InboundEmailCard from '@/components/smartoffice/InboundEmailCard';
 
 interface Policy {
   id: string;
@@ -49,7 +50,11 @@ interface Stats {
   topCarriers: { name: string; count: number }[];
 }
 
-export default function DashboardContent() {
+interface DashboardContentProps {
+  inboundEmailAddress: string;
+}
+
+export default function DashboardContent({ inboundEmailAddress }: DashboardContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'policies' | 'agents'>('policies');
@@ -389,6 +394,11 @@ export default function DashboardContent() {
               <span className="sm:hidden">Import</span>
             </Link>
           </div>
+        </div>
+
+        {/* Inbound Email Address */}
+        <div className="mb-8">
+          <InboundEmailCard emailAddress={inboundEmailAddress} />
         </div>
 
         {/* Stats Cards */}

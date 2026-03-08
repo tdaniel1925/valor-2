@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/db/prisma";
 import { isValidSlug } from "@/lib/tenants/slug-validator";
+import { generateInboundEmailAddress } from "@/lib/email/generate-inbound-address";
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,6 +57,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate unique inbound email address
+    const inboundEmailAddress = await generateInboundEmailAddress();
+
     // Create Tenant in transaction with RLS context
     const tenant = await prisma.$transaction(async (tx) => {
       // Create tenant (no RLS on tenants table)
@@ -65,6 +69,8 @@ export async function POST(request: NextRequest) {
           name: agencyName,
           emailSlug: subdomain, // Same as slug by default
           status: "TRIAL",
+          inboundEmailAddress,
+          inboundEmailEnabled: true,
         },
       });
 
