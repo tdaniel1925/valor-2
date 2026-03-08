@@ -149,19 +149,23 @@ function mapPolicyType(type: string): string {
 function mapPolicyStatus(status: string): string {
   const statusUpper = (status || '').toUpperCase();
 
+  // Map SmartOffice status values to database enum values
+  // Database allows: ACTIVE, PENDING, ISSUED, INFORCE, DECLINED, LAPSED, SURRENDERED, UNKNOWN
   const statusMapping: Record<string, string> = {
     'INFORCE': 'INFORCE',
     'IN FORCE': 'INFORCE',
+    'ACTIVE': 'ACTIVE',
     'PENDING': 'PENDING',
-    'APPROVED': 'APPROVED',
+    'SUBMITTED': 'PENDING',        // Submitted = Pending in our system
+    'APPROVED': 'ISSUED',           // Approved = Issued (approved but not yet in force)
     'ISSUED': 'ISSUED',
-    'SUBMITTED': 'SUBMITTED',
     'DECLINED': 'DECLINED',
-    'WITHDRAWN': 'WITHDRAWN',
+    'WITHDRAWN': 'DECLINED',        // Withdrawn = Declined (application stopped)
     'LAPSED': 'LAPSED',
     'SURRENDERED': 'SURRENDERED',
-    'CANCELLED': 'CANCELLED',
-    'CLOSED': 'CANCELLED'
+    'CANCELLED': 'LAPSED',          // Cancelled = Lapsed (policy terminated)
+    'CLOSED': 'LAPSED',             // Closed = Lapsed (policy no longer active)
+    'TERMINATED': 'LAPSED'
   };
 
   return statusMapping[statusUpper] || 'UNKNOWN';
