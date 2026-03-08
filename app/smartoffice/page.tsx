@@ -1,10 +1,28 @@
 import { Suspense } from 'react';
 import DashboardContent from '@/components/smartoffice/DashboardContent';
+import { prisma } from '@/lib/db/prisma';
+import { headers } from 'next/headers';
 
-export default function SmartOfficeDashboardPage() {
+export default async function SmartOfficeDashboardPage() {
+  const headersList = await headers();
+  const tenantId = headersList.get('x-tenant-id');
+
+  if (!tenantId) {
+    throw new Error('Tenant not found');
+  }
+
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: { inboundEmailAddress: true }
+  });
+
+  if (!tenant?.inboundEmailAddress) {
+    throw new Error('Tenant inbound email not configured');
+  }
+
   return (
     <Suspense fallback={<DashboardLoadingFallback />}>
-      <DashboardContent />
+      <DashboardContent inboundEmailAddress={tenant.inboundEmailAddress} />
     </Suspense>
   );
 }

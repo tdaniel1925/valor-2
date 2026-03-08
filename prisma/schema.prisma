@@ -32,6 +32,10 @@ model Tenant {
   emailVerified   Boolean  @default(false)
   lastSyncAt      DateTime?
 
+  // Email ingestion (automated import)
+  inboundEmailAddress  String?  @unique  // Random 8-char address (e.g., "a7f3k2x9")
+  inboundEmailEnabled  Boolean  @default(true)
+
   // Future billing (not implemented yet)
   plan            String?  @default("free")
   status          TenantStatus @default(ACTIVE)
