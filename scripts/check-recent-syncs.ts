@@ -58,7 +58,7 @@ async function main() {
 
   tenants.forEach(t => {
     const status = t.inboundEmailEnabled ? '✅ Enabled' : '❌ Disabled';
-    console.log(`${t.slug}: ${t.inboundEmailAddress}@reports.valorfs.app (${status})`);
+    console.log(`${t.slug}: ${t.inboundEmailAddress}@shwunde745.resend.app (${status})`);
   });
 }
 

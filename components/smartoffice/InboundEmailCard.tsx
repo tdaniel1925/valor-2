@@ -10,7 +10,7 @@ interface InboundEmailCardProps {
 export default function InboundEmailCard({ emailAddress }: InboundEmailCardProps) {
   const [copied, setCopied] = useState(false);
 
-  const fullEmail = `${emailAddress}@reports.valorfs.app`;
+  const fullEmail = `${emailAddress}@shwunde745.resend.app`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(fullEmail);
