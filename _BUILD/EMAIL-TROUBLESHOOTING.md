@@ -7,8 +7,8 @@
 - ⏳ Test email sent - **not processed yet**
 
 ## Tenant Email Addresses
-- **Valor**: `44k9kfz3@reports.valorfs.app`
-- **BotMakers**: `cq9tjrga@reports.valorfs.app`
+- **Valor**: `44k9kfz3@shwunde745.resend.app`
+- **BotMakers**: `cq9tjrga@shwunde745.resend.app`
 
 ## Diagnostic Steps
 
