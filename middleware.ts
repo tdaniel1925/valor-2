@@ -78,7 +78,7 @@ export async function middleware(request: NextRequest) {
     (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
   );
 
-  const publicPaths = ["/login", "/signup", "/reset-password", "/unauthorized", "/api/auth", "/api/webhooks", "/"];
+  const publicPaths = ["/login", "/signup", "/reset-password", "/unauthorized", "/api/auth", "/api/webhooks", "/api/inbound", "/"];
   const isPublic = publicPaths.some((p) => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + "/"));
 
   if (!hasSession && !isPublic) {
