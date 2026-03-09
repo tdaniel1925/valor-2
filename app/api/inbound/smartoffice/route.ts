@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         // Fetch attachment content from Resend API
         console.log(`Fetching attachment ${attachmentId} for email ${emailId}`);
         const attachmentResponse = await fetch(
-          `https://api.resend.com/emails/${emailId}/attachments/${attachmentId}`,
+          `https://api.resend.com/emails/receiving/${emailId}/attachments/${attachmentId}`,
           {
             headers: {
               Authorization: `Bearer ${process.env.RESEND_API_KEY}`
