@@ -55,8 +55,8 @@ async function main() {
       console.log(`   Created: ${log.recordsCreated || 0} | Updated: ${log.recordsUpdated || 0}`);
       console.log(`   Files: ${log.filesProcessedList?.join(', ') || 'N/A'}`);
       console.log(`   Time: ${log.createdAt.toLocaleString()}`);
-      if (log.errors && log.errors.length > 0) {
-        console.log(`   ⚠️ Errors: ${log.errors.join(', ')}`);
+      if (log.errors && Array.isArray(log.errors) && log.errors.length > 0) {
+        console.log(`   ⚠️ Errors: ${(log.errors as string[]).join(', ')}`);
       }
       console.log('');
     });
