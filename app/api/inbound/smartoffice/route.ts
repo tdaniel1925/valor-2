@@ -76,24 +76,42 @@ export async function POST(request: NextRequest) {
           }
         );
 
+        console.log(`Attachment API response status: ${attachmentResponse.status}`);
+
         if (!attachmentResponse.ok) {
-          throw new Error(`Failed to fetch attachment: ${attachmentResponse.statusText}`);
+          const errorText = await attachmentResponse.text();
+          console.error(`Attachment API error: ${errorText}`);
+          throw new Error(`Failed to fetch attachment: ${attachmentResponse.statusText} - ${errorText}`);
         }
 
         const attachmentData = await attachmentResponse.json();
+        console.log(`Attachment data:`, JSON.stringify(attachmentData));
+
         const downloadUrl = attachmentData.download_url;
 
         if (!downloadUrl) {
+          console.error('No download_url in response:', attachmentData);
           throw new Error('No download URL in attachment response');
         }
 
+        console.log(`Downloading from: ${downloadUrl}`);
+
         // Download the actual file
         const fileResponse = await fetch(downloadUrl);
+        console.log(`Download response status: ${fileResponse.status}, content-type: ${fileResponse.headers.get('content-type')}`);
+
         if (!fileResponse.ok) {
           throw new Error(`Failed to download file: ${fileResponse.statusText}`);
         }
 
-        const buffer = Buffer.from(await fileResponse.arrayBuffer());
+        const arrayBuffer = await fileResponse.arrayBuffer();
+        console.log(`Downloaded ${arrayBuffer.byteLength} bytes`);
+
+        if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+          throw new Error('Downloaded file is empty');
+        }
+
+        const buffer = Buffer.from(arrayBuffer);
 
         // Parse Excel
         const parseResult = parseSmartOfficeExcel(buffer, filename);
