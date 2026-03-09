@@ -49,7 +49,7 @@ async function main() {
     console.log(`✅ Found ${emailImports.length} email import(s):\n`);
 
     emailImports.forEach((log, i) => {
-      console.log(`${i + 1}. ${log.tenant.slug} (${log.tenant.inboundEmailAddress}@reports.valorfs.app)`);
+      console.log(`${i + 1}. ${log.tenant.slug} (${log.tenant.inboundEmailAddress}@shwunde745.resend.app)`);
       console.log(`   Status: ${log.status}`);
       console.log(`   Type: ${log.syncType}`);
       console.log(`   Created: ${log.recordsCreated || 0} | Updated: ${log.recordsUpdated || 0}`);
