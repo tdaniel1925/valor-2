@@ -23,7 +23,7 @@ async function main() {
         data: { inboundEmailAddress: address }
       });
 
-      console.log(`✅ ${tenant.slug}: ${address}@reports.valorfs.app`);
+      console.log(`✅ ${tenant.slug}: ${address}@shwunde745.resend.app`);
     } catch (error: any) {
       console.error(`❌ ${tenant.slug}: ${error.message}`);
     }

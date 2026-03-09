@@ -40,7 +40,7 @@ async function main() {
     });
 
     tenants.forEach(t => {
-      console.log(`   - ${t.slug}: ${t.inboundEmailAddress}@reports.valorfs.app`);
+      console.log(`   - ${t.slug}: ${t.inboundEmailAddress}@shwunde745.resend.app`);
     });
 
     console.log('\n2. Check Resend webhook logs');
