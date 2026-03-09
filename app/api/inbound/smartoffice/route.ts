@@ -36,9 +36,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Inbound email disabled' }, { status: 403 });
     }
 
-    // Extract attachments from Resend payload
-    const attachments = payload.data?.attachments || [];
-    const excelAttachments = attachments.filter((att: any) => {
+    // Extract attachments metadata from Resend payload
+    const attachmentsMeta = payload.data?.attachments || [];
+    const excelAttachments = attachmentsMeta.filter((att: any) => {
       const filename = att.filename?.toLowerCase() || '';
       return filename.endsWith('.xlsx') || filename.endsWith('.xls') || filename.endsWith('.csv');
     });
@@ -50,16 +50,50 @@ export async function POST(request: NextRequest) {
 
     console.log(`Processing ${excelAttachments.length} Excel file(s) for tenant: ${tenant.slug}`);
 
+    // Get email ID for fetching attachments
+    const emailId = payload.data?.email_id;
+    if (!emailId) {
+      return NextResponse.json({ error: 'Missing email_id' }, { status: 400 });
+    }
+
     // Process each attachment
     const results = [];
     const errors = [];
 
-    for (const attachment of excelAttachments) {
+    for (const attachmentMeta of excelAttachments) {
       try {
-        const filename = attachment.filename;
+        const filename = attachmentMeta.filename;
+        const attachmentId = attachmentMeta.id;
 
-        // Decode base64 content to buffer
-        const buffer = Buffer.from(attachment.content, 'base64');
+        // Fetch attachment content from Resend API
+        console.log(`Fetching attachment ${attachmentId} for email ${emailId}`);
+        const attachmentResponse = await fetch(
+          `https://api.resend.com/emails/${emailId}/attachments/${attachmentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.RESEND_API_KEY}`
+            }
+          }
+        );
+
+        if (!attachmentResponse.ok) {
+          throw new Error(`Failed to fetch attachment: ${attachmentResponse.statusText}`);
+        }
+
+        const attachmentData = await attachmentResponse.json();
+        const downloadUrl = attachmentData.download_url;
+
+        if (!downloadUrl) {
+          throw new Error('No download URL in attachment response');
+        }
+
+        // Download the actual file
+        const fileResponse = await fetch(downloadUrl);
+        if (!fileResponse.ok) {
+          throw new Error(`Failed to download file: ${fileResponse.statusText}`);
+        }
+
+        const buffer = Buffer.from(await fileResponse.arrayBuffer());
 
         // Parse Excel
         const parseResult = parseSmartOfficeExcel(buffer, filename);
@@ -91,9 +125,9 @@ export async function POST(request: NextRequest) {
         }
 
       } catch (error: any) {
-        console.error(`Failed to process ${attachment.filename}:`, error);
+        console.error(`Failed to process ${attachmentMeta.filename}:`, error);
         errors.push({
-          filename: attachment.filename,
+          filename: attachmentMeta.filename,
           errors: [error.message]
         });
       }
