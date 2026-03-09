@@ -10,8 +10,9 @@ export async function POST(request: NextRequest) {
   try {
     const payload = await request.json();
 
-    // Extract recipient email (format: a7f3k2x9@reports.valorfs.app)
-    const to = payload.to;
+    // Extract recipient email (format: a7f3k2x9@shwunde745.resend.app)
+    // Resend sends: { type: "email.received", data: { to: ["email@..."], ... } }
+    const to = payload.data?.to?.[0];
     if (!to) {
       return NextResponse.json({ error: 'Missing recipient' }, { status: 400 });
     }
@@ -35,8 +36,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Inbound email disabled' }, { status: 403 });
     }
 
-    // Extract attachments
-    const attachments = payload.attachments || [];
+    // Extract attachments from Resend payload
+    const attachments = payload.data?.attachments || [];
     const excelAttachments = attachments.filter((att: any) => {
       const filename = att.filename?.toLowerCase() || '';
       return filename.endsWith('.xlsx') || filename.endsWith('.xls') || filename.endsWith('.csv');
