@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-// import { FloatingChat } from "@/components/FloatingChat"; // TODO: Fix ai package compatibility
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +27,6 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
           {children}
-          {/* <FloatingChat /> */}
         </Providers>
       </body>
     </html>
