@@ -716,11 +716,11 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                     </p>
                   </div>
                   <Link
-                    href="/training"
+                    href="/video-library"
                     onClick={handleNavClick}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                      pathname.startsWith('/training')
+                      pathname.startsWith('/video-library')
                         ? darkMode
                           ? "bg-blue-900/30 text-blue-400"
                           : "bg-blue-50 text-blue-600"
@@ -754,11 +754,11 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                     Resources
                   </Link>
                   <Link
-                    href="/training"
+                    href="/video-library"
                     onClick={handleNavClick}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                      pathname.startsWith('/training')
+                      pathname.startsWith('/video-library')
                         ? darkMode
                           ? "bg-blue-900/30 text-blue-400"
                           : "bg-blue-50 text-blue-600"
@@ -1009,10 +1009,10 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                 </p>
               </div>
               <Link
-                href="/training"
+                href="/video-library"
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  pathname.startsWith('/training')
+                  pathname.startsWith('/video-library')
                     ? darkMode
                       ? "bg-blue-900/30 text-blue-400"
                       : "bg-blue-50 text-blue-600"

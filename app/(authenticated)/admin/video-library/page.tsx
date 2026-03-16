@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import AppLayout from '@/components/layout/AppLayout';
 import { Youtube, RefreshCw, Plus, FolderPlus } from 'lucide-react';
 
 interface Video {
@@ -36,8 +36,8 @@ export default function AdminTrainingPage() {
     try {
       setLoading(true);
       const [videosRes, categoriesRes] = await Promise.all([
-        fetch('/api/training/videos', { credentials: 'include' }),
-        fetch('/api/training/categories', { credentials: 'include' }),
+        fetch('/api/video-library/videos', { credentials: 'include' }),
+        fetch('/api/video-library/categories', { credentials: 'include' }),
       ]);
 
       const videosData = await videosRes.json();
@@ -60,7 +60,7 @@ export default function AdminTrainingPage() {
 
     try {
       setSyncing(true);
-      const response = await fetch('/api/training/videos/sync', {
+      const response = await fetch('/api/video-library/videos/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -91,7 +91,7 @@ export default function AdminTrainingPage() {
     const icon = prompt('Enter category icon (emoji):');
 
     try {
-      const response = await fetch('/api/training/categories', {
+      const response = await fetch('/api/video-library/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -235,7 +235,7 @@ export default function AdminTrainingPage() {
                     <tr key={video.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
                         <a
-                          href={`/training/${video.id}`}
+                          href={`/video-library/${video.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:text-blue-800 hover:underline"
