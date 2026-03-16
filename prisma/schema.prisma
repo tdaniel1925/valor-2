@@ -70,6 +70,9 @@ model Tenant {
   policyNotes     PolicyNote[]
   savedFilters    SavedFilter[]
   dashboardLayouts DashboardLayout[]
+  videoCategories VideoCategory[] @relation("TenantVideoCategories")
+  videos          Video[] @relation("TenantVideos")
+  videoWatchHistory VideoWatchHistory[] @relation("TenantVideoWatchHistory")
 
   @@index([slug])
   @@index([status])
@@ -139,6 +142,7 @@ model User {
   policyNotes       PolicyNote[]
   savedFilters      SavedFilter[]
   dashboardLayouts  DashboardLayout[]
+  videoWatchHistory VideoWatchHistory[] @relation("UserVideoWatchHistory")
 
   @@index([email])
   @@index([role])
@@ -1360,5 +1364,77 @@ model SmartOfficeChatHistory {
   @@index([sessionId])
   @@index([createdAt])
   @@map("smartoffice_chat_history")
+}
+
+// ============================================
+// TRAINING VIDEO LIBRARY
+// ============================================
+
+model VideoCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  slug        String   @unique
+  order       Int      @default(0)
+  icon        String?  // Icon name or emoji
+  tenantId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  videos Video[]
+  tenant Tenant @relation("TenantVideoCategories", fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([slug])
+  @@map("video_categories")
+}
+
+model Video {
+  id              String   @id @default(cuid())
+  tenantId        String
+  categoryId      String?
+  youtubeId       String   @unique // YouTube video ID
+  title           String
+  description     String?  @db.Text
+  thumbnailUrl    String?
+  duration        Int?     // Duration in seconds
+  publishedAt     DateTime?
+  order           Int      @default(0)
+  isActive        Boolean  @default(true)
+  viewCount       Int      @default(0) // YouTube view count
+  lastSyncedAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category      VideoCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tenant        Tenant         @relation("TenantVideos", fields: [tenantId], references: [id], onDelete: Cascade)
+  watchHistory  VideoWatchHistory[]
+
+  @@index([tenantId])
+  @@index([categoryId])
+  @@index([youtubeId])
+  @@index([isActive])
+  @@map("videos")
+}
+
+model VideoWatchHistory {
+  id             String   @id @default(cuid())
+  videoId        String
+  userId         String
+  tenantId       String
+  watchedSeconds Int      @default(0) // How many seconds watched
+  completed      Boolean  @default(false)
+  lastWatchedAt  DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  video  Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user   User   @relation("UserVideoWatchHistory", fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation("TenantVideoWatchHistory", fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, userId]) // One record per user per video
+  @@index([userId])
+  @@index([tenantId])
+  @@index([videoId])
+  @@map("video_watch_history")
 }
 
