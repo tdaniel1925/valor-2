@@ -70,7 +70,6 @@ model Tenant {
   policyNotes     PolicyNote[]
   savedFilters    SavedFilter[]
   dashboardLayouts DashboardLayout[]
-  chatConversations ChatConversation[] @relation("TenantChatConversations")
 
   @@index([slug])
   @@index([status])
@@ -140,7 +139,6 @@ model User {
   policyNotes       PolicyNote[]
   savedFilters      SavedFilter[]
   dashboardLayouts  DashboardLayout[]
-  chatConversations ChatConversation[] @relation("UserChatConversations")
 
   @@index([email])
   @@index([role])
@@ -1364,40 +1362,3 @@ model SmartOfficeChatHistory {
   @@map("smartoffice_chat_history")
 }
 
-// ============================================
-// AI CHAT CONVERSATIONS
-// ============================================
-
-model ChatConversation {
-  id        String   @id @default(cuid())
-  userId    String
-  tenantId  String
-  title     String?  // Auto-generated from first message
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  messages  ChatMessage[]
-  user      User      @relation("UserChatConversations", fields: [userId], references: [id], onDelete: Cascade)
-  tenant    Tenant    @relation("TenantChatConversations", fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([tenantId])
-  @@index([createdAt])
-  @@map("chat_conversations")
-}
-
-model ChatMessage {
-  id             String   @id @default(cuid())
-  conversationId String
-  role           String   // 'user' or 'assistant'
-  content        String   @db.Text
-  sqlQuery       String?  @db.Text
-  sqlResults     Json?
-  createdAt      DateTime @default(now())
-
-  conversation ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  @@index([conversationId])
-  @@index([createdAt])
-  @@map("chat_messages")
-}

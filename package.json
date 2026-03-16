@@ -33,7 +33,6 @@
   "author": "BotMakers, Inc.",
   "license": "UNLICENSED",
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.58",
     "@anthropic-ai/sdk": "^0.78.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.19.0",
@@ -44,7 +43,6 @@
     "@supabase/supabase-js": "^2.81.1",
     "@tanstack/react-query": "^5.90.10",
     "@tanstack/react-query-devtools": "^5.90.2",
-    "ai": "^6.0.116",
     "clsx": "^2.1.1",
     "csv-stringify": "^6.6.0",
     "date-fns": "^3.6.0",
