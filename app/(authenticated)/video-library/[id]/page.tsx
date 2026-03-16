@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { AppLayout } from '@/components/layout/AppLayout';
+import AppLayout from '@/components/layout/AppLayout';
 import { ArrowLeft, Clock, Eye, Calendar } from 'lucide-react';
 
 interface Video {
@@ -48,7 +48,7 @@ export default function VideoPlayerPage() {
 
   const fetchVideo = async () => {
     try {
-      const response = await fetch(`/api/training/videos?videoId=${params.id}`, {
+      const response = await fetch(`/api/video-library/videos?videoId=${params.id}`, {
         credentials: 'include',
       });
       const data = await response.json();
@@ -128,7 +128,7 @@ export default function VideoPlayerPage() {
     if (!video) return;
 
     try {
-      await fetch('/api/training/videos/watch', {
+      await fetch('/api/video-library/videos/watch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -184,7 +184,7 @@ export default function VideoPlayerPage() {
           <div className="text-center py-12">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Video not found</h3>
             <button
-              onClick={() => router.push('/training')}
+              onClick={() => router.push('/video-library')}
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
               Back to Training
@@ -200,7 +200,7 @@ export default function VideoPlayerPage() {
       <div className="max-w-6xl mx-auto p-6">
         {/* Back Button */}
         <button
-          onClick={() => router.push('/training')}
+          onClick={() => router.push('/video-library')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 font-medium"
         >
           <ArrowLeft className="w-4 h-4" />

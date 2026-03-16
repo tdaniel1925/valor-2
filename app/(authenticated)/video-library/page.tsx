@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import AppLayout from '@/components/layout/AppLayout';
 import { Play, Clock, CheckCircle, Filter } from 'lucide-react';
 
 interface Video {
@@ -50,10 +50,10 @@ export default function TrainingPage() {
       setLoading(true);
 
       const [videosRes, categoriesRes] = await Promise.all([
-        fetch(`/api/training/videos${selectedCategory ? `?categoryId=${selectedCategory}` : ''}`, {
+        fetch(`/api/video-library/videos${selectedCategory ? `?categoryId=${selectedCategory}` : ''}`, {
           credentials: 'include',
         }),
-        fetch('/api/training/categories', { credentials: 'include' }),
+        fetch('/api/video-library/categories', { credentials: 'include' }),
       ]);
 
       const videosData = await videosRes.json();
@@ -145,7 +145,7 @@ export default function TrainingPage() {
             {videos.map((video) => (
               <a
                 key={video.id}
-                href={`/training/${video.id}`}
+                href={`/video-library/${video.id}`}
                 className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
               >
                 {/* Thumbnail */}
