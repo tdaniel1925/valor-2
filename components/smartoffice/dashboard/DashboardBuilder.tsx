@@ -23,6 +23,7 @@ interface LayoutItem {
   h: number;
   type: string;
   config?: any;
+  customTitle?: string;
 }
 
 interface DashboardBuilderProps {
@@ -90,6 +91,12 @@ export default function DashboardBuilder({ layoutId, onSave }: DashboardBuilderP
     setLayout(layout.filter(item => item.i !== id));
   };
 
+  const handleTitleChange = (id: string, newTitle: string) => {
+    setLayout(layout.map(item =>
+      item.i === id ? { ...item, customTitle: newTitle } : item
+    ));
+  };
+
   const handleLayoutChange = (newLayout: any[]) => {
     if (!isEditing) return;
 
@@ -111,7 +118,9 @@ export default function DashboardBuilder({ layoutId, onSave }: DashboardBuilderP
     const commonProps = {
       id: item.i,
       config: item.config,
+      customTitle: item.customTitle,
       onRemove: isEditing ? removeWidget : undefined,
+      onTitleChange: handleTitleChange,
     };
 
     switch (item.type) {

@@ -7,8 +7,10 @@ import Widget from '../Widget';
 interface WidgetComponentProps {
   id: string;
   config?: any;
+  customTitle?: string;
   onRemove?: (id: string) => void;
   onConfigure?: (id: string) => void;
+  onTitleChange?: (id: string, newTitle: string) => void;
 }
 
 // Helper hook to fetch widget data
@@ -46,7 +48,7 @@ function useWidgetData(type: string, config: any) {
 }
 
 // 1. Stats Widget
-export function StatsWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function StatsWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('stats', config);
 
   const formatValue = (value: number, format?: string) => {
@@ -61,7 +63,15 @@ export function StatsWidget({ id, config, onRemove, onConfigure }: WidgetCompone
   };
 
   return (
-    <Widget id={id} title={data?.label || 'Statistics'} onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget
+      id={id}
+      title={customTitle || data?.label || 'Statistics'}
+      onRemove={onRemove}
+      onConfigure={onConfigure}
+      onTitleChange={onTitleChange}
+      loading={loading}
+      error={error}
+    >
       {data && (
         <div className="flex flex-col items-center justify-center h-full">
           <DollarSign className="w-12 h-12 text-blue-600 mb-2" />
@@ -73,11 +83,19 @@ export function StatsWidget({ id, config, onRemove, onConfigure }: WidgetCompone
 }
 
 // 2. Mini Chart Widget
-export function MiniChartWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function MiniChartWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('mini-chart', config);
 
   return (
-    <Widget id={id} title="Premium Trend" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget
+      id={id}
+      title={customTitle || "Premium Trend"}
+      onRemove={onRemove}
+      onConfigure={onConfigure}
+      onTitleChange={onTitleChange}
+      loading={loading}
+      error={error}
+    >
       {data && data.length > 0 && (
         <div className="flex items-end justify-between h-full gap-1">
           {data.map((point: any, i: number) => {
@@ -100,11 +118,11 @@ export function MiniChartWidget({ id, config, onRemove, onConfigure }: WidgetCom
 }
 
 // 3. Recent Activity Widget
-export function RecentActivityWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function RecentActivityWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('recent-activity', config);
 
   return (
-    <Widget id={id} title="Recent Syncs" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget id={id} title={customTitle || "Recent Syncs"} onRemove={onRemove} onConfigure={onConfigure} onTitleChange={onTitleChange} loading={loading} error={error}>
       {data && (
         <div className="space-y-2">
           {data.map((activity: any) => (
@@ -126,11 +144,11 @@ export function RecentActivityWidget({ id, config, onRemove, onConfigure }: Widg
 }
 
 // 4. Pending List Widget
-export function PendingListWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function PendingListWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('pending-list', config);
 
   return (
-    <Widget id={id} title="Policies Pending >7 Days" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget id={id} title={customTitle || "Policies Pending >7 Days"} onRemove={onRemove} onConfigure={onConfigure} onTitleChange={onTitleChange} loading={loading} error={error}>
       {data && (
         <div className="space-y-2">
           {data.map((policy: any) => (
@@ -157,11 +175,11 @@ export function PendingListWidget({ id, config, onRemove, onConfigure }: WidgetC
 }
 
 // 5. Commission Tracker Widget
-export function CommissionWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function CommissionWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('commission', config);
 
   return (
-    <Widget id={id} title="Commission Progress" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget id={id} title={customTitle || "Commission Progress"} onRemove={onRemove} onConfigure={onConfigure} onTitleChange={onTitleChange} loading={loading} error={error}>
       {data && (
         <div className="flex flex-col justify-center h-full">
           <div className="mb-4">
@@ -188,11 +206,11 @@ export function CommissionWidget({ id, config, onRemove, onConfigure }: WidgetCo
 }
 
 // 6. Top Agents Widget
-export function TopAgentsWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function TopAgentsWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('top-agents', config);
 
   return (
-    <Widget id={id} title="Top Agents" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget id={id} title={customTitle || "Top Agents"} onRemove={onRemove} onConfigure={onConfigure} onTitleChange={onTitleChange} loading={loading} error={error}>
       {data && (
         <div className="space-y-3">
           {data.map((agent: any, index: number) => (
@@ -215,11 +233,11 @@ export function TopAgentsWidget({ id, config, onRemove, onConfigure }: WidgetCom
 }
 
 // 7. Carrier Status Widget
-export function CarrierStatusWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function CarrierStatusWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('carrier-status', config);
 
   return (
-    <Widget id={id} title="Carrier Status" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget id={id} title={customTitle || "Carrier Status"} onRemove={onRemove} onConfigure={onConfigure} onTitleChange={onTitleChange} loading={loading} error={error}>
       {data && (
         <div className="grid grid-cols-2 gap-3">
           {data.slice(0, 6).map((carrier: any) => (
@@ -252,7 +270,7 @@ export function CarrierStatusWidget({ id, config, onRemove, onConfigure }: Widge
 }
 
 // 8. Quick Filters Widget
-export function QuickFiltersWidget({ id, config, onRemove, onConfigure }: WidgetComponentProps) {
+export function QuickFiltersWidget({ id, config, customTitle, onRemove, onConfigure, onTitleChange }: WidgetComponentProps) {
   const { data, loading, error } = useWidgetData('quick-filters', config);
 
   const handleFilterClick = (filterType: string) => {
@@ -274,7 +292,7 @@ export function QuickFiltersWidget({ id, config, onRemove, onConfigure }: Widget
   };
 
   return (
-    <Widget id={id} title="Quick Filters" onRemove={onRemove} onConfigure={onConfigure} loading={loading} error={error}>
+    <Widget id={id} title={customTitle || "Quick Filters"} onRemove={onRemove} onConfigure={onConfigure} onTitleChange={onTitleChange} loading={loading} error={error}>
       {data && (
         <div className="grid grid-cols-2 gap-3">
           <button
