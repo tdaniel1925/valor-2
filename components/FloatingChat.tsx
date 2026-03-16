@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
-import { useChat } from 'ai/react';
+import { useChat } from 'ai';
 
 export function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
