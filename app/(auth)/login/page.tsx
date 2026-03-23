@@ -10,6 +10,7 @@ import { Button, Card, CardContent } from "@/components/ui";
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean(),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -25,6 +26,11 @@ function LoginForm() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: true,
+    },
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -115,6 +121,20 @@ function LoginForm() {
                   {form.formState.errors.password.message}
                 </p>
               )}
+            </div>
+
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                {...form.register("rememberMe")}
+                defaultChecked={true}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-600">
+                Remember me for 90 days
+              </label>
             </div>
 
             {/* Submit Button */}

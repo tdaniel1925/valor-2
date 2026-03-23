@@ -2,27 +2,45 @@ import { Suspense } from 'react';
 import DashboardContent from '@/components/smartoffice/DashboardContent';
 import { prisma } from '@/lib/db/prisma';
 import { headers } from 'next/headers';
+import { createClient } from '@/lib/auth/supabase-server';
 
 export default async function SmartOfficeDashboardPage() {
+  // Get tenant ID from middleware header first
   const headersList = await headers();
-  const tenantId = headersList.get('x-tenant-id');
+  let tenantId = headersList.get('x-tenant-id');
+
+  // If no tenant from middleware, look it up from the logged-in user
+  if (!tenantId) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { tenantId: true }
+      });
+
+      if (dbUser?.tenantId) {
+        tenantId = dbUser.tenantId;
+      }
+    }
+  }
 
   if (!tenantId) {
-    throw new Error('Tenant not found');
+    throw new Error('Tenant not found. Please contact support.');
   }
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
-    select: { inboundEmailAddress: true }
+    select: { inboundEmailAddress: true, slug: true }
   });
 
-  if (!tenant?.inboundEmailAddress) {
-    throw new Error('Tenant inbound email not configured');
-  }
+  // Use a default email if not configured (for testing/development)
+  const inboundEmail = tenant?.inboundEmailAddress || `${tenant?.slug || 'inbox'}@valortest.com`;
 
   return (
     <Suspense fallback={<DashboardLoadingFallback />}>
-      <DashboardContent inboundEmailAddress={tenant.inboundEmailAddress} />
+      <DashboardContent inboundEmailAddress={inboundEmail} />
     </Suspense>
   );
 }

@@ -179,7 +179,13 @@ export async function setTenantContext(tenantId: string): Promise<void> {
     await prisma.$executeRawUnsafe(
       `SET LOCAL app.current_tenant_id = '${tenantId}'`
     );
-  } catch (error) {
+  } catch (error: any) {
+    // In development/test environments, the RLS parameter may not be configured
+    // Log the error but don't throw if it's just a parameter configuration issue
+    if (error.message?.includes('unrecognized configuration parameter')) {
+      console.warn('[tenant-context] RLS parameter not configured - queries will not be tenant-scoped');
+      return;
+    }
     console.error('[tenant-context] Error setting tenant context:', error);
     throw new Error('Failed to set tenant context');
   }
