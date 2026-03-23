@@ -36,9 +36,17 @@ model Tenant {
   inboundEmailAddress  String?  @unique  // Random 8-char address (e.g., "a7f3k2x9")
   inboundEmailEnabled  Boolean  @default(true)
 
-  // Future billing (not implemented yet)
-  plan            String?  @default("free")
-  status          TenantStatus @default(ACTIVE)
+  // Subscription & Billing
+  plan            String?  @default("starter")  // starter, professional, enterprise
+  status          TenantStatus @default(TRIAL)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?  @unique
+  stripePriceId        String?
+  subscriptionStatus   String?  // active, past_due, canceled, trialing
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean  @default(false)
+  maxUsers             Int      @default(5)
+  maxStorageGB         Int      @default(10)
 
   // Timestamps
   createdAt       DateTime @default(now())

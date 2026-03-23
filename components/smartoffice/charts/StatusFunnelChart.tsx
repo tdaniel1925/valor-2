@@ -69,7 +69,7 @@ export default function StatusFunnelChart() {
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <CheckCircle className="w-5 h-5 text-green-600" />
-          Status Distribution
+          Status Funnel
         </h3>
         <p className="text-sm text-gray-500 text-center py-12">
           No status data available
@@ -82,7 +82,7 @@ export default function StatusFunnelChart() {
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <CheckCircle className="w-5 h-5 text-green-600" />
-        Status Distribution
+        Status Funnel
       </h3>
 
       <ResponsiveContainer width="100%" height={300}>

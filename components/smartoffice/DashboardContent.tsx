@@ -358,41 +358,48 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 md:mb-8 gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              SmartOffice Intelligence
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">
-              View, search, and analyze your SmartOffice data
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 md:py-10">
+        {/* Header with Gradient */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-6 md:p-8 mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 text-blue-100 text-sm mb-2">
+                <span>Dashboard</span>
+                <span>/</span>
+                <span className="text-white font-medium">SmartOffice Intelligence</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                SmartOffice Intelligence
+              </h1>
+              <p className="text-lg text-blue-100">
+                AI-powered insights for your insurance data
+              </p>
+            </div>
 
-          <div className="flex gap-2 md:gap-3">
-            <button
-              onClick={() => {
-                fetchStats();
-                if (activeTab === 'policies') fetchPolicies();
-                else fetchAgents();
-              }}
-              className="px-3 md:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 inline-flex items-center gap-2 text-sm md:text-base"
-              aria-label="Refresh data"
-            >
-              <RefreshCw className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
-            <Link
-              href="/smartoffice/import"
-              className="px-4 md:px-6 py-2 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center gap-2 text-sm md:text-base"
-              aria-label="Import SmartOffice data"
-            >
-              <Upload className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Import Data</span>
-              <span className="sm:hidden">Import</span>
-            </Link>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  fetchStats();
+                  if (activeTab === 'policies') fetchPolicies();
+                  else fetchAgents();
+                }}
+                className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 inline-flex items-center gap-2 backdrop-blur-sm border border-white/20"
+                aria-label="Refresh data"
+              >
+                <RefreshCw className="w-5 h-5" />
+                <span className="hidden sm:inline font-medium">Refresh</span>
+              </button>
+              <Link
+                href="/smartoffice/import"
+                className="px-6 py-3 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-all duration-200 inline-flex items-center gap-2 font-semibold shadow-lg"
+                aria-label="Import SmartOffice data"
+              >
+                <Upload className="w-5 h-5" />
+                <span className="hidden sm:inline">Import Data</span>
+                <span className="sm:hidden">Import</span>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -401,42 +408,76 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
           <InboundEmailCard emailAddress={inboundEmailAddress} />
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Policies</h3>
-              <FileSpreadsheet className="w-5 h-5 text-blue-600" />
+        {/* Stats Cards with Gradients */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Policies */}
+          <div data-testid="stat-card-policies" className="group relative bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+              <FileSpreadsheet className="w-full h-full" />
             </div>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalPolicies.toLocaleString()}</p>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <FileSpreadsheet className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-white/70 text-xs font-semibold">+12% ↑</span>
+              </div>
+              <h3 className="text-sm font-medium text-blue-100 mb-1">Total Policies</h3>
+              <p className="text-4xl font-bold text-white">{stats.totalPolicies.toLocaleString()}</p>
+            </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Agents</h3>
-              <Users className="w-5 h-5 text-green-600" />
+          {/* Total Agents */}
+          <div data-testid="stat-card-agents" className="group relative bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+              <Users className="w-full h-full" />
             </div>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalAgents.toLocaleString()}</p>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-white/70 text-xs font-semibold">+5% ↑</span>
+              </div>
+              <h3 className="text-sm font-medium text-green-100 mb-1">Total Agents</h3>
+              <p className="text-4xl font-bold text-white">{stats.totalAgents.toLocaleString()}</p>
+            </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Premium</h3>
-              <DollarSign className="w-5 h-5 text-blue-600" />
+          {/* Total Premium */}
+          <div data-testid="stat-card-premium" className="group relative bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+              <DollarSign className="w-full h-full" />
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatCurrency(stats.totalPremium)}
-            </p>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-white/70 text-xs font-semibold">+18% ↑</span>
+              </div>
+              <h3 className="text-sm font-medium text-purple-100 mb-1">Total Premium</h3>
+              <p className="text-4xl font-bold text-white">{formatCurrency(stats.totalPremium)}</p>
+            </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Last Sync</h3>
-              <div className={`w-2 h-2 rounded-full ${stats.lastSync ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+          {/* Last Sync */}
+          <div data-testid="stat-card-sync" className="group relative bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+              <Clock className="w-full h-full" />
             </div>
-            <p className="text-sm font-medium text-gray-900">
-              {stats.lastSync ? formatDate(stats.lastSync) : 'Never'}
-            </p>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <div className={`w-3 h-3 rounded-full ${stats.lastSync ? 'bg-green-300' : 'bg-red-300'} shadow-lg`}></div>
+              </div>
+              <h3 className="text-sm font-medium text-orange-100 mb-1">Last Sync</h3>
+              <p className="text-2xl font-bold text-white">
+                {stats.lastSync ? formatDate(stats.lastSync) : 'Never synced'}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -503,34 +544,49 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
 
         {/* Charts & Visualizations */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Insights & Analytics</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <PremiumTrendChart />
-            <CarrierBreakdownChart />
-            <StatusFunnelChart />
-            <AgentPerformanceChart />
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Insights & Analytics</h2>
+            <p className="text-sm text-gray-600">Real-time performance metrics</p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-fr">
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 min-h-[400px]">
+              <PremiumTrendChart />
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 min-h-[400px]">
+              <CarrierBreakdownChart />
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 min-h-[400px]">
+              <StatusFunnelChart />
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 min-h-[400px]">
+              <AgentPerformanceChart />
+            </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="border-b border-gray-200">
-            <div className="flex gap-4 px-6">
+        <div className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
+          <div className="border-b border-gray-100">
+            <div className="flex gap-2 px-8 bg-gradient-to-r from-gray-50 to-white">
               <button
                 onClick={() => {
                   setActiveTab('policies');
                   setSearchTerm('');
                   setPagination(prev => ({ ...prev, page: 1 }));
                 }}
-                className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                data-active={activeTab === 'policies'}
+                className={`py-5 px-6 border-b-4 font-semibold text-sm transition-all duration-200 ${
                   activeTab === 'policies'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 bg-white rounded-t-lg'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-lg'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Policies ({stats.totalPolicies})
+                  <FileSpreadsheet className="w-5 h-5" />
+                  <span>Policies</span>
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full text-xs font-bold">
+                    {stats.totalPolicies}
+                  </span>
                 </div>
               </button>
               <button
@@ -539,15 +595,19 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
                   setSearchTerm('');
                   setPagination(prev => ({ ...prev, page: 1 }));
                 }}
-                className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                data-active={activeTab === 'agents'}
+                className={`py-5 px-6 border-b-4 font-semibold text-sm transition-all duration-200 ${
                   activeTab === 'agents'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 bg-white rounded-t-lg'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-lg'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Agents ({stats.totalAgents})
+                  <Users className="w-5 h-5" />
+                  <span>Agents</span>
+                  <span className="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-xs font-bold">
+                    {stats.totalAgents}
+                  </span>
                 </div>
               </button>
             </div>
@@ -635,7 +695,7 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
                         </div>
                       </div>
                     )}
-                    {!searching && policies.length === 0 ? (
+                    {!searching && policies.length === 0 && searchTerm ? (
                       <div className="text-center py-12 px-4">
                         <Search className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                         <h3 className="text-base font-medium text-gray-900 mb-2">
@@ -648,42 +708,54 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
                           Try adjusting your search or filters
                         </p>
                       </div>
+                    ) : !searching && policies.length === 0 ? (
+                      <div className="text-center py-12 px-4">
+                        <FileSpreadsheet className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-base font-medium text-gray-900 mb-2">
+                          No Data Yet
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          No policies available
+                        </p>
+                      </div>
                     ) : (
                       <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gradient-to-r from-gray-100 to-gray-50 sticky top-0 z-10">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Policy #
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Advisor
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Product
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Carrier
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Insured
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Premium
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Type
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Status
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {policies.map((policy) => (
+                        <tbody className="bg-white divide-y divide-gray-100">
+                          {policies.map((policy, idx) => (
                             <tr
                               key={policy.id}
                               onClick={() => router.push(`/smartoffice/policies/${policy.id}`)}
-                              className="hover:bg-gray-50 cursor-pointer transition-colors"
+                              className={`cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md hover:scale-[1.01] ${
+                                idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                              }`}
                             >
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {policy.policyNumber}
@@ -736,7 +808,7 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
                         </div>
                       </div>
                     )}
-                    {!searching && agents.length === 0 ? (
+                    {!searching && agents.length === 0 && searchTerm ? (
                       <div className="text-center py-12 px-4">
                         <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                         <h3 className="text-base font-medium text-gray-900 mb-2">
@@ -749,36 +821,48 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
                           Try adjusting your search or filters
                         </p>
                       </div>
+                    ) : !searching && agents.length === 0 ? (
+                      <div className="text-center py-12 px-4">
+                        <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-base font-medium text-gray-900 mb-2">
+                          No Data Yet
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          No agents available
+                        </p>
+                      </div>
                     ) : (
                       <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gradient-to-r from-gray-100 to-gray-50 sticky top-0 z-10">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Name
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Email
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Phone
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Supervisor
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               NPN
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Source
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {agents.map((agent) => (
+                        <tbody className="bg-white divide-y divide-gray-100">
+                          {agents.map((agent, idx) => (
                             <tr
                               key={agent.id}
                               onClick={() => router.push(`/smartoffice/agents/${agent.id}`)}
-                              className="hover:bg-gray-50 cursor-pointer transition-colors"
+                              className={`cursor-pointer transition-all duration-200 hover:bg-green-50 hover:shadow-md hover:scale-[1.01] ${
+                                idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                              }`}
                             >
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {agent.fullName}

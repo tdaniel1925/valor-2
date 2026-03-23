@@ -88,7 +88,7 @@ export default function PremiumTrendChart() {
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-purple-600" />
-        Premium Trend (Last 6 Months)
+        Premium Trend
       </h3>
 
       <ResponsiveContainer width="100%" height={300}>
