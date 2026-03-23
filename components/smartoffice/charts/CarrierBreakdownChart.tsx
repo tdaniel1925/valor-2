@@ -60,6 +60,46 @@ export default function CarrierBreakdownChart() {
     }).format(value);
   };
 
+  // Shorten long carrier names
+  const shortenName = (name: string) => {
+    const maxLength = 30;
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength - 3) + '...';
+  };
+
+  // Group data: top 7 carriers + "Others" for the rest
+  const getChartData = () => {
+    if (data.length <= 7) {
+      return data.map(item => ({
+        ...item,
+        name: shortenName(item.name)
+      }));
+    }
+
+    // Sort by value descending and take top 7
+    const sorted = [...data].sort((a, b) => b.value - a.value);
+    const top7 = sorted.slice(0, 7);
+    const others = sorted.slice(7);
+
+    const chartData = top7.map(item => ({
+      ...item,
+      name: shortenName(item.name)
+    }));
+
+    // Add "Others" if there are remaining carriers
+    if (others.length > 0) {
+      const othersTotal = others.reduce((sum, item) => sum + item.value, 0);
+      chartData.push({
+        name: `Others (${others.length})`,
+        value: othersTotal
+      });
+    }
+
+    return chartData;
+  };
+
+  const chartData = getChartData();
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -96,27 +136,34 @@ export default function CarrierBreakdownChart() {
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <Building2 className="w-5 h-5 text-blue-600" />
-        Carrier Breakdown (Top 10 by Premium)
+        Carrier Breakdown
       </h3>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <PieChart>
           <Pie
-            data={data}
-            cx="50%"
+            data={chartData}
+            cx="35%"
             cy="50%"
             labelLine={false}
-            label={(entry) => `${entry.name}: ${formatCurrency(entry.value)}`}
-            outerRadius={80}
+            label={false}
+            outerRadius={110}
             fill="#8884d8"
             dataKey="value"
           >
-            {data.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip formatter={(value: number) => formatCurrency(value)} />
-          <Legend />
+          <Legend
+            layout="vertical"
+            verticalAlign="middle"
+            align="right"
+            wrapperStyle={{ paddingLeft: '10px', fontSize: '11px', maxWidth: '180px' }}
+            iconType="circle"
+            iconSize={8}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>
