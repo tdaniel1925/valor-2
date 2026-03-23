@@ -14,7 +14,13 @@ function extractTenantSlug(hostname: string): string | null {
     return parts.length > 1 ? parts[0] : null;
   }
 
-  if (cleanHostname.endsWith(rootDomain)) {
+  // Check if this is the exact root domain (no subdomain)
+  if (cleanHostname === rootDomain) {
+    return null;
+  }
+
+  // Check if this is a subdomain of the root domain
+  if (cleanHostname.endsWith(`.${rootDomain}`)) {
     const subdomain = cleanHostname.slice(0, cleanHostname.length - rootDomain.length - 1);
     return subdomain || null;
   }
