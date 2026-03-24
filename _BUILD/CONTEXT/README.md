@@ -1,14 +1,10 @@
-# BUILD CONTEXT
+# Context Files
 
-Drop reference files here at any time during the build:
-- Wireframes
-- PRDs (Product Requirements Documents)
-- Database schemas
-- API documentation
-- Brand guidelines
-- Screenshots
-- Legacy system notes
-- SmartOffice export samples
-- Any other design or technical references
+Drop reference files here at any time: wireframes, PRDs, schemas,
+API docs, brand guides, screenshots, legacy system notes.
 
-Files will be automatically scanned and incorporated into the build process.
+## Current Context
+- SmartOffice system analysis complete
+- Playwright test results: 90.3% pass rate (65/72 tests)
+- Production system verified working
+- Known issues documented in parent PROJECT-SPEC.md
