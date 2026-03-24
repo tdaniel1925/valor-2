@@ -3,7 +3,7 @@ import {
   assignUserToOrganization,
   removeUserFromOrganization,
 } from "@/lib/admin/user-management";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * POST /api/admin/users/:id/organizations
@@ -25,7 +25,7 @@ export async function POST(
       );
     }
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
 
     const member = await assignUserToOrganization(
       userId,
@@ -68,7 +68,7 @@ export async function DELETE(
       );
     }
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
 
     await removeUserFromOrganization(userId, organizationId, adminId);
 

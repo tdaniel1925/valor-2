@@ -4,7 +4,7 @@ import {
   updateOrganization,
   deleteOrganization,
 } from "@/lib/admin/organization-management";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * GET /api/admin/organizations/:id
@@ -44,7 +44,7 @@ export async function PATCH(
     const { id: organizationId } = await params;
     const body = await request.json();
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
     const organization = await updateOrganization(organizationId, body, adminId);
 
     return NextResponse.json({
@@ -71,7 +71,7 @@ export async function DELETE(
   try {
     const { id: organizationId } = await params;
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
     await deleteOrganization(organizationId, adminId);
 
     return NextResponse.json({

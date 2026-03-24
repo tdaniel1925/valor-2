@@ -3,7 +3,7 @@ import {
   getOrganizations,
   createOrganization,
 } from "@/lib/admin/organization-management";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 
 /**
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
     const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {

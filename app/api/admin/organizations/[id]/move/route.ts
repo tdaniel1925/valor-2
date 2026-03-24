@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { moveOrganization } from "@/lib/admin/organization-management";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * POST /api/admin/organizations/:id/move
@@ -15,7 +15,7 @@ export async function POST(
     const body = await request.json();
     const { newParentId } = body;
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
 
     await moveOrganization(organizationId, newParentId || null, adminId);
 

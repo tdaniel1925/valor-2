@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserById, updateUser, deleteUser } from "@/lib/admin/user-management";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * GET /api/admin/users/:id
@@ -40,7 +40,7 @@ export async function PATCH(
     const { id: userId } = await params;
     const body = await request.json();
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
     const user = await updateUser(userId, body, adminId);
 
     return NextResponse.json({
@@ -67,7 +67,7 @@ export async function DELETE(
   try {
     const { id: userId } = await params;
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
     await deleteUser(userId, adminId);
 
     return NextResponse.json({

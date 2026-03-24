@@ -4,7 +4,7 @@ import {
   getCaseDocuments,
   getCaseStorageStats,
 } from "@/lib/storage/documents";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * GET /api/cases/:id/documents
@@ -73,7 +73,7 @@ export async function POST(
       );
     }
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     const document = await uploadDocument(
       caseId,

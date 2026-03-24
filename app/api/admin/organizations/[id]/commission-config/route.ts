@@ -6,7 +6,7 @@ import {
   validateCommissionConfig,
   autoBalanceCommissionSplits,
 } from "@/lib/admin/commission-config";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * GET /api/admin/organizations/:id/commission-config
@@ -54,7 +54,7 @@ export async function PATCH(
       );
     }
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
 
     const member = await updateMemberCommissionSplit(
       organizationId,
@@ -89,7 +89,7 @@ export async function POST(
     const body = await request.json();
     const { action, configs } = body;
 
-    const adminId = await getUserIdOrDemo();
+    const adminId = await getUserId();
 
     if (action === "auto-balance") {
       const result = await autoBalanceCommissionSplits(organizationId, adminId);

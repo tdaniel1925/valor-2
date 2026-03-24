@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { transitionCaseStatus } from "@/lib/cases/workflow";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * POST /api/cases/:id/transition
@@ -22,7 +22,7 @@ export async function POST(
       );
     }
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     const result = await transitionCaseStatus({
       caseId,

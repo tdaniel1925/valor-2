@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addCaseNote, getCaseHistory } from "@/lib/cases/workflow";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * GET /api/cases/:id/notes
@@ -48,7 +48,7 @@ export async function POST(
       );
     }
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     const note = await addCaseNote(
       caseId,
