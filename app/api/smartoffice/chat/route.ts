@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { requireAuth } from '@/lib/auth/server-auth';
 import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
+import { listTenantFiles } from '@/lib/storage/smartoffice-storage';
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
@@ -62,8 +63,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get uploaded files metadata
+    const uploadedFiles = await listTenantFiles(tenantContext.tenantId);
+    const filesContext = uploadedFiles.length > 0
+      ? `\n\nUPLOADED SPREADSHEETS:\nThe following Excel files have been uploaded and processed into the database:\n${uploadedFiles.map((f, i) => `${i + 1}. ${f.name} (${(f.size / 1024).toFixed(1)} KB, uploaded ${new Date(f.createdAt).toLocaleDateString()})`).join('\n')}\n\nTotal files: ${uploadedFiles.length}\nNote: All data from these files has been imported into the SmartOfficePolicy and SmartOfficeAgent tables you can query.`
+      : '\n\nUPLOADED SPREADSHEETS:\nNo spreadsheets have been uploaded yet. Inform the user to upload SmartOffice Excel files to analyze their data.';
+
+    // Get sync history for context
+    const syncHistory = await withTenantContext(tenantContext.tenantId, async (db) => {
+      const logs = await db.smartOfficeSyncLog.findMany({
+        where: {
+          tenantId: tenantContext.tenantId,
+          status: { in: ['success', 'completed', 'partial'] },
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: 5,
+        select: {
+          syncType: true,
+          recordsCreated: true,
+          recordsUpdated: true,
+          completedAt: true,
+          filesProcessedList: true,
+        },
+      });
+      return logs;
+    });
+
+    const syncContext = syncHistory.length > 0
+      ? `\n\nRECENT DATA IMPORTS:\n${syncHistory.map((log, i) => `${i + 1}. ${log.syncType || 'Unknown'}: ${log.recordsCreated} created, ${log.recordsUpdated} updated (${new Date(log.completedAt!).toLocaleDateString()})${log.filesProcessedList ? ` - Files: ${log.filesProcessedList.join(', ')}` : ''}`).join('\n')}`
+      : '';
+
     // System prompt for Claude
-    const systemPrompt = `You are SmartOffice Intelligence Assistant for Valor Financial, an AI that helps insurance agents query their SmartOffice data using natural language.
+    const systemPrompt = `You are SmartOffice Intelligence Assistant for Valor Financial, an AI that helps insurance agents query their SmartOffice data using natural language.${filesContext}${syncContext}
 
 AVAILABLE DATA SCHEMA:
 1. SmartOfficePolicy table:
@@ -133,7 +166,7 @@ Respond ONLY with valid JSON. If the question is unclear or not about SmartOffic
 
     // Call Claude API
     const completion = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
+      model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022',
       max_tokens: 1024,
       messages: [
         {
