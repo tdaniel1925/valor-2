@@ -1,0 +1,210 @@
+{
+  "summary": {
+    "totalTests": 98,
+    "totalPassed": 60,
+    "totalFailed": 38,
+    "totalTestFiles": 14,
+    "passedFiles": 1,
+    "failedFiles": 13,
+    "overallPassRate": "61.2%",
+    "executionTime": {
+      "total": "27.06s",
+      "import": "5.94s",
+      "tests": "13.04s",
+      "setup": "4.05s",
+      "transform": "1.86s",
+      "environment": "50.27s"
+    }
+  },
+  "byModule": {
+    "stripe": {
+      "file": "tests/unit/lib/stripe/stripe-server.test.ts",
+      "total": 15,
+      "passed": 9,
+      "failed": 6,
+      "passRate": "60%",
+      "executionTime": "42ms",
+      "status": "BLOCKED",
+      "issue": "Mock construction error - vi.mocked(Stripe) returns object not constructor",
+      "failedTests": [
+        "createCheckoutSession() - should create a checkout session with correct parameters",
+        "createCheckoutSession() - should work with professional plan",
+        "createCustomerPortalSession() - should create a customer portal session",
+        "getSubscription() - should retrieve a subscription by ID",
+        "cancelSubscription() - should cancel subscription at period end",
+        "reactivateSubscription() - should reactivate a subscription"
+      ]
+    },
+    "middleware": {
+      "file": "tests/unit/middleware.test.ts",
+      "total": 16,
+      "passed": 0,
+      "failed": 16,
+      "passRate": "0%",
+      "executionTime": "83ms",
+      "status": "CRITICAL",
+      "issue": "Module import/export failure - middleware functions not properly exported or require() incompatible with Vitest",
+      "sections": {
+        "extractTenantSlug": {
+          "tests": 8,
+          "failed": 8
+        },
+        "middlewareTenantResolution": {
+          "tests": 4,
+          "failed": 4
+        },
+        "middlewareAuthentication": {
+          "tests": 4,
+          "failed": 4
+        }
+      }
+    },
+    "tenantContext": {
+      "file": "tests/unit/lib/auth/tenant-context.test.ts",
+      "total": 26,
+      "passed": 18,
+      "failed": 8,
+      "passRate": "69.2%",
+      "executionTime": "2223ms",
+      "status": "NEEDS FIXING",
+      "issue": "Validation logic gaps - reserved words not rejected, path routing logic issues",
+      "failedTests": [
+        "isValidTenantSlug() - rejects reserved slugs",
+        "isValidTenantSlug() - handles null and undefined",
+        "pathRequiresTenant() - identifies paths that require tenant context",
+        "pathRequiresTenant() - handles API routes correctly",
+        "extractTenantSlug() - handles special characters in hostname",
+        "isRootDomain() - handles localhost variations"
+      ],
+      "issues": [
+        "Regex validation missing reserved word check (www, api, admin, etc.)",
+        "No null/undefined input validation",
+        "Path routing logic expects different behavior than implementation",
+        "Special character detection missing"
+      ]
+    },
+    "supabaseAuth": {
+      "file": "tests/unit/lib/auth/supabase.test.ts",
+      "total": 10,
+      "passed": 9,
+      "failed": 1,
+      "passRate": "90%",
+      "executionTime": "132ms",
+      "status": "GOOD",
+      "issue": "Single test failure - needs investigation",
+      "passingCategories": [
+        "syncAuthUser() - all 6 tests passing",
+        "createServerSupabaseClient()",
+        "createBrowserSupabaseClient()"
+      ]
+    },
+    "smartofficeComponents": {
+      "file": "tests/unit/components/smartoffice.test.tsx",
+      "total": 27,
+      "passed": 20,
+      "failed": 7,
+      "passRate": "74.1%",
+      "executionTime": "10440ms",
+      "status": "ACCEPTABLE",
+      "issue": "Component rendering issues - likely chart or props validation"
+    },
+    "exampleComponent": {
+      "file": "tests/unit/components/example.test.tsx",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "passRate": "100%",
+      "status": "EXAMPLE QUALITY",
+      "note": "Can be used as template for other component tests"
+    },
+    "exampleApi": {
+      "file": "tests/unit/lib/example-api.test.ts",
+      "total": 4,
+      "passed": 0,
+      "failed": 4,
+      "passRate": "0%",
+      "status": "BLOCKED",
+      "issue": "Likely affected by module transformation/loading issues"
+    }
+  },
+  "criticalIssues": [
+    {
+      "priority": 1,
+      "severity": "CRITICAL",
+      "module": "Middleware",
+      "failureCount": 16,
+      "impact": "Blocks authentication flow and tenant routing - DEPLOYMENT BLOCKER",
+      "action": "Immediately fix module exports and test setup"
+    },
+    {
+      "priority": 2,
+      "severity": "HIGH",
+      "module": "Stripe Integration",
+      "failureCount": 6,
+      "impact": "Blocks billing/subscription features - REVENUE CRITICAL",
+      "action": "Rewrite Stripe mocks with proper class instantiation"
+    },
+    {
+      "priority": 3,
+      "severity": "MEDIUM",
+      "module": "Tenant Context",
+      "failureCount": 8,
+      "impact": "Potential routing conflicts and slug validation bypass",
+      "action": "Add validation logic for reserved words and special characters"
+    }
+  ],
+  "recommendations": {
+    "immediate": [
+      "Fix middleware test module imports (Priority 1 - blocks auth)",
+      "Fix Stripe mock instantiation (Priority 2 - blocks billing)",
+      "Add input validation to tenant-context functions (Priority 3)"
+    ],
+    "shortTerm": [
+      "Investigate single Supabase auth failure",
+      "Debug 7 component test failures",
+      "Run coverage analysis: npm run test:unit:coverage",
+      "Create integration tests for multi-tenant routing"
+    ],
+    "longTerm": [
+      "Implement contract testing for external APIs",
+      "Add snapshot tests for component output",
+      "Create test data builders/factories",
+      "Document testing patterns in TESTING-QUICK-START.md"
+    ]
+  },
+  "nextSteps": {
+    "priority1": {
+      "title": "Fix Middleware Tests",
+      "effort": "HIGH",
+      "blockedTests": 16,
+      "steps": [
+        "Verify middleware.ts file structure and exports",
+        "Replace require() with import() for Vitest compatibility",
+        "Ensure middleware properly exports tested functions",
+        "Run tests and verify all 16 pass"
+      ]
+    },
+    "priority2": {
+      "title": "Fix Stripe Mocks",
+      "effort": "MEDIUM",
+      "blockedTests": 6,
+      "steps": [
+        "Replace vi.mocked(Stripe).mockImplementation with vi.mock()",
+        "Test Stripe class instantiation separately",
+        "Verify mock returns proper checkout/billing objects",
+        "Run tests and verify all 6 pass"
+      ]
+    },
+    "priority3": {
+      "title": "Fix Tenant Context Validation",
+      "effort": "LOW",
+      "blockedTests": 8,
+      "steps": [
+        "Add reserved word array to isValidTenantSlug()",
+        "Fix path logic in pathRequiresTenant()",
+        "Add null/undefined input guards",
+        "Run tests and verify all 8 pass"
+      ]
+    }
+  }
+}
