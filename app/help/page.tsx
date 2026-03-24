@@ -129,49 +129,6 @@ const helpCategories = [
   },
 ];
 
-const popularArticles = [
-  {
-    id: '1',
-    title: 'How to create your first life insurance quote',
-    category: 'Quotes & Applications',
-    views: 2456,
-    helpful: 234,
-    icon: FileText,
-  },
-  {
-    id: '2',
-    title: 'Understanding commission structures and splits',
-    category: 'Commissions & Payments',
-    views: 1892,
-    helpful: 187,
-    icon: TrendingUp,
-  },
-  {
-    id: '3',
-    title: 'Setting up your agent profile',
-    category: 'Getting Started',
-    views: 1654,
-    helpful: 165,
-    icon: Lightbulb,
-  },
-  {
-    id: '4',
-    title: 'How to generate custom reports',
-    category: 'Reports & Analytics',
-    views: 1432,
-    helpful: 142,
-    icon: BookOpen,
-  },
-  {
-    id: '5',
-    title: 'Enrolling in training courses',
-    category: 'Training & Certifications',
-    views: 1298,
-    helpful: 128,
-    icon: Video,
-  },
-];
-
 const quickLinks = [
   {
     title: 'Quick Start Guide',

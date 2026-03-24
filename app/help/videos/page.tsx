@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import AppLayout from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,148 +20,13 @@ interface Video {
   id: string;
   title: string;
   description: string;
-  duration: string;
+  duration: number;
   category: string;
-  thumbnail: string;
+  thumbnail: string | null;
   views: number;
   uploadedAt: string;
   featured: boolean;
 }
-
-const sampleVideos: Video[] = [
-  {
-    id: '1',
-    title: 'Getting Started with Valor Platform',
-    description: 'Learn the basics of navigating the Valor insurance platform and setting up your account.',
-    duration: '8:45',
-    category: 'getting-started',
-    thumbnail: '/api/placeholder/400/225',
-    views: 1250,
-    uploadedAt: '2024-01-15',
-    featured: true,
-  },
-  {
-    id: '2',
-    title: 'Creating Your First Life Insurance Quote',
-    description: 'Step-by-step guide to creating accurate life insurance quotes for your clients.',
-    duration: '12:30',
-    category: 'quotes',
-    thumbnail: '/api/placeholder/400/225',
-    views: 980,
-    uploadedAt: '2024-01-20',
-    featured: true,
-  },
-  {
-    id: '3',
-    title: 'Understanding Commission Structures',
-    description: 'Deep dive into how commission splits and hierarchies work in the Valor platform.',
-    duration: '15:20',
-    category: 'commissions',
-    thumbnail: '/api/placeholder/400/225',
-    views: 750,
-    uploadedAt: '2024-02-01',
-    featured: false,
-  },
-  {
-    id: '4',
-    title: 'Managing Your Client Pipeline',
-    description: 'Best practices for tracking leads, opportunities, and client relationships.',
-    duration: '10:15',
-    category: 'clients',
-    thumbnail: '/api/placeholder/400/225',
-    views: 620,
-    uploadedAt: '2024-02-10',
-    featured: false,
-  },
-  {
-    id: '5',
-    title: 'Policy Illustrations: Term Life',
-    description: 'How to create and present professional term life insurance illustrations.',
-    duration: '14:05',
-    category: 'illustrations',
-    thumbnail: '/api/placeholder/400/225',
-    views: 890,
-    uploadedAt: '2024-02-15',
-    featured: true,
-  },
-  {
-    id: '6',
-    title: 'Policy Illustrations: Whole Life',
-    description: 'Creating whole life illustrations with cash value projections and dividend schedules.',
-    duration: '16:40',
-    category: 'illustrations',
-    thumbnail: '/api/placeholder/400/225',
-    views: 710,
-    uploadedAt: '2024-02-20',
-    featured: false,
-  },
-  {
-    id: '7',
-    title: 'Completing Life Insurance Applications',
-    description: 'Walk through the entire application process from start to submission.',
-    duration: '18:25',
-    category: 'applications',
-    thumbnail: '/api/placeholder/400/225',
-    views: 840,
-    uploadedAt: '2024-03-01',
-    featured: false,
-  },
-  {
-    id: '8',
-    title: 'Document Management Best Practices',
-    description: 'Organizing and managing client documents, forms, and compliance materials.',
-    duration: '9:30',
-    category: 'documents',
-    thumbnail: '/api/placeholder/400/225',
-    views: 560,
-    uploadedAt: '2024-03-05',
-    featured: false,
-  },
-  {
-    id: '9',
-    title: 'Advanced Commission Reporting',
-    description: 'Generate custom commission reports and forecast future earnings.',
-    duration: '13:15',
-    category: 'commissions',
-    thumbnail: '/api/placeholder/400/225',
-    views: 690,
-    uploadedAt: '2024-03-10',
-    featured: false,
-  },
-  {
-    id: '10',
-    title: 'Team Management and Hierarchy Setup',
-    description: 'Setting up your agency hierarchy and managing team permissions.',
-    duration: '11:50',
-    category: 'admin',
-    thumbnail: '/api/placeholder/400/225',
-    views: 420,
-    uploadedAt: '2024-03-15',
-    featured: false,
-  },
-  {
-    id: '11',
-    title: 'Carrier Integrations Overview',
-    description: 'Understanding how carrier integrations work and troubleshooting common issues.',
-    duration: '10:40',
-    category: 'integrations',
-    thumbnail: '/api/placeholder/400/225',
-    views: 530,
-    uploadedAt: '2024-03-20',
-    featured: false,
-  },
-  {
-    id: '12',
-    title: 'Analytics Dashboard Deep Dive',
-    description: 'Leverage analytics to track performance, identify trends, and grow your business.',
-    duration: '12:00',
-    category: 'analytics',
-    thumbnail: '/api/placeholder/400/225',
-    views: 780,
-    uploadedAt: '2024-03-25',
-    featured: false,
-  },
-];
 
 const categories = [
   { value: 'all', label: 'All Videos', icon: BookOpen },
@@ -181,8 +47,18 @@ export default function VideoTutorialsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
 
+  // Fetch videos from API
+  const { data: allVideos = [], isLoading } = useQuery<Video[]>({
+    queryKey: ['help-videos'],
+    queryFn: async () => {
+      const res = await fetch('/api/help/videos');
+      if (!res.ok) throw new Error('Failed to fetch videos');
+      return res.json();
+    },
+  });
+
   // Filter and sort videos
-  const filteredVideos = sampleVideos
+  const filteredVideos = allVideos
     .filter(video => {
       const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           video.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -195,16 +71,31 @@ export default function VideoTutorialsPage() {
       } else if (sortBy === 'popular') {
         return b.views - a.views;
       } else if (sortBy === 'duration') {
-        const getDuration = (dur: string) => {
-          const [min, sec] = dur.split(':').map(Number);
-          return min * 60 + sec;
-        };
-        return getDuration(a.duration) - getDuration(b.duration);
+        return a.duration - b.duration;
       }
       return 0;
     });
 
-  const featuredVideos = sampleVideos.filter(v => v.featured);
+  const featuredVideos = allVideos.filter(v => v.featured);
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading videos...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -234,7 +125,7 @@ export default function VideoTutorialsPage() {
                     </div>
                   </div>
                   <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
-                    {video.duration}
+                    {formatDuration(video.duration)}
                   </div>
                   <Badge className="absolute top-2 left-2 bg-blue-600">Featured</Badge>
                 </div>
@@ -307,7 +198,7 @@ export default function VideoTutorialsPage() {
         {/* Results Count */}
         <div className="mb-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Showing {filteredVideos.length} of {sampleVideos.length} videos
+            Showing {filteredVideos.length} of {allVideos.length} videos
             {selectedCategory !== 'all' && ` in ${categories.find(c => c.value === selectedCategory)?.label}`}
           </p>
         </div>
@@ -324,7 +215,7 @@ export default function VideoTutorialsPage() {
                 </div>
                 <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {video.duration}
+                  {formatDuration(video.duration)}
                 </div>
               </div>
               <CardContent className="p-4">

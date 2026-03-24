@@ -81,37 +81,37 @@ const features = [
 const quickStats = [
   {
     label: 'Available Courses',
-    value: '45',
+    value: '0',
     icon: BookOpen,
     color: 'text-blue-600 dark:text-blue-400',
   },
   {
     label: 'Enrolled Courses',
-    value: '3',
+    value: '0',
     icon: GraduationCap,
     color: 'text-green-600 dark:text-green-400',
   },
   {
     label: 'Certifications',
-    value: '2',
+    value: '0',
     icon: Award,
     color: 'text-purple-600 dark:text-purple-400',
   },
   {
     label: 'Completion Rate',
-    value: '87%',
+    value: '0%',
     icon: Target,
     color: 'text-orange-600 dark:text-orange-400',
   },
 ];
 
 const courseCategories = [
-  { name: 'Product Training', count: 12, icon: FileText },
-  { name: 'Sales Skills', count: 8, icon: TrendingUp },
-  { name: 'Compliance', count: 6, icon: CheckCircle2 },
-  { name: 'Technology', count: 5, icon: Video },
-  { name: 'Leadership', count: 7, icon: Users },
-  { name: 'Industry Trends', count: 7, icon: Clock },
+  { name: 'Product Training', count: 0, icon: FileText },
+  { name: 'Sales Skills', count: 0, icon: TrendingUp },
+  { name: 'Compliance', count: 0, icon: CheckCircle2 },
+  { name: 'Technology', count: 0, icon: Video },
+  { name: 'Leadership', count: 0, icon: Users },
+  { name: 'Industry Trends', count: 0, icon: Clock },
 ];
 
 export default function TrainingPage() {
