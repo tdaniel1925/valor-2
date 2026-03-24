@@ -205,11 +205,13 @@ class SignupPage {
     await this.page.goto('/signup');
   }
 
-  async fillForm(email: string, firstName: string, lastName: string, password: string) {
-    await this.page.fill('input[name="email"], input[type="email"]', email);
-    await this.page.fill('input[name="firstName"]', firstName);
-    await this.page.fill('input[name="lastName"]', lastName);
-    await this.page.fill('input[name="password"], input[type="password"]', password);
+  async fillForm(email: string, agencyName: string, subdomain: string, password: string) {
+    await this.page.fill('input[name="email"]', email);
+    await this.page.fill('input[name="agencyName"]', agencyName);
+    await this.page.fill('input[name="subdomain"]', subdomain);
+    await this.page.fill('input[name="password"]', password);
+    await this.page.fill('input[name="confirmPassword"]', password);
+    await this.page.check('input[name="terms"]');
   }
 
   async submit() {
@@ -368,11 +370,12 @@ test.describe('SmartOffice - Complete User Flow', () => {
     const signupPage = new SignupPage(page);
     await signupPage.goto();
 
-    await signupPage.fillForm(testEmail, 'Test', 'User', TEST_PASSWORD);
+    const testSubdomain = `test-agency-${Date.now()}`;
+    await signupPage.fillForm(testEmail, 'Test Agency', testSubdomain, TEST_PASSWORD);
     await signupPage.submit();
     await signupPage.waitForSuccess();
 
-    console.log(`✓ User signed up: ${testEmail}`);
+    console.log(`✓ User signed up: ${testEmail} with subdomain: ${testSubdomain}`);
 
     // ====================================================================
     // STEP 2: Navigate to SmartOffice Dashboard
@@ -534,7 +537,8 @@ test.describe('SmartOffice - Complete User Flow', () => {
       // Sign up
       const signupPage = new SignupPage(page);
       await signupPage.goto();
-      await signupPage.fillForm(testEmail, 'Test', 'Reorder', TEST_PASSWORD);
+      const testSubdomain = `test-reorder-${Date.now()}`;
+      await signupPage.fillForm(testEmail, 'Test Reorder Agency', testSubdomain, TEST_PASSWORD);
       await signupPage.submit();
       await signupPage.waitForSuccess();
 
@@ -598,7 +602,8 @@ test.describe('SmartOffice - Complete User Flow', () => {
       // Sign up
       const signupPage = new SignupPage(page);
       await signupPage.goto();
-      await signupPage.fillForm(testEmail, 'Test', 'BadData', TEST_PASSWORD);
+      const testSubdomain = `test-baddata-${Date.now()}`;
+      await signupPage.fillForm(testEmail, 'Test BadData Agency', testSubdomain, TEST_PASSWORD);
       await signupPage.submit();
       await signupPage.waitForSuccess();
 
