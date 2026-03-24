@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Upload, FileSpreadsheet, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, AlertCircle, Info, ArrowRight } from 'lucide-react';
 
 export default function SmartOfficeImportPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -182,6 +182,42 @@ export default function SmartOfficeImportPage() {
                       </div>
                     </div>
 
+                    {/* Column Mapping Info */}
+                    {result.columnMapping && result.columnMapping.length > 0 && (
+                      <div className="bg-blue-50 rounded-lg p-4 mt-4 border border-blue-200">
+                        <h4 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
+                          <Info className="w-5 h-5" />
+                          Column Mapping ({result.columnMapping.length} fields matched)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          {result.columnMapping.slice(0, 6).map((mapping: any, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2 text-blue-800">
+                              <span className="font-medium">{mapping.excelColumn}</span>
+                              <ArrowRight className="w-4 h-4 text-blue-400" />
+                              <span className="text-blue-600">{mapping.systemField}</span>
+                              {mapping.matchType !== 'exact' && (
+                                <span className="text-xs bg-blue-200 px-2 py-0.5 rounded">
+                                  {mapping.matchType}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {result.columnMapping.length > 6 && (
+                          <p className="text-xs text-blue-600 mt-2">
+                            + {result.columnMapping.length - 6} more columns mapped
+                          </p>
+                        )}
+                        {result.unmappedColumns && result.unmappedColumns.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs text-blue-700">
+                              <strong>Unmapped columns:</strong> {result.unmappedColumns.join(', ')}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="mt-4">
                       <a
                         href="/smartoffice"
@@ -196,7 +232,42 @@ export default function SmartOfficeImportPage() {
                 {!result.success && (
                   <div>
                     <p className="text-red-900 font-medium mb-2">{result.error}</p>
-                    {result.errors && result.errors.length > 0 && (
+
+                    {/* Validation Errors */}
+                    {result.validation?.errors && result.validation.errors.length > 0 && (
+                      <div className="bg-white rounded-lg p-4 mt-3 border-2 border-red-300">
+                        <h4 className="font-medium text-red-900 mb-3 flex items-center gap-2">
+                          <XCircle className="w-5 h-5" />
+                          Validation Errors ({result.validation.errors.length})
+                        </h4>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {result.validation.errors.slice(0, 15).map((error: any, idx: number) => (
+                            <div key={idx} className="bg-red-50 rounded p-3 text-sm">
+                              <div className="flex items-start justify-between mb-1">
+                                <span className="font-medium text-red-900">Row {error.row}</span>
+                                <span className="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded">
+                                  {error.field}
+                                </span>
+                              </div>
+                              <p className="text-red-800">{error.message}</p>
+                              {error.value !== null && error.value !== undefined && (
+                                <p className="text-xs text-red-600 mt-1">
+                                  Value: {String(error.value)}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                          {result.validation.errors.length > 15 && (
+                            <p className="text-sm text-gray-500 italic text-center py-2">
+                              ... and {result.validation.errors.length - 15} more errors
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Processing Errors (legacy format) */}
+                    {result.errors && result.errors.length > 0 && !result.validation?.errors && (
                       <div className="bg-white rounded-lg p-4 mt-3">
                         <h4 className="font-medium text-gray-900 mb-2">Errors:</h4>
                         <ul className="text-sm text-gray-700 space-y-1">
@@ -217,7 +288,36 @@ export default function SmartOfficeImportPage() {
                   </div>
                 )}
 
-                {result.warnings && result.warnings.length > 0 && (
+                {/* Validation Warnings */}
+                {result.validation?.warnings && result.validation.warnings.length > 0 && (
+                  <div className="bg-yellow-50 rounded-lg p-4 mt-3 border border-yellow-300">
+                    <h4 className="font-medium text-yellow-900 mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      Validation Warnings ({result.validation.warnings.length})
+                    </h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {result.validation.warnings.slice(0, 10).map((warning: any, idx: number) => (
+                        <div key={idx} className="bg-yellow-100 rounded p-2 text-sm">
+                          <div className="flex items-start justify-between mb-1">
+                            <span className="font-medium text-yellow-900">Row {warning.row}</span>
+                            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded">
+                              {warning.field}
+                            </span>
+                          </div>
+                          <p className="text-yellow-800">{warning.message}</p>
+                        </div>
+                      ))}
+                      {result.validation.warnings.length > 10 && (
+                        <p className="text-sm text-yellow-700 italic text-center py-2">
+                          + {result.validation.warnings.length - 10} more warnings
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Processing Warnings (legacy format) */}
+                {result.warnings && result.warnings.length > 0 && !result.validation?.warnings && (
                   <div className="bg-yellow-50 rounded-lg p-4 mt-3 border border-yellow-200">
                     <h4 className="font-medium text-yellow-900 mb-2 flex items-center gap-2">
                       <AlertCircle className="w-5 h-5" />
@@ -242,9 +342,34 @@ export default function SmartOfficeImportPage() {
             <li>Export your report from SmartOffice (All Policies Report or Valor Agents Report)</li>
             <li>Click "Select File" and choose the Excel file</li>
             <li>Click "Import Data" to upload and process</li>
-            <li>The system will automatically detect the report type and import the data</li>
-            <li>Duplicate records will be updated automatically</li>
+            <li>The system will automatically detect the report type and validate the data</li>
+            <li>Column headers are matched intelligently - columns can be in any order</li>
+            <li>Imports are validated before processing - errors will block the import</li>
+            <li>All data is replaced on each import (REPLACE mode)</li>
           </ol>
+        </div>
+
+        {/* Features Info */}
+        <div className="bg-gray-50 rounded-lg p-6 mt-4 border border-gray-200">
+          <h3 className="font-semibold text-gray-900 mb-3">✨ Import Features</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div>
+              <strong className="text-gray-900">Smart Column Matching</strong>
+              <p className="text-gray-600 mt-1">Columns are matched by header name, not position. Works with reordered or renamed columns.</p>
+            </div>
+            <div>
+              <strong className="text-gray-900">Pre-Import Validation</strong>
+              <p className="text-gray-600 mt-1">Data is validated before import. Errors block import, warnings are shown but allow import.</p>
+            </div>
+            <div>
+              <strong className="text-gray-900">Permission Controls</strong>
+              <p className="text-gray-600 mt-1">Only administrators and managers can import data for security.</p>
+            </div>
+            <div>
+              <strong className="text-gray-900">Complete Audit Trail</strong>
+              <p className="text-gray-600 mt-1">Every import is tracked with who, what, when for compliance.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
