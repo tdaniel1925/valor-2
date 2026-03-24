@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         id: true,
         title: true,
         description: true,
-        thumbnailUrl: true,
+        thumbnail: true,
         level: true,
         category: true,
         duration: true,
