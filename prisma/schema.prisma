@@ -75,6 +75,7 @@ model Tenant {
   smartOfficeReports   SmartOfficeCustomReport[]
   smartOfficeChatHistory SmartOfficeChatHistory[]
   syncLogs        SmartOfficeSyncLog[]
+  smartOfficeImports   SmartOfficeImport[]
   policyNotes     PolicyNote[]
   savedFilters    SavedFilter[]
   dashboardLayouts DashboardLayout[]
@@ -147,6 +148,7 @@ model User {
   smartOfficeAgents SmartOfficeAgent[]  @relation("SmartOfficeAgentLink")
   smartOfficeReports SmartOfficeCustomReport[] @relation("CreatedSmartOfficeReports")
   smartOfficeChatHistory SmartOfficeChatHistory[] @relation("SmartOfficeChatHistory")
+  smartOfficeImports SmartOfficeImport[]
   policyNotes       PolicyNote[]
   savedFilters      SavedFilter[]
   dashboardLayouts  DashboardLayout[]
@@ -1120,6 +1122,10 @@ model SmartOfficePolicy {
   // Search optimization
   searchText            String?                 @db.Text // Concatenated searchable fields
 
+  // Import tracking
+  importId              String?
+  import                SmartOfficeImport?      @relation(fields: [importId], references: [id], onDelete: SetNull)
+
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
 
@@ -1234,6 +1240,10 @@ model SmartOfficeAgent {
 
   // Search optimization
   searchText            String?                 @db.Text
+
+  // Import tracking
+  importId              String?
+  import                SmartOfficeImport?      @relation(fields: [importId], references: [id], onDelete: SetNull)
 
   // Link to existing User if matched
   linkedUserId          String?
@@ -1372,6 +1382,58 @@ model SmartOfficeChatHistory {
   @@index([sessionId])
   @@index([createdAt])
   @@map("smartoffice_chat_history")
+}
+
+model SmartOfficeImport {
+  id                    String                  @id @default(cuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // User who triggered the import
+  userId                String
+  user                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Import metadata
+  fileName              String
+  source                String                  // "manual" | "email" | "api"
+  status                String                  // "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED"
+  importMode            String                  @default("REPLACE") // "REPLACE" | "MERGE" | "APPEND" | "UPDATE"
+
+  // Statistics
+  recordsTotal          Int                     @default(0)
+  recordsCreated        Int                     @default(0)
+  recordsUpdated        Int                     @default(0)
+  recordsFailed         Int                     @default(0)
+
+  // Validation & Errors
+  validationErrors      Json?                   // Array of {row, field, value, message, severity: 'error'}
+  validationWarnings    Json?                   // Array of {row, field, value, message, severity: 'warning'}
+  processingErrors      Json?                   // Errors during actual import
+
+  // Column Mapping
+  columnMapping         Json?                   // {excelColumn: systemField} mapping used
+
+  // File Storage
+  fileUrl               String?                 // Supabase Storage URL for original file
+
+  // Timestamps
+  startedAt             DateTime                @default(now())
+  completedAt           DateTime?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  // Relations
+  policies              SmartOfficePolicy[]
+  agents                SmartOfficeAgent[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@index([source])
+  @@index([startedAt])
+  @@map("smartoffice_imports")
 }
 
 // ============================================

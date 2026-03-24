@@ -2,11 +2,14 @@
  * SmartOffice Import Service
  *
  * Handles importing parsed SmartOffice data into the database
+ * Includes validation, audit trail, and error tracking
  */
 
 import { prisma } from '@/lib/db/prisma';
 import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
 import type { PolicyRecord, AgentRecord, ParseResult } from './excel-parser';
+import { validatePolicies, validateAgents, type ValidationResult } from './validator';
+import { mappingToDictionary } from './column-matcher';
 
 // ============================================================================
 // Types
@@ -23,6 +26,8 @@ export interface ImportResult {
   errors: string[];
   warnings: string[];
   syncLogId: string | null;
+  importId: string | null; // NEW: SmartOfficeImport record ID
+  validationResult?: ValidationResult; // NEW: Pre-import validation results
   duration: number; // milliseconds
 }
 
@@ -36,8 +41,9 @@ export interface ImportResult {
 async function importPolicies(
   tenantId: string,
   records: PolicyRecord[],
-  fileName: string
-): Promise<Omit<ImportResult, 'syncLogId' | 'duration'>> {
+  fileName: string,
+  importId: string | null
+): Promise<Omit<ImportResult, 'syncLogId' | 'duration' | 'importId'>> {
   const result = {
     success: true,
     type: 'policies' as const,
@@ -94,7 +100,8 @@ async function importPolicies(
           lastSyncDate: new Date(),
           sourceFile: fileName,
           rawData: record.rawData,
-          searchText
+          searchText,
+          importId: importId || undefined // Link to import record
         };
 
         await db.smartOfficePolicy.create({
@@ -119,8 +126,9 @@ async function importPolicies(
 async function importAgents(
   tenantId: string,
   records: AgentRecord[],
-  fileName: string
-): Promise<Omit<ImportResult, 'syncLogId' | 'duration'>> {
+  fileName: string,
+  importId: string | null
+): Promise<Omit<ImportResult, 'syncLogId' | 'duration' | 'importId'>> {
   const result = {
     success: true,
     type: 'agents' as const,
@@ -173,7 +181,8 @@ async function importAgents(
           lastSyncDate: new Date(),
           sourceFile: fileName,
           rawData: record.rawData,
-          searchText
+          searchText,
+          importId: importId || undefined // Link to import record
         };
 
         // Create new agent (no upsert needed since we deleted all old ones)
@@ -199,16 +208,71 @@ async function importAgents(
 
 /**
  * Import SmartOffice data from parsed Excel
+ *
+ * @param tenantId - Tenant ID
+ * @param parseResult - Parsed Excel data
+ * @param triggeredBy - Who/what triggered the import (userId, 'email', 'api')
+ * @param userId - User ID who initiated the import (for SmartOfficeImport record)
  */
 export async function importSmartOfficeData(
   tenantId: string,
   parseResult: ParseResult,
-  triggeredBy: string
+  triggeredBy: string,
+  userId?: string
 ): Promise<ImportResult> {
   const startTime = Date.now();
 
   // Create sync log
   let syncLogId: string | null = null;
+  let importId: string | null = null;
+
+  try {
+    // Run validation first
+    let validationResult: ValidationResult | undefined;
+
+    if (parseResult.type === 'policies') {
+      validationResult = validatePolicies(parseResult.records as PolicyRecord[]);
+    } else if (parseResult.type === 'agents') {
+      validationResult = validateAgents(parseResult.records as AgentRecord[]);
+    }
+
+    // If validation failed (errors exist), don't proceed with import
+    if (validationResult && !validationResult.canImport) {
+      return {
+        success: false,
+        type: parseResult.type as 'policies' | 'agents',
+        recordsProcessed: 0,
+        recordsCreated: 0,
+        recordsUpdated: 0,
+        recordsSkipped: 0,
+        recordsFailed: parseResult.records.length,
+        errors: validationResult.errors.map(e => `Row ${e.row}: ${e.message}`),
+        warnings: validationResult.warnings.map(w => `Row ${w.row}: ${w.message}`),
+        syncLogId: null,
+        importId: null,
+        validationResult,
+        duration: Date.now() - startTime
+      };
+    }
+
+    // Create SmartOfficeImport record for audit trail
+    if (userId) {
+      const importRecord = await prisma.smartOfficeImport.create({
+        data: {
+          tenantId,
+          userId,
+          fileName: parseResult.metadata.fileName,
+          source: triggeredBy.startsWith('manual:') ? 'manual' : triggeredBy === 'email' ? 'email' : 'api',
+          status: 'PROCESSING',
+          importMode: 'REPLACE',
+          recordsTotal: parseResult.records.length,
+          validationErrors: validationResult?.errors || [],
+          validationWarnings: validationResult?.warnings || [],
+          columnMapping: parseResult.columnMapping ? mappingToDictionary(parseResult.columnMapping) : null
+        }
+      });
+      importId = importRecord.id;
+    }
 
   try {
     const syncLog = await withTenantContext(tenantId, async (db) => {
@@ -233,13 +297,15 @@ export async function importSmartOfficeData(
       importResult = await importPolicies(
         tenantId,
         parseResult.records as PolicyRecord[],
-        parseResult.metadata.fileName
+        parseResult.metadata.fileName,
+        importId
       );
     } else if (parseResult.type === 'agents') {
       importResult = await importAgents(
         tenantId,
         parseResult.records as AgentRecord[],
-        parseResult.metadata.fileName
+        parseResult.metadata.fileName,
+        importId
       );
     } else {
       throw new Error('Invalid report type');
@@ -266,9 +332,26 @@ export async function importSmartOfficeData(
       });
     });
 
+    // Update SmartOfficeImport record with final results
+    if (importId) {
+      await prisma.smartOfficeImport.update({
+        where: { id: importId },
+        data: {
+          status: importResult.success ? 'COMPLETED' : 'FAILED',
+          recordsCreated: importResult.recordsCreated,
+          recordsUpdated: importResult.recordsUpdated,
+          recordsFailed: importResult.recordsFailed,
+          processingErrors: importResult.errors.length > 0 ? importResult.errors : undefined,
+          completedAt: new Date()
+        }
+      });
+    }
+
     return {
       ...importResult,
       syncLogId,
+      importId,
+      validationResult,
       duration
     };
 
@@ -294,6 +377,22 @@ export async function importSmartOfficeData(
       }
     }
 
+    // Update SmartOfficeImport record with failure
+    if (importId) {
+      try {
+        await prisma.smartOfficeImport.update({
+          where: { id: importId },
+          data: {
+            status: 'FAILED',
+            processingErrors: [error.message],
+            completedAt: new Date()
+          }
+        });
+      } catch (importError) {
+        console.error('Failed to update import record:', importError);
+      }
+    }
+
     return {
       success: false,
       type: parseResult.type as 'policies' | 'agents',
@@ -305,6 +404,7 @@ export async function importSmartOfficeData(
       errors: [error.message],
       warnings: [],
       syncLogId,
+      importId,
       duration
     };
   }

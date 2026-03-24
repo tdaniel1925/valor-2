@@ -24,7 +24,13 @@ export async function POST(request: NextRequest) {
     // Require authentication
     const user = await requireAuth(request);
 
-    // TODO: Check if user has admin/manager permissions
+    // Check permissions - only ADMIN or MANAGER can import
+    if (user.role !== 'ADMINISTRATOR' && user.role !== 'MANAGER') {
+      return NextResponse.json(
+        { error: 'Insufficient permissions. Only administrators and managers can import data.' },
+        { status: 403 }
+      );
+    }
 
     // Get uploaded file from form data
     const formData = await request.formData();
@@ -70,8 +76,26 @@ export async function POST(request: NextRequest) {
     const importResult = await importSmartOfficeData(
       tenantContext.tenantId,
       parseResult,
-      `manual:${user.id}`
+      `manual:${user.id}`,
+      user.id // Pass userId for audit trail
     );
+
+    // If validation blocked the import, return validation errors
+    if (importResult.validationResult && !importResult.validationResult.canImport) {
+      return NextResponse.json({
+        success: false,
+        error: 'Validation failed - import blocked',
+        validation: {
+          errors: importResult.validationResult.errors,
+          warnings: importResult.validationResult.warnings
+        },
+        data: {
+          type: parseResult.type,
+          fileName: file.name,
+          recordsTotal: parseResult.records.length
+        }
+      }, { status: 400 });
+    }
 
     return NextResponse.json({
       success: importResult.success,
@@ -85,10 +109,17 @@ export async function POST(request: NextRequest) {
         recordsSkipped: importResult.recordsSkipped,
         recordsFailed: importResult.recordsFailed,
         duration: importResult.duration,
-        syncLogId: importResult.syncLogId
+        syncLogId: importResult.syncLogId,
+        importId: importResult.importId // Include import ID for tracking
       },
       errors: importResult.errors,
-      warnings: importResult.warnings
+      warnings: importResult.warnings,
+      validation: importResult.validationResult ? {
+        errors: importResult.validationResult.errors,
+        warnings: importResult.validationResult.warnings
+      } : undefined,
+      columnMapping: parseResult.columnMapping,
+      unmappedColumns: parseResult.unmappedColumns
     });
 
   } catch (error: any) {
