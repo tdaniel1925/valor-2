@@ -50,19 +50,22 @@ async function importPolicies(
     warnings: []
   };
 
+  // REPLACE STRATEGY: Delete all existing policies before importing new ones
+  await withTenantContext(tenantId, async (db) => {
+    const deleteResult = await db.smartOfficePolicy.deleteMany({
+      where: { tenantId }
+    });
+    if (deleteResult.count > 0) {
+      result.warnings.push(`Deleted ${deleteResult.count} existing policies - new report will replace them`);
+    }
+  });
+
   for (const record of records) {
     try {
       result.recordsProcessed++;
 
-      // Upsert policy (update if exists, create if not)
+      // Create new policy (no upsert needed since we deleted all old ones)
       await withTenantContext(tenantId, async (db) => {
-        const existing = await db.smartOfficePolicy.findFirst({
-          where: {
-            tenantId,
-            policyNumber: record.policyNumber
-          }
-        });
-
         // Create searchText for full-text search
         const searchText = [
           record.policyNumber,
@@ -94,20 +97,10 @@ async function importPolicies(
           searchText
         };
 
-        if (existing) {
-          // Update existing policy
-          await db.smartOfficePolicy.update({
-            where: { id: existing.id },
-            data: policyData
-          });
-          result.recordsUpdated++;
-        } else {
-          // Create new policy
-          await db.smartOfficePolicy.create({
-            data: policyData
-          });
-          result.recordsCreated++;
-        }
+        await db.smartOfficePolicy.create({
+          data: policyData
+        });
+        result.recordsCreated++;
       });
 
     } catch (error: any) {
@@ -140,32 +133,21 @@ async function importAgents(
     warnings: []
   };
 
+  // REPLACE STRATEGY: Delete all existing agents before importing new ones
+  await withTenantContext(tenantId, async (db) => {
+    const deleteResult = await db.smartOfficeAgent.deleteMany({
+      where: { tenantId }
+    });
+    if (deleteResult.count > 0) {
+      result.warnings.push(`Deleted ${deleteResult.count} existing agents - new report will replace them`);
+    }
+  });
+
   for (const record of records) {
     try {
       result.recordsProcessed++;
 
       await withTenantContext(tenantId, async (db) => {
-        // Find existing agent by NPN or full name
-        let existing = null;
-
-        if (record.npn) {
-          existing = await db.smartOfficeAgent.findFirst({
-            where: {
-              tenantId,
-              npn: record.npn
-            }
-          });
-        }
-
-        if (!existing) {
-          existing = await db.smartOfficeAgent.findFirst({
-            where: {
-              tenantId,
-              fullName: record.fullName
-            }
-          });
-        }
-
         // Create searchText for full-text search
         const searchText = [
           record.fullName,
@@ -194,20 +176,11 @@ async function importAgents(
           searchText
         };
 
-        if (existing) {
-          // Update existing agent
-          await db.smartOfficeAgent.update({
-            where: { id: existing.id },
-            data: agentData
-          });
-          result.recordsUpdated++;
-        } else {
-          // Create new agent
-          await db.smartOfficeAgent.create({
-            data: agentData
-          });
-          result.recordsCreated++;
-        }
+        // Create new agent (no upsert needed since we deleted all old ones)
+        await db.smartOfficeAgent.create({
+          data: agentData
+        });
+        result.recordsCreated++;
       });
 
     } catch (error: any) {

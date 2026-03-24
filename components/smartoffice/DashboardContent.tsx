@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2, Save } from 'lucide-react';
+import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2, Save, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuickActionCard from '@/components/smartoffice/QuickActionCard';
-import SmartOfficeChat from '@/components/smartoffice/SmartOfficeChat';
+import SmartOfficeChatModal from '@/components/smartoffice/SmartOfficeChatModal';
 import FilterPanel, { FilterValues } from '@/components/smartoffice/FilterPanel';
 import ExportButton from '@/components/smartoffice/ExportButton';
 import PremiumTrendChart from '@/components/smartoffice/charts/PremiumTrendChart';
@@ -79,6 +79,7 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
     totalPages: 0,
   });
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [chatModalOpen, setChatModalOpen] = useState(false);
 
   // Get active filter from URL
   const activeFilter = searchParams.get('filter') || null;
@@ -113,9 +114,16 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
 
   const advancedFilters = getFiltersFromURL();
 
-  // Fetch stats
+  // Fetch stats on mount and set up auto-refresh
   useEffect(() => {
     fetchStats();
+
+    // Auto-refresh stats every 30 seconds to detect new imports
+    const intervalId = setInterval(() => {
+      fetchStats();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Fetch data when tab changes, search happens, or filter changes
@@ -126,6 +134,18 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
       fetchAgents();
     }
   }, [activeTab, pagination.page, activeFilter, searchParams]);
+
+  // Auto-refresh data when lastSync changes (new import detected)
+  useEffect(() => {
+    if (stats.lastSync) {
+      // Reload current tab data
+      if (activeTab === 'policies') {
+        fetchPolicies();
+      } else {
+        fetchAgents();
+      }
+    }
+  }, [stats.lastSync]);
 
   // Debounced search
   useEffect(() => {
@@ -365,7 +385,9 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 text-blue-100 text-sm mb-2">
-                <span>Dashboard</span>
+                <Link href="/dashboard" className="hover:text-white transition-colors">
+                  Dashboard
+                </Link>
                 <span>/</span>
                 <span className="text-white font-medium">SmartOffice Intelligence</span>
               </div>
@@ -537,9 +559,18 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
           )}
         </div>
 
-        {/* AI Chat */}
+        {/* AI Chat - Open Modal Button */}
         <div className="mb-8">
-          <SmartOfficeChat />
+          <button
+            onClick={() => setChatModalOpen(true)}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg shadow-lg px-6 py-4 transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center gap-3"
+          >
+            <Sparkles className="w-6 h-6" />
+            <div className="text-left">
+              <div className="text-lg font-semibold">Ask SmartOffice AI Assistant</div>
+              <div className="text-sm text-purple-100">Query your uploaded spreadsheets with natural language</div>
+            </div>
+          </button>
         </div>
 
         {/* Charts & Visualizations */}
@@ -930,6 +961,11 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
         onClose={() => setShowSaveDialog(false)}
         currentFilters={getCurrentFilters()}
         onSave={handleSaveFilter}
+      />
+
+      <SmartOfficeChatModal
+        isOpen={chatModalOpen}
+        onClose={() => setChatModalOpen(false)}
       />
     </div>
   );
