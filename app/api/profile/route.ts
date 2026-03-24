@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/profile - Get current user's profile
 export async function GET(request: NextRequest) {
   try {
-    // For demo purposes, using a mock user ID
-    // TODO: Replace with actual auth user ID from Supabase
-    const userId = "demo-user-id";
+    const user = await requireAuth(request);
+    const userId = user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
 // PUT /api/profile - Update current user's profile
 export async function PUT(request: NextRequest) {
   try {
-    const userId = "demo-user-id"; // TODO: Get from auth
+    const user = await requireAuth(request);
+    const userId = user.id;
     const body = await request.json();
 
     const { firstName, lastName, phone, profile } = body;

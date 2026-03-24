@@ -8,10 +8,8 @@ import { requireAuth } from "@/lib/auth/server-auth";
 export async function GET(request: NextRequest) {
   try {
     // Require authentication and get user ID from session
-    // TEMPORARILY DISABLED for local development
-    // const user = await requireAuth(request);
-    // const userId = user.id;
-    const userId = "demo-user-id"; // Temporary demo user
+    const user = await requireAuth(request);
+    const userId = user.id;
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);

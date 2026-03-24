@@ -50,11 +50,14 @@ export async function getCurrentUser() {
 }
 
 /**
- * Get user ID from request or return demo user
+ * Get user ID from request (throws if not authenticated)
  */
-export async function getUserIdOrDemo(): Promise<string> {
+export async function getUserId(): Promise<string> {
   const user = await getCurrentUser();
-  return user?.id || "demo-user-id";
+  if (!user) {
+    throw new Error("Unauthorized - Please sign in");
+  }
+  return user.id;
 }
 
 /**
