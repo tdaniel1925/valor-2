@@ -1,0 +1,2189 @@
+{
+  "config": {
+    "configFile": "C:\\dev\\valor-2\\playwright.config.ts",
+    "rootDir": "C:/dev/valor-2/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:2050",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "stripe-billing.spec.ts",
+      "file": "stripe-billing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Stripe Billing Integration",
+          "file": "stripe-billing.spec.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Tenant Signup Page (/signup/tenant)",
+              "file": "stripe-billing.spec.ts",
+              "line": 97,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "page loads successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 7494,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:39.138Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-b1cfbf4d5942a4e1ca9c",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 98,
+                  "column": 9
+                },
+                {
+                  "title": "displays all 3 subscription plans",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 7882,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:38.908Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-d0a3157ab11bcda6458e",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 110,
+                  "column": 9
+                },
+                {
+                  "title": "displays plan features correctly",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "failed",
+                          "duration": 7617,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('5 users')\nExpected: visible\nError: strict mode violation: getByText('5 users') resolved to 2 elements:\n    1) <span>5 users</span> aka getByText('5 users', { exact: true })\n    2) <span>25 users</span> aka getByText('25 users')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('5 users')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('5 users')\nExpected: visible\nError: strict mode violation: getByText('5 users') resolved to 2 elements:\n    1) <span>5 users</span> aka getByText('5 users', { exact: true })\n    2) <span>25 users</span> aka getByText('25 users')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('5 users')\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:136:47",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 47,
+                              "line": 136
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 134 |\u001b[39m\n \u001b[90m 135 |\u001b[39m       \u001b[90m// Starter features\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 136 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'5 users'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 137 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'10GB storage'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 138 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Basic reporting'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 139 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Email support'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 47,
+                                "line": 136
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('5 users')\nExpected: visible\nError: strict mode violation: getByText('5 users') resolved to 2 elements:\n    1) <span>5 users</span> aka getByText('5 users', { exact: true })\n    2) <span>25 users</span> aka getByText('25 users')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('5 users')\u001b[22m\n\n\n  134 |\n  135 |       // Starter features\n> 136 |       await expect(page.getByText('5 users')).toBeVisible();\n      |                                               ^\n  137 |       await expect(page.getByText('10GB storage')).toBeVisible();\n  138 |       await expect(page.getByText('Basic reporting')).toBeVisible();\n  139 |       await expect(page.getByText('Email support')).toBeVisible();\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:136:47"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:38.923Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-7f4a5-ays-plan-features-correctly-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-7f4a5-ays-plan-features-correctly-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-7f4a5-ays-plan-features-correctly-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 47,
+                            "line": 136
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-89a047ebba688bcf7c2d",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 132,
+                  "column": 9
+                },
+                {
+                  "title": "can select Starter plan",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 13516,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Starter/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"grid md:grid-cols-3 gap-6 mb-12\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Starter/ }).first()\u001b[22m\n\u001b[2m    8 × locator resolved to <div class=\"grid md:grid-cols-3 gap-6 mb-12\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"grid md:grid-cols-3 gap-6 mb-12\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Starter/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"grid md:grid-cols-3 gap-6 mb-12\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Starter/ }).first()\u001b[22m\n\u001b[2m    8 × locator resolved to <div class=\"grid md:grid-cols-3 gap-6 mb-12\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"grid md:grid-cols-3 gap-6 mb-12\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:161:33",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 33,
+                              "line": 161
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 159 |\u001b[39m\n \u001b[90m 160 |\u001b[39m       \u001b[90m// Verify selected plan has visual indication (ring-2 ring-blue-600)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m       \u001b[36mawait\u001b[39m expect(starterCard)\u001b[33m.\u001b[39mtoHaveClass(\u001b[35m/ring-2 ring-blue-600/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m\n \u001b[90m 164 |\u001b[39m     test(\u001b[32m'can select Professional plan'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 33,
+                                "line": 161
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Starter/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"grid md:grid-cols-3 gap-6 mb-12\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Starter/ }).first()\u001b[22m\n\u001b[2m    8 × locator resolved to <div class=\"grid md:grid-cols-3 gap-6 mb-12\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"grid md:grid-cols-3 gap-6 mb-12\"\u001b[22m\n\n\n  159 |\n  160 |       // Verify selected plan has visual indication (ring-2 ring-blue-600)\n> 161 |       await expect(starterCard).toHaveClass(/ring-2 ring-blue-600/);\n      |                                 ^\n  162 |     });\n  163 |\n  164 |     test('can select Professional plan', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:161:33"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:38.961Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-1436e-ant-can-select-Starter-plan-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-1436e-ant-can-select-Starter-plan-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-1436e-ant-can-select-Starter-plan-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 33,
+                            "line": 161
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-5130ec6f55aadc4210c5",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 154,
+                  "column": 9
+                },
+                {
+                  "title": "can select Professional plan",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 19318,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Professional/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"p-6\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Professional/ }).first()\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"p-6\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"p-6\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Professional/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"p-6\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Professional/ }).first()\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"p-6\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"p-6\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:170:38",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 38,
+                              "line": 170
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 168 |\u001b[39m       \u001b[36mawait\u001b[39m professionalCard\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 170 |\u001b[39m       \u001b[36mawait\u001b[39m expect(professionalCard)\u001b[33m.\u001b[39mtoHaveClass(\u001b[35m/ring-2 ring-blue-600/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 171 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 172 |\u001b[39m\n \u001b[90m 173 |\u001b[39m     test(\u001b[32m'can select Enterprise plan'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 38,
+                                "line": 170
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Professional/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"p-6\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Professional/ }).first()\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"p-6\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"p-6\"\u001b[22m\n\n\n  168 |       await professionalCard.click();\n  169 |\n> 170 |       await expect(professionalCard).toHaveClass(/ring-2 ring-blue-600/);\n      |                                      ^\n  171 |     });\n  172 |\n  173 |     test('can select Enterprise plan', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:170:38"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:47.737Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-0fab1-an-select-Professional-plan-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-0fab1-an-select-Professional-plan-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-0fab1-an-select-Professional-plan-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 38,
+                            "line": 170
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-9c07ef8fe12f1333da32",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 164,
+                  "column": 9
+                },
+                {
+                  "title": "can select Enterprise plan",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 13369,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:47.939Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-fc49d5ff2b9f79b7a426",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 173,
+                  "column": 9
+                },
+                {
+                  "title": "Professional plan is selected by default",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "failed",
+                          "duration": 15373,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Professional/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"p-6\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Professional/ }).first()\u001b[22m\n\u001b[2m    8 × locator resolved to <div class=\"p-6\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"p-6\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Professional/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"p-6\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Professional/ }).first()\u001b[22m\n\u001b[2m    8 × locator resolved to <div class=\"p-6\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"p-6\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:186:38",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 38,
+                              "line": 186
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 184 |\u001b[39m\n \u001b[90m 185 |\u001b[39m       \u001b[36mconst\u001b[39m professionalCard \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'div'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/^Professional/\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 186 |\u001b[39m       \u001b[36mawait\u001b[39m expect(professionalCard)\u001b[33m.\u001b[39mtoHaveClass(\u001b[35m/ring-2 ring-blue-600/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 187 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 188 |\u001b[39m\n \u001b[90m 189 |\u001b[39m     test(\u001b[32m'displays signup form'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 38,
+                                "line": 186
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveClass\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('div').filter({ hasText: /^Professional/ }).first()\nExpected pattern: \u001b[32m/ring-2 ring-blue-600/\u001b[39m\nReceived string:  \u001b[31m\"p-6\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveClass\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('div').filter({ hasText: /^Professional/ }).first()\u001b[22m\n\u001b[2m    8 × locator resolved to <div class=\"p-6\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"p-6\"\u001b[22m\n\n\n  184 |\n  185 |       const professionalCard = page.locator('div').filter({ hasText: /^Professional/ }).first();\n> 186 |       await expect(professionalCard).toHaveClass(/ring-2 ring-blue-600/);\n      |                                      ^\n  187 |     });\n  188 |\n  189 |     test('displays signup form', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:186:38"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:01.318Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-e0184-plan-is-selected-by-default-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-e0184-plan-is-selected-by-default-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 38,
+                            "line": 186
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-c9947c8a415f217a21c9",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 182,
+                  "column": 9
+                },
+                {
+                  "title": "displays signup form",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 24687,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByPlaceholder('John')\nExpected: visible\nError: strict mode violation: getByPlaceholder('John') resolved to 2 elements:\n    1) <input type=\"text\" placeholder=\"John\" name=\"ownerFirstName\" class=\"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/> aka getByRole('textbox', { name: 'John', exact: true })\n    2) <input type=\"email\" name=\"ownerEmail\" placeholder=\"john@acmeinsurance.com\" class=\"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/> aka getByRole('textbox', { name: 'john@acmeinsurance.com' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByPlaceholder('John')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByPlaceholder('John')\nExpected: visible\nError: strict mode violation: getByPlaceholder('John') resolved to 2 elements:\n    1) <input type=\"text\" placeholder=\"John\" name=\"ownerFirstName\" class=\"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/> aka getByRole('textbox', { name: 'John', exact: true })\n    2) <input type=\"email\" name=\"ownerEmail\" placeholder=\"john@acmeinsurance.com\" class=\"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/> aka getByRole('textbox', { name: 'john@acmeinsurance.com' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByPlaceholder('John')\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:198:51",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 51,
+                              "line": 198
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 196 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'Acme Insurance Agency'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 197 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'acme-insurance'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 198 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'John'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 199 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'Doe'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 200 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'john@acmeinsurance.com'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'••••••••'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 51,
+                                "line": 198
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByPlaceholder('John')\nExpected: visible\nError: strict mode violation: getByPlaceholder('John') resolved to 2 elements:\n    1) <input type=\"text\" placeholder=\"John\" name=\"ownerFirstName\" class=\"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/> aka getByRole('textbox', { name: 'John', exact: true })\n    2) <input type=\"email\" name=\"ownerEmail\" placeholder=\"john@acmeinsurance.com\" class=\"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/> aka getByRole('textbox', { name: 'john@acmeinsurance.com' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByPlaceholder('John')\u001b[22m\n\n\n  196 |       await expect(page.getByPlaceholder('Acme Insurance Agency')).toBeVisible();\n  197 |       await expect(page.getByPlaceholder('acme-insurance')).toBeVisible();\n> 198 |       await expect(page.getByPlaceholder('John')).toBeVisible();\n      |                                                   ^\n  199 |       await expect(page.getByPlaceholder('Doe')).toBeVisible();\n  200 |       await expect(page.getByPlaceholder('john@acmeinsurance.com')).toBeVisible();\n  201 |       await expect(page.getByPlaceholder('••••••••')).toBeVisible();\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:198:51"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:20.088Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-41804-tenant-displays-signup-form-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-41804-tenant-displays-signup-form-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-41804-tenant-displays-signup-form-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 51,
+                            "line": 198
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-2d84399cd1047f9de1d5",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 189,
+                  "column": 9
+                },
+                {
+                  "title": "displays terms and conditions text",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 6777,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:40.977Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-81aaedc042d8b8e3cf73",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 207,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Form Validation",
+              "file": "stripe-billing.spec.ts",
+              "line": 216,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "validates agency name - minimum length",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 7534,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/agency name must be at least 2 characters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/agency name must be at least 2 characters/i)\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/agency name must be at least 2 characters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/agency name must be at least 2 characters/i)\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:224:82",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 82,
+                              "line": 224
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 222 |\u001b[39m       \u001b[36mawait\u001b[39m agencyInput\u001b[33m.\u001b[39mblur()\u001b[33m;\u001b[39m\n \u001b[90m 223 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 224 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/agency name must be at least 2 characters/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 225 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 226 |\u001b[39m\n \u001b[90m 227 |\u001b[39m     test(\u001b[32m'validates email format'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 82,
+                                "line": 224
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/agency name must be at least 2 characters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/agency name must be at least 2 characters/i)\u001b[22m\n\n\n  222 |       await agencyInput.blur();\n  223 |\n> 224 |       await expect(page.getByText(/agency name must be at least 2 characters/i)).toBeVisible();\n      |                                                                                  ^\n  225 |     });\n  226 |\n  227 |     test('validates email format', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:224:82"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:45.234Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-a5862-gency-name---minimum-length-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-a5862-gency-name---minimum-length-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-a5862-gency-name---minimum-length-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 82,
+                            "line": 224
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-422a3be3e11bdfe16c78",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 217,
+                  "column": 9
+                },
+                {
+                  "title": "validates email format",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 2,
+                          "status": "failed",
+                          "duration": 13323,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/invalid email/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/invalid email/i)\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/invalid email/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/invalid email/i)\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:245:54",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 54,
+                              "line": 245
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 243 |\u001b[39m\n \u001b[90m 244 |\u001b[39m       \u001b[90m// Check for validation error (text might vary - \"Invalid email\" or \"Invalid email address\")\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 245 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/invalid email/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 246 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 247 |\u001b[39m\n \u001b[90m 248 |\u001b[39m     test(\u001b[32m'validates password - minimum length'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 54,
+                                "line": 245
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/invalid email/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/invalid email/i)\u001b[22m\n\n\n  243 |\n  244 |       // Check for validation error (text might vary - \"Invalid email\" or \"Invalid email address\")\n> 245 |       await expect(page.getByText(/invalid email/i)).toBeVisible();\n      |                                                      ^\n  246 |     });\n  247 |\n  248 |     test('validates password - minimum length', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:245:54"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:50.644Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-2a947-tion-validates-email-format-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-2a947-tion-validates-email-format-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-2a947-tion-validates-email-format-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 54,
+                            "line": 245
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-b8f721c1b1854bbfe11d",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 227,
+                  "column": 9
+                },
+                {
+                  "title": "validates password - minimum length",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 8148,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:05.601Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-a5d77974fc8dada2a44e",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 248,
+                  "column": 9
+                },
+                {
+                  "title": "validates subdomain - minimum length",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 1,
+                          "status": "failed",
+                          "duration": 15404,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain must be at least 3 characters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain must be at least 3 characters/i)\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain must be at least 3 characters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain must be at least 3 characters/i)\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:267:80",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 80,
+                              "line": 267
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 265 |\u001b[39m       \u001b[36mawait\u001b[39m subdomainInput\u001b[33m.\u001b[39mblur()\u001b[33m;\u001b[39m\n \u001b[90m 266 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 267 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/subdomain must be at least 3 characters/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 268 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 269 |\u001b[39m\n \u001b[90m 270 |\u001b[39m     test(\u001b[32m'validates subdomain - lowercase only'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 80,
+                                "line": 267
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain must be at least 3 characters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain must be at least 3 characters/i)\u001b[22m\n\n\n  265 |       await subdomainInput.blur();\n  266 |\n> 267 |       await expect(page.getByText(/subdomain must be at least 3 characters/i)).toBeVisible();\n      |                                                                                ^\n  268 |     });\n  269 |\n  270 |     test('validates subdomain - lowercase only', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:267:80"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:05.629Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-3f604--subdomain---minimum-length-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-3f604--subdomain---minimum-length-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-3f604--subdomain---minimum-length-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 80,
+                            "line": 267
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-74131888413d0d789a00",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 260,
+                  "column": 9
+                },
+                {
+                  "title": "validates subdomain - lowercase only",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 10769,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain can only contain lowercase letters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain can only contain lowercase letters/i)\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain can only contain lowercase letters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain can only contain lowercase letters/i)\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:277:85",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 85,
+                              "line": 277
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 275 |\u001b[39m       \u001b[36mawait\u001b[39m subdomainInput\u001b[33m.\u001b[39mblur()\u001b[33m;\u001b[39m\n \u001b[90m 276 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 277 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/subdomain can only contain lowercase letters/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 278 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 279 |\u001b[39m\n \u001b[90m 280 |\u001b[39m     test(\u001b[32m'validates subdomain - no spaces'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 85,
+                                "line": 277
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain can only contain lowercase letters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain can only contain lowercase letters/i)\u001b[22m\n\n\n  275 |       await subdomainInput.blur();\n  276 |\n> 277 |       await expect(page.getByText(/subdomain can only contain lowercase letters/i)).toBeVisible();\n      |                                                                                     ^\n  278 |     });\n  279 |\n  280 |     test('validates subdomain - no spaces', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:277:85"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:18.270Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-d2fd7--subdomain---lowercase-only-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-d2fd7--subdomain---lowercase-only-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-d2fd7--subdomain---lowercase-only-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 85,
+                            "line": 277
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-8e6cdabfce803b11795b",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 270,
+                  "column": 9
+                },
+                {
+                  "title": "validates subdomain - no spaces",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 20726,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain can only contain lowercase letters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain can only contain lowercase letters/i)\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain can only contain lowercase letters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain can only contain lowercase letters/i)\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:287:85",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 85,
+                              "line": 287
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 285 |\u001b[39m       \u001b[36mawait\u001b[39m subdomainInput\u001b[33m.\u001b[39mblur()\u001b[33m;\u001b[39m\n \u001b[90m 286 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 287 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/subdomain can only contain lowercase letters/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 288 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 289 |\u001b[39m\n \u001b[90m 290 |\u001b[39m     test(\u001b[32m'validates first name required'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 85,
+                                "line": 287
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/subdomain can only contain lowercase letters/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/subdomain can only contain lowercase letters/i)\u001b[22m\n\n\n  285 |       await subdomainInput.blur();\n  286 |\n> 287 |       await expect(page.getByText(/subdomain can only contain lowercase letters/i)).toBeVisible();\n      |                                                                                     ^\n  288 |     });\n  289 |\n  290 |     test('validates first name required', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:287:85"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:14.864Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-ef416-dates-subdomain---no-spaces-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-ef416-dates-subdomain---no-spaces-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-ef416-dates-subdomain---no-spaces-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 85,
+                            "line": 287
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-b8499c01f24242d88335",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 280,
+                  "column": 9
+                },
+                {
+                  "title": "validates first name required",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 5834,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:49.952Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-6c2fe67bd90d9cab3f69",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 290,
+                  "column": 9
+                },
+                {
+                  "title": "validates last name required",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 11267,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:56.285Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-ae507fc680a6451c7317",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 302,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Subdomain Validation",
+              "file": "stripe-billing.spec.ts",
+              "line": 315,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "auto-generates subdomain from agency name",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 1252,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:02.415Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-f3040f898c8ac503ec35",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 316,
+                  "column": 9
+                },
+                {
+                  "title": "auto-generated subdomain removes special characters",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 6573,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByPlaceholder('acme-insurance')\nExpected: \u001b[32m\"test-\u001b[7m-\u001b[27magency-\u001b[7m-\u001b[27mname\"\u001b[39m\nReceived: \u001b[31m\"test-agency-name\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByPlaceholder('acme-insurance')\u001b[22m\n\u001b[2m    8 × locator resolved to <input type=\"text\" name=\"subdomain\" placeholder=\"acme-insurance\" class=\"flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/>\u001b[22m\n\u001b[2m      - unexpected value \"test-agency-name\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByPlaceholder('acme-insurance')\nExpected: \u001b[32m\"test-\u001b[7m-\u001b[27magency-\u001b[7m-\u001b[27mname\"\u001b[39m\nReceived: \u001b[31m\"test-agency-name\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByPlaceholder('acme-insurance')\u001b[22m\n\u001b[2m    8 × locator resolved to <input type=\"text\" name=\"subdomain\" placeholder=\"acme-insurance\" class=\"flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/>\u001b[22m\n\u001b[2m      - unexpected value \"test-agency-name\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:340:36",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 36,
+                              "line": 340
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 338 |\u001b[39m\n \u001b[90m 339 |\u001b[39m       \u001b[90m// Should remove special chars\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 340 |\u001b[39m       \u001b[36mawait\u001b[39m expect(subdomainInput)\u001b[33m.\u001b[39mtoHaveValue(\u001b[32m'test--agency--name'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 341 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 342 |\u001b[39m\n \u001b[90m 343 |\u001b[39m     test(\u001b[32m'checks subdomain availability in real-time'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 36,
+                                "line": 340
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByPlaceholder('acme-insurance')\nExpected: \u001b[32m\"test-\u001b[7m-\u001b[27magency-\u001b[7m-\u001b[27mname\"\u001b[39m\nReceived: \u001b[31m\"test-agency-name\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByPlaceholder('acme-insurance')\u001b[22m\n\u001b[2m    8 × locator resolved to <input type=\"text\" name=\"subdomain\" placeholder=\"acme-insurance\" class=\"flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500\"/>\u001b[22m\n\u001b[2m      - unexpected value \"test-agency-name\"\u001b[22m\n\n\n  338 |\n  339 |       // Should remove special chars\n> 340 |       await expect(subdomainInput).toHaveValue('test--agency--name');\n      |                                    ^\n  341 |     });\n  342 |\n  343 |     test('checks subdomain availability in real-time', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:340:36"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:05.264Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-3a9d6--removes-special-characters-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-3a9d6--removes-special-characters-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-3a9d6--removes-special-characters-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 36,
+                            "line": 340
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-a1654da111ef48f1a85e",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 330,
+                  "column": 9
+                },
+                {
+                  "title": "checks subdomain availability in real-time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 10463,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:04.229Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-e195fdbac395d89f4015",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 343,
+                  "column": 9
+                },
+                {
+                  "title": "rejects reserved subdomain",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1485,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:07.568Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-f32cfe0dde52a03dfcb6",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 362,
+                  "column": 9
+                },
+                {
+                  "title": "accepts available subdomain",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 14396,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:09.068Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-ce6e49abfbd3bb3750cd",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 381,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Stripe Checkout Flow",
+              "file": "stripe-billing.spec.ts",
+              "line": 412,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "creates checkout session with Starter plan",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 13586,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:13.050Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-95222d30e7efb4612e81",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 413,
+                  "column": 9
+                },
+                {
+                  "title": "creates checkout session with Professional plan",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 2,
+                          "status": "timedOut",
+                          "duration": 32021,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 36,
+                                "line": 460
+                              },
+                              "message": "Error: page.waitForRequest: Test timeout of 30000ms exceeded.\n=========================== logs ===========================\nwaiting for request \"**/api/stripe/create-checkout\"\n============================================================\n\n  458 |       await page.locator('input[name=\"ownerPassword\"]').fill('password123');\n  459 |\n> 460 |       const checkoutRequest = page.waitForRequest('**/api/stripe/create-checkout');\n      |                                    ^\n  461 |       await page.getByRole('button', { name: /start free 14-day trial/i }).click();\n  462 |\n  463 |       const request = await checkoutRequest;\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:460:36"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 76,
+                                "line": 461
+                              },
+                              "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /start free 14-day trial/i })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"submit\" class=\"inline-flex items-center justify-center rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 h-11 px-4 min-h-[44px] w-full py-3 text-lg\">Start Free 14-Day Trial</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\n\n  459 |\n  460 |       const checkoutRequest = page.waitForRequest('**/api/stripe/create-checkout');\n> 461 |       await page.getByRole('button', { name: /start free 14-day trial/i }).click();\n      |                                                                            ^\n  462 |\n  463 |       const request = await checkoutRequest;\n  464 |       const requestData = request.postDataJSON();\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:461:76"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:14.716Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-316bd-sion-with-Professional-plan-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-316bd-sion-with-Professional-plan-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-5d66bc30e51f688a11e4",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 448,
+                  "column": 9
+                },
+                {
+                  "title": "creates checkout session with Enterprise plan",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 22242,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:23.489Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-0570e340621a39c31d48",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 468,
+                  "column": 9
+                },
+                {
+                  "title": "shows loading state during submission",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 1,
+                          "status": "failed",
+                          "duration": 24211,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /start free 14-day trial/i })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /start free 14-day trial/i })\u001b[22m\n\u001b[2m    - waiting for\" https://checkout.stripe.com/c/pay/mock-session-id\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://checkout.stripe.com/c/pay/mock-session-id\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /start free 14-day trial/i })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /start free 14-day trial/i })\u001b[22m\n\u001b[2m    - waiting for\" https://checkout.stripe.com/c/pay/mock-session-id\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://checkout.stripe.com/c/pay/mock-session-id\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:517:34",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 34,
+                              "line": 517
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 515 |\u001b[39m\n \u001b[90m 516 |\u001b[39m       \u001b[90m// Button should be disabled during submission\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m expect(submitButton)\u001b[33m.\u001b[39mtoBeDisabled()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 518 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 519 |\u001b[39m\n \u001b[90m 520 |\u001b[39m     test(\u001b[32m'redirects to Stripe checkout on success'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 34,
+                                "line": 517
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /start free 14-day trial/i })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /start free 14-day trial/i })\u001b[22m\n\u001b[2m    - waiting for\" https://checkout.stripe.com/c/pay/mock-session-id\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://checkout.stripe.com/c/pay/mock-session-id\"\u001b[22m\n\n\n  515 |\n  516 |       // Button should be disabled during submission\n> 517 |       await expect(submitButton).toBeDisabled();\n      |                                  ^\n  518 |     });\n  519 |\n  520 |     test('redirects to Stripe checkout on success', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:517:34"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:28.313Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-5b210-ing-state-during-submission-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-5b210-ing-state-during-submission-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-5b210-ing-state-during-submission-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 34,
+                            "line": 517
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-cb1ba307041b935cc552",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 495,
+                  "column": 9
+                },
+                {
+                  "title": "redirects to Stripe checkout on success",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6017,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:45.778Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-8e4a92337b09d97be97e",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 520,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Billing Page (/settings/billing)",
+              "file": "stripe-billing.spec.ts",
+              "line": 543,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "billing page requires authentication",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 544,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 544,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-128e89c632013f56db8f",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 544,
+                  "column": 10
+                },
+                {
+                  "title": "displays current plan for authenticated user",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 553,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 553,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-05c2ba639539b0090c9b",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 553,
+                  "column": 10
+                },
+                {
+                  "title": "displays usage statistics",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 565,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 565,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-9c310e5fe057d487337b",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 565,
+                  "column": 10
+                },
+                {
+                  "title": "shows Manage Subscription button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 575,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 575,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-03a56b93f71415a69fb2",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 575,
+                  "column": 10
+                },
+                {
+                  "title": "opens Stripe portal on Manage Subscription click",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 581,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 581,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-0309549a8ef7df57d5be",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 581,
+                  "column": 10
+                },
+                {
+                  "title": "displays subscription status badge",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 593,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 593,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-3eca74e3c81f3dbf68af",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 593,
+                  "column": 10
+                },
+                {
+                  "title": "shows trial end date for trialing subscriptions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 598,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 598,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-8e423dd5aca85de9c5cb",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 598,
+                  "column": 10
+                },
+                {
+                  "title": "shows cancellation notice if cancel_at_period_end is true",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "line": 604,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": -1,
+                          "parallelIndex": -1,
+                          "status": "skipped",
+                          "duration": 0,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.805Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "line": 604,
+                                "column": 10
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-3c846034af207cab5d02",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 604,
+                  "column": 10
+                }
+              ]
+            },
+            {
+              "title": "Error Handling",
+              "file": "stripe-billing.spec.ts",
+              "line": 611,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "shows error when Stripe API fails",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 10470,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/stripe service unavailable/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/stripe service unavailable/i)\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/stripe service unavailable/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/stripe service unavailable/i)\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:636:67",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                              "column": 67,
+                              "line": 636
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 634 |\u001b[39m\n \u001b[90m 635 |\u001b[39m       \u001b[90m// Should show error message\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 636 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/stripe service unavailable/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 637 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 638 |\u001b[39m\n \u001b[90m 639 |\u001b[39m     test(\u001b[32m'handles network errors gracefully'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                                "column": 67,
+                                "line": 636
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/stripe service unavailable/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/stripe service unavailable/i)\u001b[22m\n\n\n  634 |\n  635 |       // Should show error message\n> 636 |       await expect(page.getByText(/stripe service unavailable/i)).toBeVisible();\n      |                                                                   ^\n  637 |     });\n  638 |\n  639 |     test('handles network errors gracefully', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts:636:67"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:51.806Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-2476a-error-when-Stripe-API-fails-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\stripe-billing-Stripe-Bill-2476a-error-when-Stripe-API-fails-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\stripe-billing.spec.ts",
+                            "column": 67,
+                            "line": 636
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-f57a8841c0f2f360ff77",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 612,
+                  "column": 9
+                },
+                {
+                  "title": "handles network errors gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 15,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 3807,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:42:13.518Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-ab51dce808967894ea1f",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 639,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Mobile Responsiveness",
+              "file": "stripe-billing.spec.ts",
+              "line": 661,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "signup page is mobile-friendly",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 5827,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:58.675Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "4d9e07292a1b77fc6ca3-d08080c208229dabd3bf",
+                  "file": "stripe-billing.spec.ts",
+                  "line": 664,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-19T01:38:32.685Z",
+    "duration": 244446.78900000002,
+    "expected": 16,
+    "skipped": 8,
+    "unexpected": 14,
+    "flaky": 0
+  }
+}

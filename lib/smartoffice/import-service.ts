@@ -266,15 +266,14 @@ export async function importSmartOfficeData(
           status: 'PROCESSING',
           importMode: 'REPLACE',
           recordsTotal: parseResult.records.length,
-          validationErrors: validationResult?.errors || [],
-          validationWarnings: validationResult?.warnings || [],
+          validationErrors: (validationResult?.errors || []) as any,
+          validationWarnings: (validationResult?.warnings || []) as any,
           columnMapping: parseResult.columnMapping ? mappingToDictionary(parseResult.columnMapping) : null
         }
       });
       importId = importRecord.id;
     }
 
-  try {
     const syncLog = await withTenantContext(tenantId, async (db) => {
       return await db.smartOfficeSyncLog.create({
         data: {

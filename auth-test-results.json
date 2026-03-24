@@ -1,0 +1,1833 @@
+{
+  "config": {
+    "configFile": "C:\\dev\\valor-2\\playwright.config.ts",
+    "rootDir": "C:/dev/valor-2/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/dev/valor-2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/dev/valor-2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:2050",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "auth-and-navigation.spec.ts",
+      "file": "auth-and-navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication",
+          "file": "auth-and-navigation.spec.ts",
+          "line": 191,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Login Flow",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 192,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display login page correctly",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 16995,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:34.389Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-757e63f64786fd08c7c3",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 193,
+                  "column": 9
+                },
+                {
+                  "title": "should successfully login with valid credentials",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 13423,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:34.364Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-9206e6e14da39431060d",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 206,
+                  "column": 9
+                },
+                {
+                  "title": "should fail login with invalid credentials",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 12039,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:34.508Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-a304b1a819e1d708065e",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 217,
+                  "column": 9
+                },
+                {
+                  "title": "should fail login with empty fields",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 11544,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:34.339Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-d3b0d36f6bbd7f60172c",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 235,
+                  "column": 9
+                },
+                {
+                  "title": "should have remember me checkbox enabled by default",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 30173,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:48.616Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-8e7d5aa5b343161c06d2",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 245,
+                  "column": 9
+                },
+                {
+                  "title": "should redirect to intended page after login",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 19712,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:49.409Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-fc80125e2ce24e8f5ee1",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 253,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Logout Flow",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 271,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should successfully logout",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "timedOut",
+                          "duration": 30654,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 21,
+                                "line": 89
+                              },
+                              "message": "Error: page.waitForURL: Test timeout of 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/login\" until \"load\"\n  navigated to \"http://localhost:2050/auth/signout\"\n============================================================\n\n  87 |     const signOutButton = this.page.locator('button:has-text(\"Sign out\"), form[action=\"/auth/signout\"] button');\n  88 |     await signOutButton.first().click();\n> 89 |     await this.page.waitForURL('/login', { timeout: 10000 });\n     |                     ^\n  90 |   }\n  91 | }\n  92 |\n    at DashboardPage.logout (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:89:21)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:280:7"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:50.788Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-5edbb--should-successfully-logout-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-5edbb--should-successfully-logout-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-5edbb--should-successfully-logout-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-5245416d3cf48cd09173",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 272,
+                  "column": 9
+                },
+                {
+                  "title": "should clear session on logout",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 27206,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/login\" until \"load\"\n  navigated to \"http://localhost:2050/auth/signout\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/login\" until \"load\"\n  navigated to \"http://localhost:2050/auth/signout\"\n============================================================\n    at DashboardPage.logout (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:89:21)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:294:7",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 21,
+                              "line": 89
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 87 |\u001b[39m     \u001b[36mconst\u001b[39m signOutButton \u001b[33m=\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Sign out\"), form[action=\"/auth/signout\"] button'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 88 |\u001b[39m     \u001b[36mawait\u001b[39m signOutButton\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 89 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/login'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 90 |\u001b[39m   }\n \u001b[90m 91 |\u001b[39m }\n \u001b[90m 92 |\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 21,
+                                "line": 89
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/login\" until \"load\"\n  navigated to \"http://localhost:2050/auth/signout\"\n============================================================\n\n  87 |     const signOutButton = this.page.locator('button:has-text(\"Sign out\"), form[action=\"/auth/signout\"] button');\n  88 |     await signOutButton.first().click();\n> 89 |     await this.page.waitForURL('/login', { timeout: 10000 });\n     |                     ^\n  90 |   }\n  91 | }\n  92 |\n    at DashboardPage.logout (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:89:21)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:294:7"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:37:53.998Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-9be6c-uld-clear-session-on-logout-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-9be6c-uld-clear-session-on-logout-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-9be6c-uld-clear-session-on-logout-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 21,
+                            "line": 89
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-6284fed90ca481199323",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 286,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Session Persistence",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 304,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should persist session with remember me checked",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "timedOut",
+                          "duration": 30198,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:169:6",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 6,
+                              "line": 169
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 167 |\u001b[39m \u001b[90m// ============================================================================\u001b[39m\n \u001b[90m 168 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 169 |\u001b[39m test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m context }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 170 |\u001b[39m   \u001b[90m// Clear cookies before each test\u001b[39m\n \u001b[90m 171 |\u001b[39m   \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mclearCookies()\u001b[33m;\u001b[39m\n \u001b[90m 172 |\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 6,
+                                "line": 169
+                              },
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  167 | // ============================================================================\n  168 |\n> 169 | test.beforeEach(async ({ page, context }) => {\n      |      ^\n  170 |   // Clear cookies before each test\n  171 |   await context.clearCookies();\n  172 |\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:169:6"
+                            },
+                            {
+                              "message": "Error: browserContext.newPage: Test timeout of 30000ms exceeded."
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:09.150Z",
+                          "annotations": [],
+                          "attachments": [],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 6,
+                            "line": 169
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-6bd0f6a12f32c760955f",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 305,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain session across page reloads",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "timedOut",
+                          "duration": 30019,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:169:6",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 6,
+                              "line": 169
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 167 |\u001b[39m \u001b[90m// ============================================================================\u001b[39m\n \u001b[90m 168 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 169 |\u001b[39m test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m context }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 170 |\u001b[39m   \u001b[90m// Clear cookies before each test\u001b[39m\n \u001b[90m 171 |\u001b[39m   \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mclearCookies()\u001b[33m;\u001b[39m\n \u001b[90m 172 |\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 6,
+                                "line": 169
+                              },
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  167 | // ============================================================================\n  168 |\n> 169 | test.beforeEach(async ({ page, context }) => {\n      |      ^\n  170 |   // Clear cookies before each test\n  171 |   await context.clearCookies();\n  172 |\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:169:6"
+                            },
+                            {
+                              "message": "Error: browserContext.newPage: Test timeout of 30000ms exceeded."
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:38:18.838Z",
+                          "annotations": [],
+                          "attachments": [],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 6,
+                            "line": 169
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-110e03988bfe4b16ac34",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 330,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Protected Routes",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 345,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should redirect to login when accessing protected route without auth",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 3,
+                          "status": "timedOut",
+                          "duration": 31242,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 18,
+                                "line": 350
+                              },
+                              "message": "Error: page.goto: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:2050/profile\", waiting until \"load\"\u001b[22m\n\n\n  348 |       await expect(page).toHaveURL(/\\/login/);\n  349 |\n> 350 |       await page.goto('/profile');\n      |                  ^\n  351 |       await expect(page).toHaveURL(/\\/login/);\n  352 |\n  353 |       await page.goto('/cases');\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:350:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:15.865Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-d1a99-rotected-route-without-auth-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-d1a99-rotected-route-without-auth-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-d1a99-rotected-route-without-auth-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-97aa3687cc42b7b54420",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 346,
+                  "column": 9
+                },
+                {
+                  "title": "should allow access to public routes without auth",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 2,
+                          "status": "timedOut",
+                          "duration": 31210,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 18,
+                                "line": 363
+                              },
+                              "message": "Error: page.goto: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:2050/signup\", waiting until \"load\"\u001b[22m\n\n\n  361 |\n  362 |       // Signup page should be accessible\n> 363 |       await page.goto('/signup');\n      |                  ^\n  364 |       await expect(page).not.toHaveURL(/\\/login/);\n  365 |     });\n  366 |   });\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:363:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:15.806Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-a6aa5--public-routes-without-auth-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-a6aa5--public-routes-without-auth-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Authen-a6aa5--public-routes-without-auth-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-b1ac2b614c208dbc95ee",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 357,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Navigation",
+          "file": "auth-and-navigation.spec.ts",
+          "line": 373,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Desktop Navigation",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 382,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should render sidebar navigation menu",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 0,
+                          "status": "timedOut",
+                          "duration": 30367,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:375:8",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 8,
+                              "line": 375
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 373 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Navigation'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 374 |\u001b[39m   \u001b[90m// Setup: login before navigation tests\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 375 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 376 |\u001b[39m     \u001b[36mconst\u001b[39m loginPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mLoginPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 377 |\u001b[39m     \u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39mgoto()\u001b[33m;\u001b[39m\n \u001b[90m 378 |\u001b[39m     \u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39mlogin(\u001b[33mTEST_USER\u001b[39m\u001b[33m.\u001b[39memail\u001b[33m,\u001b[39m \u001b[33mTEST_USER\u001b[39m\u001b[33m.\u001b[39mpassword)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 8,
+                                "line": 375
+                              },
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  373 | test.describe('Navigation', () => {\n  374 |   // Setup: login before navigation tests\n> 375 |   test.beforeEach(async ({ page }) => {\n      |        ^\n  376 |     const loginPage = new LoginPage(page);\n  377 |     await loginPage.goto();\n  378 |     await loginPage.login(TEST_USER.email, TEST_USER.password);\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:375:8"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 21,
+                                "line": 66
+                              },
+                              "message": "Error: page.waitForURL: Test timeout of 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  64 |\n  65 |   async waitForNavigation() {\n> 66 |     await this.page.waitForURL((url) => !url.pathname.includes('/login'), {\n     |                     ^\n  67 |       timeout: 10000,\n  68 |     });\n  69 |   }\n    at LoginPage.waitForNavigation (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:66:21)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:379:21"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:16.515Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-aab67-der-sidebar-navigation-menu-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-aab67-der-sidebar-navigation-menu-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-aab67-der-sidebar-navigation-menu-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 8,
+                            "line": 375
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-5f1dd02d47ab195d87f8",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 383,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to Dashboard",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 1,
+                          "status": "failed",
+                          "duration": 30508,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at LoginPage.waitForNavigation (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:66:21)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:379:21",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 21,
+                              "line": 66
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m\n \u001b[90m 65 |\u001b[39m   \u001b[36masync\u001b[39m waitForNavigation() {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mwaitForURL((url) \u001b[33m=>\u001b[39m \u001b[33m!\u001b[39murl\u001b[33m.\u001b[39mpathname\u001b[33m.\u001b[39mincludes(\u001b[32m'/login'\u001b[39m)\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 68 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 69 |\u001b[39m   }\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 21,
+                                "line": 66
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  64 |\n  65 |   async waitForNavigation() {\n> 66 |     await this.page.waitForURL((url) => !url.pathname.includes('/login'), {\n     |                     ^\n  67 |       timeout: 10000,\n  68 |     });\n  69 |   }\n    at LoginPage.waitForNavigation (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:66:21)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:379:21"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:39:16.471Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-c31da-hould-navigate-to-Dashboard-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-c31da-hould-navigate-to-Dashboard-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-c31da-hould-navigate-to-Dashboard-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 21,
+                            "line": 66
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-b009553dccb6376e63cd",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 394,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to Profile",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 18130,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/profile/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:2050/dashboard\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/profile/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:2050/dashboard\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:407:26",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 26,
+                              "line": 407
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 405 |\u001b[39m\n \u001b[90m 406 |\u001b[39m       \u001b[36mawait\u001b[39m nav\u001b[33m.\u001b[39mclickDesktopLink(\u001b[32m'Profile'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 407 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/profile/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 408 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 409 |\u001b[39m\n \u001b[90m 410 |\u001b[39m     test(\u001b[32m'should navigate to Cases'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 26,
+                                "line": 407
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/profile/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:2050/dashboard\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n\n\n  405 |\n  406 |       await nav.clickDesktopLink('Profile');\n> 407 |       await expect(page).toHaveURL(/\\/profile/);\n      |                          ^\n  408 |     });\n  409 |\n  410 |     test('should navigate to Cases', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:407:26"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:05.849Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-5f836--should-navigate-to-Profile-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-5f836--should-navigate-to-Profile-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-5f836--should-navigate-to-Profile-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 26,
+                            "line": 407
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-e2506042eef4c63ace4b",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 402,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to Cases",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 13531,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/cases/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:2050/dashboard\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/cases/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:2050/dashboard\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:415:26",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 26,
+                              "line": 415
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 413 |\u001b[39m\n \u001b[90m 414 |\u001b[39m       \u001b[36mawait\u001b[39m nav\u001b[33m.\u001b[39mclickDesktopLink(\u001b[32m'Cases'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 415 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/cases/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 416 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 417 |\u001b[39m\n \u001b[90m 418 |\u001b[39m     test(\u001b[32m'should navigate to Quotes'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 26,
+                                "line": 415
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/cases/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:2050/dashboard\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n\n\n  413 |\n  414 |       await nav.clickDesktopLink('Cases');\n> 415 |       await expect(page).toHaveURL(/\\/cases/);\n      |                          ^\n  416 |     });\n  417 |\n  418 |     test('should navigate to Quotes', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:415:26"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:31.826Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-e68ce-on-should-navigate-to-Cases-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-e68ce-on-should-navigate-to-Cases-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-e68ce-on-should-navigate-to-Cases-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 26,
+                            "line": 415
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-cb314679aebe6572264e",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 410,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to Quotes",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 1,
+                          "status": "timedOut",
+                          "duration": 30782,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 89,
+                                "line": 98
+                              },
+                              "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('aside.hidden.lg\\\\:flex a:has-text(\"Quotes\")').first()\u001b[22m\n\n\n   96 |   // Desktop sidebar navigation\n   97 |   async clickDesktopLink(linkText: string) {\n>  98 |     await this.page.locator(`aside.hidden.lg\\\\:flex a:has-text(\"${linkText}\")`).first().click();\n      |                                                                                         ^\n   99 |   }\n  100 |\n  101 |   async isDesktopLinkVisible(linkText: string) {\n    at NavigationMenu.clickDesktopLink (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:98:89)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:422:17"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:31.650Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-8007a-n-should-navigate-to-Quotes-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-8007a-n-should-navigate-to-Quotes-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-8007a-n-should-navigate-to-Quotes-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-628703498e1f656ac391",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 418,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "SmartOffice Navigation",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 427,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should navigate to SmartOffice dashboard via main link",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 2,
+                          "status": "failed",
+                          "duration": 13666,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: \u001b[32m\"http://localhost:2050/\u001b[7msmartoffice\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"http://localhost:2050/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: \u001b[32m\"http://localhost:2050/\u001b[7msmartoffice\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"http://localhost:2050/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:440:26",
+                            "location": {
+                              "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                              "column": 26,
+                              "line": 440
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 438 |\u001b[39m       \u001b[36mawait\u001b[39m smartOfficeDashboard\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 439 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 440 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/smartoffice'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 441 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 442 |\u001b[39m\n \u001b[90m 443 |\u001b[39m     test(\u001b[32m'should navigate to SmartOffice custom dashboard'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 26,
+                                "line": 440
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: \u001b[32m\"http://localhost:2050/\u001b[7msmartoffice\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"http://localhost:2050/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 × unexpected value \"http://localhost:2050/dashboard\"\u001b[22m\n\n\n  438 |       await smartOfficeDashboard.click();\n  439 |\n> 440 |       await expect(page).toHaveURL('/smartoffice');\n      |                          ^\n  441 |     });\n  442 |\n  443 |     test('should navigate to SmartOffice custom dashboard', async ({ page }) => {\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:440:26"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:31.810Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-5cbbd-ice-dashboard-via-main-link-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-5cbbd-ice-dashboard-via-main-link-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-5cbbd-ice-dashboard-via-main-link-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                            "column": 26,
+                            "line": 440
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-8d1052cd0fc09f610d45",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 428,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to SmartOffice custom dashboard",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 10389,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:40:49.892Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-e039265f0a9e784581ec",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 443,
+                  "column": 9
+                },
+                {
+                  "title": "should expand and collapse SmartOffice section",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4757,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:00.890Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-ddd64c963a5fd0f95107",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 458,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Mobile Navigation",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 482,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should show mobile menu toggle button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3190,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:05.698Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-b854c60edd07ae52b2af",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 488,
+                  "column": 9
+                },
+                {
+                  "title": "should open mobile menu drawer",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6586,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:08.923Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-198bf5c68965fd09e7d9",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 493,
+                  "column": 9
+                },
+                {
+                  "title": "should close mobile menu drawer",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 22230,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:13.016Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-3c39ffd1620726c95fda",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 501,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate via mobile menu",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 22555,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:13.361Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-a264b9b0b44ea5b7c9c6",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 514,
+                  "column": 9
+                },
+                {
+                  "title": "should show bottom navigation bar on mobile",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 20332,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:15.536Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-f0c5408c1623c90c4cba",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 525,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate via bottom navigation bar",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 0,
+                          "status": "timedOut",
+                          "duration": 34955,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts",
+                                "column": 116,
+                                "line": 147
+                              },
+                              "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('nav.lg\\\\:hidden a:has-text(\"Profile\"), nav.lg\\\\:hidden button:has-text(\"Profile\")')\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/profile\" class=\"flex flex-col items-center justify-center gap-1 transition-colors min-h-[44px] text-gray-600 hover:text-gray-900\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <circle r=\"316.5\" cx=\"316.5\" cy=\"316.5\" fill=\"url(#a-cl-1)\"></circle> from <div dir=\"ltr\" class=\"tsqd-parent-container\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <circle r=\"316.5\" cx=\"316.5\" cy=\"316.5\" fill=\"url(#a-cl-1)\"></circle> from <div dir=\"ltr\" class=\"tsqd-parent-container\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    30 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <circle r=\"316.5\" cx=\"316.5\" cy=\"316.5\" fill=\"url(#a-cl-1)\"></circle> from <div dir=\"ltr\" class=\"tsqd-parent-container\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n  145 |   // Bottom mobile navigation\n  146 |   async clickBottomNavItem(label: string) {\n> 147 |     await this.page.locator(`nav.lg\\\\:hidden a:has-text(\"${label}\"), nav.lg\\\\:hidden button:has-text(\"${label}\")`).click();\n      |                                                                                                                    ^\n  148 |   }\n  149 | }\n  150 |\n    at NavigationMenu.clickBottomNavItem (C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:147:116)\n    at C:\\dev\\valor-2\\tests\\e2e\\auth-and-navigation.spec.ts:543:17"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:35.877Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-fe5bd-e-via-bottom-navigation-bar-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-fe5bd-e-via-bottom-navigation-bar-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\dev\\valor-2\\test-results\\auth-and-navigation-Naviga-fe5bd-e-via-bottom-navigation-bar-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-d2e688125f6696d89796",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 537,
+                  "column": 9
+                },
+                {
+                  "title": "should open menu from bottom navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 5634,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:36.469Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-65bad397204b7ff1c2f0",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 547,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Responsive Navigation",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 557,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should switch between desktop and mobile navigation on resize",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 5660,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:36.850Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-a6e3540e0635631e43c9",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 558,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Navigation Accessibility",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 573,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should have accessible navigation labels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 9374,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:42.121Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-ea6ce40bffb8b9a21f1d",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 574,
+                  "column": 9
+                },
+                {
+                  "title": "should have minimum touch target sizes on mobile",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 3559,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:42.541Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-b03687debfd7d659a40a",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 587,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Dark Mode",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 608,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should toggle dark mode",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 5386,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-19T01:41:46.111Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1478c41bc6ccf52373a5-11ead2aca7ed5b1924bc",
+                  "file": "auth-and-navigation.spec.ts",
+                  "line": 609,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Visual Tests",
+          "file": "auth-and-navigation.spec.ts",
+          "line": 636,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should capture login page screenshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 6040,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-19T01:41:54.001Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1478c41bc6ccf52373a5-c19fee6e0ce7d30e899f",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 637,
+              "column": 7
+            },
+            {
+              "title": "should capture dashboard screenshot after login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 13184,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-19T01:41:51.502Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1478c41bc6ccf52373a5-270f039fc6aa8fd04b72",
+              "file": "auth-and-navigation.spec.ts",
+              "line": 647,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-19T01:37:30.404Z",
+    "duration": 304359.245,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 13,
+    "flaky": 0
+  }
+}
