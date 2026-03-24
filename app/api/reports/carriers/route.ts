@@ -117,12 +117,12 @@ export async function GET(request: NextRequest) {
 
         // Convert product types to percentages
         const totalProducts = Object.values(carrier.productTypes).reduce(
-          (sum: number, count: any) => sum + count,
+          (sum: number, count: any) => sum + Number(count),
           0
         );
         const productTypesPercent: any = {};
         Object.entries(carrier.productTypes).forEach(([type, count]) => {
-          productTypesPercent[type] = totalProducts > 0 ? (Number(count) / totalProducts) * 100 : 0;
+          productTypesPercent[type] = totalProducts > 0 ? ((count as number) / totalProducts) * 100 : 0;
         });
 
         return {

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
       const goalTracking = goals.map((goal) => {
         const target = goal.target;
-        const current = goal.current;
+        const current = 0; // TODO: Calculate from actual data based on goal.type
         const percentage = target > 0 ? (current / target) * 100 : 0;
 
         const endDate = new Date(goal.endDate);
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 
         return {
           goalId: goal.id,
-          goalName: goal.name,
+          goalName: goal.title,
           agentName: `${goal.user.firstName} ${goal.user.lastName}`,
           organization: '', // TODO: Add if needed
           goalType: goal.type,
