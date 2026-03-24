@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         const marketShare = totalPremium > 0 ? (carrier.totalPremium / totalPremium) * 100 : 0;
 
         // Convert product types to percentages
-        const totalProducts = Object.values(carrier.productTypes).reduce(
+        const totalProducts: number = Object.values(carrier.productTypes).reduce(
           (sum: number, count: any) => sum + Number(count),
           0
         );
