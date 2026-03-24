@@ -5,21 +5,21 @@ import { requireAuth } from "@/lib/auth/server-auth";
 // GET /api/profile - Get current user's profile
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request);
-    const userId = user.id;
+    const authUser = await requireAuth(request);
+    const userId = authUser.id;
 
-    const user = await prisma.user.findUnique({
+    const userWithProfile = await prisma.user.findUnique({
       where: { id: userId },
       include: {
         profile: true,
       },
     });
 
-    if (!user) {
+    if (!userWithProfile) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({ user: userWithProfile });
   } catch (error) {
     console.error("Error fetching profile:", error);
     return NextResponse.json(

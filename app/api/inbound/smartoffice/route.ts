@@ -23,7 +23,19 @@ export async function POST(request: NextRequest) {
     // Find tenant by inbound email address
     const tenant = await prisma.tenant.findUnique({
       where: { inboundEmailAddress: address },
-      include: { users: true }
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        inboundEmailEnabled: true,
+        inboundEmailAddress: true,
+        users: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
     });
 
     if (!tenant) {

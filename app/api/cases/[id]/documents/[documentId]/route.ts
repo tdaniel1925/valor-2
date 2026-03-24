@@ -4,7 +4,7 @@ import {
   deleteDocument,
   updateDocumentMetadata,
 } from "@/lib/storage/documents";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * GET /api/cases/:id/documents/:documentId
@@ -52,7 +52,7 @@ export async function PATCH(
     const body = await request.json();
     const { notes, documentType } = body;
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     const updatedDocument = await updateDocumentMetadata(
       caseId,
@@ -85,7 +85,7 @@ export async function DELETE(
   try {
     const { id: caseId, documentId } = await params;
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     await deleteDocument(caseId, documentId, userId);
 

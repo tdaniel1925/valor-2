@@ -3,7 +3,7 @@ import {
   addCaseRequirement,
   completeRequirement,
 } from "@/lib/cases/workflow";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * POST /api/cases/:id/requirements
@@ -65,7 +65,7 @@ export async function PATCH(
       );
     }
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     const updatedCase = await completeRequirement(
       caseId,

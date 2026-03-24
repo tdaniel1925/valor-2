@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bulkTransitionCases } from "@/lib/cases/workflow";
-import { getUserIdOrDemo } from "@/lib/auth/supabase";
+import { getUserId } from "@/lib/auth/supabase";
 
 /**
  * POST /api/cases/bulk-transition
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userId = await getUserIdOrDemo();
+    const userId = await getUserId();
 
     const results = await bulkTransitionCases(caseIds, newStatus, userId, notes);
 
