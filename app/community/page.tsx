@@ -27,200 +27,49 @@ const categories = [
   {
     id: 'all',
     name: 'All Discussions',
-    count: 156,
+    count: 0,
     icon: MessageSquare,
     color: 'text-gray-600 dark:text-gray-400',
   },
   {
     id: 'general',
     name: 'General Discussion',
-    count: 42,
+    count: 0,
     icon: MessageSquare,
     color: 'text-blue-600 dark:text-blue-400',
   },
   {
     id: 'sales-tips',
     name: 'Sales Tips & Strategies',
-    count: 38,
+    count: 0,
     icon: TrendingUp,
     color: 'text-green-600 dark:text-green-400',
   },
   {
     id: 'product-questions',
     name: 'Product Questions',
-    count: 29,
+    count: 0,
     icon: MessageCircle,
     color: 'text-purple-600 dark:text-purple-400',
   },
   {
     id: 'success-stories',
     name: 'Success Stories',
-    count: 24,
+    count: 0,
     icon: Award,
     color: 'text-yellow-600 dark:text-yellow-400',
   },
   {
     id: 'feature-requests',
     name: 'Feature Requests',
-    count: 23,
+    count: 0,
     icon: Flame,
     color: 'text-orange-600 dark:text-orange-400',
   },
 ];
 
-const discussions = [
-  {
-    id: '1',
-    title: 'Best practices for converting term life quotes to applications',
-    author: {
-      name: 'Sarah Johnson',
-      avatar: 'SJ',
-      level: 'Top Contributor',
-      posts: 127,
-    },
-    category: 'Sales Tips & Strategies',
-    categoryId: 'sales-tips',
-    excerpt: 'I wanted to share some techniques that have really helped improve my conversion rates...',
-    replies: 23,
-    views: 456,
-    likes: 34,
-    isPinned: true,
-    isSolved: false,
-    lastActivity: '2 hours ago',
-    createdAt: '2024-11-15',
-  },
-  {
-    id: '2',
-    title: 'How do you handle complex annuity illustrations for clients?',
-    author: {
-      name: 'Michael Chen',
-      avatar: 'MC',
-      level: 'Expert',
-      posts: 89,
-    },
-    category: 'Product Questions',
-    categoryId: 'product-questions',
-    excerpt: 'Looking for advice on explaining indexed annuities to clients who are new to the concept...',
-    replies: 15,
-    views: 234,
-    likes: 18,
-    isPinned: false,
-    isSolved: true,
-    lastActivity: '4 hours ago',
-    createdAt: '2024-11-14',
-  },
-  {
-    id: '3',
-    title: 'Closed my biggest case ever - $2M term policy!',
-    author: {
-      name: 'Emily Rodriguez',
-      avatar: 'ER',
-      level: 'Rising Star',
-      posts: 34,
-    },
-    category: 'Success Stories',
-    categoryId: 'success-stories',
-    excerpt: 'After 6 months of relationship building, finally got the signature! Here\'s what worked...',
-    replies: 42,
-    views: 892,
-    likes: 87,
-    isPinned: true,
-    isSolved: false,
-    lastActivity: '6 hours ago',
-    createdAt: '2024-11-14',
-  },
-  {
-    id: '4',
-    title: 'Feature request: Mobile app for on-the-go quotes',
-    author: {
-      name: 'David Thompson',
-      avatar: 'DT',
-      level: 'Active Member',
-      posts: 56,
-    },
-    category: 'Feature Requests',
-    categoryId: 'feature-requests',
-    excerpt: 'It would be great to have a mobile app for creating quick quotes during client meetings...',
-    replies: 31,
-    views: 567,
-    likes: 45,
-    isPinned: false,
-    isSolved: false,
-    lastActivity: '1 day ago',
-    createdAt: '2024-11-13',
-  },
-  {
-    id: '5',
-    title: 'Tips for new agents - what I wish I knew when starting',
-    author: {
-      name: 'Jennifer Martinez',
-      avatar: 'JM',
-      level: 'Top Contributor',
-      posts: 145,
-    },
-    category: 'General Discussion',
-    categoryId: 'general',
-    excerpt: 'Been in the business for 5 years now. Here are the top 10 things that helped me succeed...',
-    replies: 67,
-    views: 1234,
-    likes: 102,
-    isPinned: true,
-    isSolved: false,
-    lastActivity: '1 day ago',
-    createdAt: '2024-11-12',
-  },
-  {
-    id: '6',
-    title: 'Question about commission splits with downline agents',
-    author: {
-      name: 'Robert Williams',
-      avatar: 'RW',
-      level: 'Member',
-      posts: 12,
-    },
-    category: 'General Discussion',
-    categoryId: 'general',
-    excerpt: 'Can someone explain how commission splits work when you have multiple levels?...',
-    replies: 8,
-    views: 145,
-    likes: 5,
-    isPinned: false,
-    isSolved: true,
-    lastActivity: '2 days ago',
-    createdAt: '2024-11-11',
-  },
-];
-
-const topContributors = [
-  {
-    name: 'Jennifer Martinez',
-    avatar: 'JM',
-    posts: 145,
-    helpful: 234,
-    level: 'Top Contributor',
-  },
-  {
-    name: 'Sarah Johnson',
-    avatar: 'SJ',
-    posts: 127,
-    helpful: 198,
-    level: 'Top Contributor',
-  },
-  {
-    name: 'Michael Chen',
-    avatar: 'MC',
-    posts: 89,
-    helpful: 156,
-    level: 'Expert',
-  },
-  {
-    name: 'David Thompson',
-    avatar: 'DT',
-    posts: 56,
-    helpful: 87,
-    level: 'Active Member',
-  },
-];
+const discussions: any[] = [];
+const topContributors: any[] = [];
 
 export default function CommunityPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -264,7 +113,7 @@ export default function CommunityPage() {
                   <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">1,247</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
                   <p className="text-sm text-muted-foreground">Active Members</p>
                 </div>
               </div>
@@ -277,7 +126,7 @@ export default function CommunityPage() {
                   <MessageSquare className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">156</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
                   <p className="text-sm text-muted-foreground">Discussions</p>
                 </div>
               </div>
@@ -290,7 +139,7 @@ export default function CommunityPage() {
                   <MessageCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">2,384</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
                   <p className="text-sm text-muted-foreground">Total Replies</p>
                 </div>
               </div>
@@ -303,7 +152,7 @@ export default function CommunityPage() {
                   <CheckCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">89%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">0%</p>
                   <p className="text-sm text-muted-foreground">Solved Rate</p>
                 </div>
               </div>

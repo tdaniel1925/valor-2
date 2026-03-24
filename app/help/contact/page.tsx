@@ -155,8 +155,7 @@ export default function ContactSupportPage() {
                   <Phone className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">Phone Support</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">1-800-VALOR-HQ</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">(1-800-825-6747)</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Contact your administrator for phone support</p>
                   </div>
                 </div>
 
@@ -164,7 +163,7 @@ export default function ContactSupportPage() {
                   <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">Email Support</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">support@valor-insurance.com</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Contact your administrator for email support</p>
                   </div>
                 </div>
 
@@ -178,59 +177,15 @@ export default function ContactSupportPage() {
               </CardContent>
             </Card>
 
-            {/* Office Hours */}
+            {/* Support Info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Support Hours</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold">Monday - Friday</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">8am - 8pm ET</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold">Saturday</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">10am - 4pm ET</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Sunday</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Closed</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Office Location */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Headquarters</CardTitle>
+                <CardTitle className="text-lg">Support Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-blue-600 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">Valor Insurance Platform</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      123 Insurance Boulevard<br />
-                      Suite 500<br />
-                      New York, NY 10001
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Contact your system administrator for support hours and contact details specific to your organization.
+                </p>
               </CardContent>
             </Card>
 

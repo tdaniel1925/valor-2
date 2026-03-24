@@ -26,167 +26,14 @@ import {
 } from 'lucide-react';
 
 const categories = [
-  { id: 'all', name: 'All Articles', count: 87 },
-  { id: 'getting-started', name: 'Getting Started', count: 12 },
-  { id: 'quotes', name: 'Quotes & Applications', count: 18 },
-  { id: 'commissions', name: 'Commissions', count: 10 },
-  { id: 'reports', name: 'Reports & Analytics', count: 15 },
-  { id: 'training', name: 'Training', count: 8 },
-  { id: 'admin', name: 'Administration', count: 14 },
-  { id: 'integrations', name: 'Integrations', count: 10 },
-];
-
-const articles = [
-  {
-    id: '1',
-    title: 'Complete guide to creating life insurance quotes',
-    excerpt: 'Learn how to create accurate life insurance quotes, including term, whole life, and universal life products.',
-    category: 'Quotes & Applications',
-    categoryId: 'quotes',
-    author: 'Support Team',
-    lastUpdated: '2024-11-15',
-    readTime: 8,
-    views: 2456,
-    helpful: 234,
-    tags: ['quotes', 'life insurance', 'applications'],
-    icon: FileText,
-    featured: true,
-  },
-  {
-    id: '2',
-    title: 'Understanding commission structures and hierarchies',
-    excerpt: 'Detailed explanation of how commission splits work within organizational hierarchies.',
-    category: 'Commissions',
-    categoryId: 'commissions',
-    author: 'Finance Team',
-    lastUpdated: '2024-11-14',
-    readTime: 12,
-    views: 1892,
-    helpful: 187,
-    tags: ['commissions', 'payments', 'hierarchy'],
-    icon: DollarSign,
-    featured: true,
-  },
-  {
-    id: '3',
-    title: 'Setting up your agent profile and preferences',
-    excerpt: 'Step-by-step guide to completing your profile, including licensing information and notification settings.',
-    category: 'Getting Started',
-    categoryId: 'getting-started',
-    author: 'Support Team',
-    lastUpdated: '2024-11-13',
-    readTime: 5,
-    views: 1654,
-    helpful: 165,
-    tags: ['profile', 'setup', 'preferences'],
-    icon: Users,
-    featured: false,
-  },
-  {
-    id: '4',
-    title: 'How to generate and export custom reports',
-    excerpt: 'Learn how to use the custom report builder to create tailored analytics and export data.',
-    category: 'Reports & Analytics',
-    categoryId: 'reports',
-    author: 'Analytics Team',
-    lastUpdated: '2024-11-12',
-    readTime: 10,
-    views: 1432,
-    helpful: 142,
-    tags: ['reports', 'analytics', 'export'],
-    icon: BarChart3,
-    featured: true,
-  },
-  {
-    id: '5',
-    title: 'Enrolling in training courses and tracking progress',
-    excerpt: 'Guide to browsing courses, enrolling, and tracking your learning progress.',
-    category: 'Training',
-    categoryId: 'training',
-    author: 'Training Team',
-    lastUpdated: '2024-11-11',
-    readTime: 6,
-    views: 1298,
-    helpful: 128,
-    tags: ['training', 'courses', 'certifications'],
-    icon: BookOpen,
-    featured: false,
-  },
-  {
-    id: '6',
-    title: 'Managing organizational hierarchies and teams',
-    excerpt: 'How to set up and manage multi-level organizations with proper role assignments.',
-    category: 'Administration',
-    categoryId: 'admin',
-    author: 'Admin Team',
-    lastUpdated: '2024-11-10',
-    readTime: 15,
-    views: 987,
-    helpful: 98,
-    tags: ['organizations', 'hierarchy', 'teams'],
-    icon: Shield,
-    featured: false,
-  },
-  {
-    id: '7',
-    title: 'Integrating with carrier systems and APIs',
-    excerpt: 'Connect your account with carrier systems for automated application submission.',
-    category: 'Integrations',
-    categoryId: 'integrations',
-    author: 'Integration Team',
-    lastUpdated: '2024-11-09',
-    readTime: 20,
-    views: 756,
-    helpful: 75,
-    tags: ['integrations', 'api', 'carriers'],
-    icon: Settings,
-    featured: false,
-  },
-  {
-    id: '8',
-    title: 'Best practices for annuity quotes',
-    excerpt: 'Tips and best practices for creating accurate annuity quotes including MYGA, fixed, and indexed products.',
-    category: 'Quotes & Applications',
-    categoryId: 'quotes',
-    author: 'Product Team',
-    lastUpdated: '2024-11-08',
-    readTime: 12,
-    views: 654,
-    helpful: 65,
-    tags: ['annuities', 'quotes', 'best practices'],
-    icon: FileText,
-    featured: false,
-  },
-  {
-    id: '9',
-    title: 'Understanding commission forecasting',
-    excerpt: 'Learn how the AI-powered commission forecast works and how to interpret projections.',
-    category: 'Reports & Analytics',
-    categoryId: 'reports',
-    author: 'Analytics Team',
-    lastUpdated: '2024-11-07',
-    readTime: 8,
-    views: 543,
-    helpful: 54,
-    tags: ['forecasting', 'commissions', 'analytics'],
-    icon: TrendingUp,
-    featured: false,
-  },
-  {
-    id: '10',
-    title: 'Role-based permissions and access control',
-    excerpt: 'Complete guide to setting up roles, permissions, and access controls for your organization.',
-    category: 'Administration',
-    categoryId: 'admin',
-    author: 'Security Team',
-    lastUpdated: '2024-11-06',
-    readTime: 18,
-    views: 432,
-    helpful: 43,
-    tags: ['permissions', 'roles', 'security'],
-    icon: Shield,
-    featured: false,
-  },
+  { id: 'all', name: 'All Articles', count: 0 },
+  { id: 'getting-started', name: 'Getting Started', count: 0 },
+  { id: 'quotes', name: 'Quotes & Applications', count: 0 },
+  { id: 'commissions', name: 'Commissions', count: 0 },
+  { id: 'reports', name: 'Reports & Analytics', count: 0 },
+  { id: 'training', name: 'Training', count: 0 },
+  { id: 'admin', name: 'Administration', count: 0 },
+  { id: 'integrations', name: 'Integrations', count: 0 },
 ];
 
 export default function KnowledgeBasePage() {
@@ -194,30 +41,10 @@ export default function KnowledgeBasePage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'recent' | 'helpful'>('popular');
 
-  // Filter articles
-  const filteredArticles = articles.filter((article) => {
-    const matchesSearch =
-      searchQuery === '' ||
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesCategory =
-      selectedCategory === 'all' || article.categoryId === selectedCategory;
-
-    return matchesSearch && matchesCategory;
-  });
-
-  // Sort articles
-  const sortedArticles = [...filteredArticles].sort((a, b) => {
-    if (sortBy === 'popular') return b.views - a.views;
-    if (sortBy === 'helpful') return b.helpful - a.helpful;
-    if (sortBy === 'recent')
-      return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
-    return 0;
-  });
-
-  const featuredArticles = articles.filter((a) => a.featured);
+  const articles: any[] = [];
+  const filteredArticles: any[] = [];
+  const sortedArticles: any[] = [];
+  const featuredArticles: any[] = [];
 
   return (
     <AppLayout>
