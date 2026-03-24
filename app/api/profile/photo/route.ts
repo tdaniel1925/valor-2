@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // POST /api/profile/photo - Update profile photo URL
 export async function POST(request: NextRequest) {
   try {
-    // For demo purposes, using the demo user ID
-    // TODO: Replace with actual auth user ID from Supabase
-    const userId = "demo-user-id";
+    const user = await requireAuth(request);
+    const userId = user.id;
 
     const { photoUrl } = await request.json();
 

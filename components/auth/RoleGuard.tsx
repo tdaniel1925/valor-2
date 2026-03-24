@@ -24,19 +24,14 @@ interface User {
  * </RoleGuard>
  */
 export function RoleGuard({ children, allowedRoles = [], fallback = null }: RoleGuardProps) {
-  // TODO: Replace with actual user from Supabase auth
   const { data: userData } = useQuery<{ user: User }>({
     queryKey: ["currentUser"],
     queryFn: async () => {
-      // For now, return demo user
-      // In production, this would fetch from Supabase auth
-      return {
-        user: {
-          id: "demo-user-id",
-          role: "ADMIN",
-          status: "ACTIVE",
-        },
-      };
+      const response = await fetch("/api/profile", { credentials: "include" });
+      if (!response.ok) {
+        throw new Error("Failed to fetch user");
+      }
+      return response.json();
     },
   });
 

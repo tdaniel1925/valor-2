@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/quotes - Get all quotes for current tenant
 export async function GET(request: NextRequest) {
@@ -14,9 +15,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // For demo purposes, using the demo user ID
-    // TODO: Replace with actual auth user ID from Supabase
-    const userId = "demo-user-id";
+    const user = await requireAuth(request);
+    const userId = user.id;
 
     // Use tenant-scoped database client with RLS
     const quotes = await withTenantContext(tenantContext.tenantId, async (db) => {

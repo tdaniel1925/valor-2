@@ -29,18 +29,11 @@ export function useCurrentUser() {
   return useQuery<{ user: User }>({
     queryKey: ["currentUser"],
     queryFn: async () => {
-      // TODO: Replace with actual Supabase auth
-      // For now, return demo user
-      return {
-        user: {
-          id: "demo-user-id",
-          role: "ADMIN",
-          status: "ACTIVE",
-          email: "admin@example.com",
-          firstName: "Demo",
-          lastName: "User",
-        },
-      };
+      const response = await fetch("/api/profile", { credentials: "include" });
+      if (!response.ok) {
+        throw new Error("Failed to fetch user profile");
+      }
+      return response.json();
     },
   });
 }
