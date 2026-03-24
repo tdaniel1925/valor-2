@@ -5,14 +5,14 @@ import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
 
 /**
  * GET /api/smartoffice/agents/[id]
- *
- * Fetch a single agent by ID with their policies and performance metrics
+ * Get a single agent by ID
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
@@ -22,89 +22,18 @@ export async function GET(
       );
     }
 
-    // Require authentication
     await requireAuth(request);
 
-    const { id } = await params;
-
-    const data = await withTenantContext(tenantContext.tenantId, async (db) => {
-      // Fetch the agent
-      const agent = await db.smartOfficeAgent.findFirst({
+    const agent = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.smartOfficeAgent.findUnique({
         where: {
           id,
           tenantId: tenantContext.tenantId,
         },
       });
-
-      if (!agent) {
-        return null;
-      }
-
-      // Find all policies for this agent
-      const policies = await db.smartOfficePolicy.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          primaryAdvisor: {
-            contains: agent.fullName,
-            mode: 'insensitive',
-          },
-        },
-        orderBy: {
-          statusDate: 'desc',
-        },
-      });
-
-      // Calculate performance metrics
-      const totalPolicies = policies.length;
-      const totalPremium = policies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0);
-      const avgPremium = totalPolicies > 0 ? totalPremium / totalPolicies : 0;
-      const totalCommission = policies.reduce((sum, p) =>
-        sum + (p.firstYearCommission || 0) + (p.renewalCommission || 0), 0
-      );
-
-      // Status breakdown
-      const statusBreakdown = policies.reduce((acc, p) => {
-        acc[p.status] = (acc[p.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-      // Carrier breakdown (top 5)
-      const carrierCounts = policies.reduce((acc, p) => {
-        acc[p.carrierName] = (acc[p.carrierName] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-      const topCarriers = Object.entries(carrierCounts)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 5)
-        .map(([name, count]) => ({ name, count }));
-
-      // Recent policies (last 6 months by status date)
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-      const recentPolicies = policies.filter(p =>
-        p.statusDate && new Date(p.statusDate) >= sixMonthsAgo
-      );
-
-      const metrics = {
-        totalPolicies,
-        totalPremium,
-        avgPremium,
-        totalCommission,
-        statusBreakdown,
-        topCarriers,
-        recentCount: recentPolicies.length,
-      };
-
-      return {
-        agent,
-        policies,
-        metrics,
-      };
     });
 
-    if (!data) {
+    if (!agent) {
       return NextResponse.json(
         { error: 'Agent not found' },
         { status: 404 }
@@ -113,16 +42,132 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data,
+      data: agent,
     });
 
   } catch (error: any) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error('[SmartOffice] Agent detail error:', error);
+    console.error('[SmartOffice] Fetch agent error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch agent details' },
+      { error: error.message || 'Failed to fetch agent' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/smartoffice/agents/[id]
+ * Update an agent
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const tenantContext = getTenantFromRequest(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: 'Tenant context not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await requireAuth(request);
+
+    // Only ADMIN and MANAGER can update agents
+    if (user.role !== 'ADMINISTRATOR' && user.role !== 'MANAGER') {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+
+    const updatedAgent = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.smartOfficeAgent.update({
+        where: {
+          id,
+          tenantId: tenantContext.tenantId,
+        },
+        data: {
+          ...body,
+          updatedAt: new Date(),
+        },
+      });
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: updatedAgent,
+    });
+
+  } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    console.error('[SmartOffice] Update agent error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update agent' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/smartoffice/agents/[id]
+ * Delete an agent
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const tenantContext = getTenantFromRequest(request);
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: 'Tenant context not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await requireAuth(request);
+
+    // Only ADMIN can delete agents
+    if (user.role !== 'ADMINISTRATOR') {
+      return NextResponse.json(
+        { error: 'Only administrators can delete agents' },
+        { status: 403 }
+      );
+    }
+
+    await withTenantContext(tenantContext.tenantId, async (db) => {
+      await db.smartOfficeAgent.delete({
+        where: {
+          id,
+          tenantId: tenantContext.tenantId,
+        },
+      });
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Agent deleted successfully',
+    });
+
+  } catch (error: any) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    console.error('[SmartOffice] Delete agent error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete agent' },
       { status: 500 }
     );
   }
