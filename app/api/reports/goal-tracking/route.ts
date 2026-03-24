@@ -1,92 +1,123 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock data generator for goal tracking
-function generateGoalTracking(period: string) {
-  const agents = [
-    { id: 'AGT-001', name: 'Sarah Johnson', org: 'Elite Producers' },
-    { id: 'AGT-002', name: 'Michael Chen', org: 'Premier Group' },
-    { id: 'AGT-003', name: 'Emily Rodriguez', org: 'Elite Producers' },
-    { id: 'AGT-004', name: 'David Thompson', org: 'Regional Partners' },
-    { id: 'AGT-005', name: 'Jennifer Martinez', org: 'Premier Group' },
-  ];
-
-  const goalTypes: Array<'PREMIUM' | 'CASES' | 'REVENUE' | 'ANNUALIZED'> = ['PREMIUM', 'CASES', 'REVENUE', 'ANNUALIZED'];
-  const statuses: Array<'ON_TRACK' | 'AT_RISK' | 'ACHIEVED' | 'MISSED'> = ['ON_TRACK', 'AT_RISK', 'ACHIEVED', 'MISSED'];
-
-  const goals = agents.map((agent, index) => {
-    const target = 100000 + (index * 20000);
-    const percentage = 30 + Math.random() * 70;
-    const current = Math.floor((target * percentage) / 100);
-    const daysRemaining = 30 + Math.floor(Math.random() * 60);
-
-    // Determine status based on percentage and days remaining
-    let status: 'ON_TRACK' | 'AT_RISK' | 'ACHIEVED' | 'MISSED';
-    if (percentage >= 100) {
-      status = 'ACHIEVED';
-    } else if (percentage >= 75) {
-      status = 'ON_TRACK';
-    } else if (percentage >= 50) {
-      status = 'AT_RISK';
-    } else {
-      status = 'AT_RISK';
-    }
-
-    const projectedCompletion = percentage + ((percentage / (90 - daysRemaining)) * daysRemaining);
-    const remaining = target - current;
-    const requiredDailyRate = daysRemaining > 0 ? Math.floor(remaining / daysRemaining) : 0;
-    const currentDailyRate = Math.floor(current / (90 - daysRemaining));
-
-    return {
-      goalId: `GOAL-${String(index + 1).padStart(3, '0')}`,
-      goalName: `Q4 ${goalTypes[index % goalTypes.length]} Goal`,
-      agentName: agent.name,
-      organization: agent.org,
-      goalType: goalTypes[index % goalTypes.length],
-      target,
-      current,
-      percentage,
-      daysRemaining,
-      status,
-      projectedCompletion,
-      requiredDailyRate,
-      currentDailyRate,
-      startDate: '2024-10-01',
-      endDate: '2024-12-31',
-    };
-  });
-
-  // Calculate summary stats
-  const totalGoals = goals.length;
-  const achieved = goals.filter(g => g.status === 'ACHIEVED').length;
-  const onTrack = goals.filter(g => g.status === 'ON_TRACK').length;
-  const atRisk = goals.filter(g => g.status === 'AT_RISK').length;
-  const averageCompletion = goals.reduce((sum, g) => sum + g.percentage, 0) / totalGoals;
-
-  return {
-    summary: {
-      totalGoals,
-      achieved,
-      onTrack,
-      atRisk,
-      averageCompletion,
-    },
-    goals,
-    period,
-  };
-}
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
+import { requireAuth } from '@/lib/auth/server-auth';
+import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    const tenantContext = getTenantFromRequest(request);
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: 'Tenant context not found' },
+        { status: 400 }
+      );
+    }
+
+    await requireAuth(request);
+
     const searchParams = request.nextUrl.searchParams;
     const period = searchParams.get('period') || 'ytd';
 
-    const data = generateGoalTracking(period);
+    const data = await withTenantContext(tenantContext.tenantId, async (db) => {
+      // Get all active goals
+      const goals = await db.goal.findMany({
+        where: {
+          tenantId: tenantContext.tenantId,
+        },
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+        orderBy: {
+          endDate: 'asc',
+        },
+      });
+
+      const now = new Date();
+
+      const goalTracking = goals.map((goal) => {
+        const target = goal.target;
+        const current = goal.current;
+        const percentage = target > 0 ? (current / target) * 100 : 0;
+
+        const endDate = new Date(goal.endDate);
+        const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+        // Determine status
+        let status: 'ON_TRACK' | 'AT_RISK' | 'ACHIEVED' | 'MISSED';
+        if (percentage >= 100) {
+          status = 'ACHIEVED';
+        } else if (daysRemaining <= 0) {
+          status = 'MISSED';
+        } else if (percentage >= 75) {
+          status = 'ON_TRACK';
+        } else {
+          status = 'AT_RISK';
+        }
+
+        // Calculate projections
+        const startDate = new Date(goal.startDate);
+        const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysPassed = totalDays - daysRemaining;
+        const projectedCompletion = daysPassed > 0 ? (current / daysPassed) * totalDays : current;
+
+        const remaining = target - current;
+        const requiredDailyRate = daysRemaining > 0 ? remaining / daysRemaining : 0;
+        const currentDailyRate = daysPassed > 0 ? current / daysPassed : 0;
+
+        return {
+          goalId: goal.id,
+          goalName: goal.name,
+          agentName: `${goal.user.firstName} ${goal.user.lastName}`,
+          organization: '', // TODO: Add if needed
+          goalType: goal.type,
+          target,
+          current,
+          percentage: Math.round(percentage * 100) / 100,
+          daysRemaining,
+          status,
+          projectedCompletion: Math.round(projectedCompletion),
+          remaining: Math.round(remaining),
+          requiredDailyRate: Math.round(requiredDailyRate),
+          currentDailyRate: Math.round(currentDailyRate),
+        };
+      });
+
+      // Calculate summary
+      const totalGoals = goalTracking.length;
+      const onTrack = goalTracking.filter((g) => g.status === 'ON_TRACK').length;
+      const atRisk = goalTracking.filter((g) => g.status === 'AT_RISK').length;
+      const achieved = goalTracking.filter((g) => g.status === 'ACHIEVED').length;
+      const missed = goalTracking.filter((g) => g.status === 'MISSED').length;
+      const averageCompletion =
+        goalTracking.reduce((sum, g) => sum + g.percentage, 0) / (totalGoals || 1);
+
+      return {
+        summary: {
+          totalGoals,
+          onTrack,
+          atRisk,
+          achieved,
+          missed,
+          averageCompletion: Math.round(averageCompletion),
+        },
+        goals: goalTracking,
+        period,
+      };
+    });
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error('Goal tracking API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch goal tracking' },
+      { error: 'Failed to fetch goal tracking data' },
       { status: 500 }
     );
   }
