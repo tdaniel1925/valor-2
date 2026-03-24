@@ -2,9 +2,11 @@
  * SmartOffice Excel Parser
  *
  * Parses SmartOffice Excel reports and converts them to database-ready format
+ * Uses header-based column matching for flexibility and reliability
  */
 
 import * as XLSX from 'xlsx';
+import { matchColumns, applyMapping, type ColumnMatch } from './column-matcher';
 
 // ============================================================================
 // Types
@@ -53,6 +55,8 @@ export interface ParseResult {
     parsedRows: number;
     skippedRows: number;
   };
+  columnMapping?: ColumnMatch[]; // NEW: Column mapping used
+  unmappedColumns?: string[];    // NEW: Columns that couldn't be mapped
 }
 
 // ============================================================================
@@ -176,9 +180,13 @@ function mapPolicyStatus(status: string): string {
 // ============================================================================
 
 /**
- * Parse Policies Excel file
+ * Parse Policies Excel file using header-based column matching
  */
-function parsePoliciesExcel(data: any[], fileName: string): ParseResult {
+function parsePoliciesExcel(
+  data: any[],
+  fileName: string,
+  customMapping?: Record<string, string>
+): ParseResult {
   const result: ParseResult = {
     success: true,
     type: 'policies',
@@ -193,6 +201,29 @@ function parsePoliciesExcel(data: any[], fileName: string): ParseResult {
     }
   };
 
+  // Get headers from first row
+  const headers = data.length > 0 ? Object.keys(data[0]) : [];
+
+  // Match columns to system fields
+  const columnMatching = matchColumns(headers, customMapping);
+  result.columnMapping = columnMatching.matches;
+  result.unmappedColumns = columnMatching.unmapped;
+
+  // Check if we have required fields
+  const requiredFields = ['policyNumber', 'primaryInsured', 'carrierName'];
+  const mappedFields = new Set(
+    columnMatching.matches
+      .filter(m => m.systemField)
+      .map(m => m.systemField as string)
+  );
+
+  const missingFields = requiredFields.filter(f => !mappedFields.has(f));
+  if (missingFields.length > 0) {
+    result.errors.push(`Missing required columns for policies: ${missingFields.join(', ')}`);
+    result.success = false;
+    return result;
+  }
+
   // Skip header row (first row contains column names)
   const dataRows = data.slice(1);
 
@@ -201,43 +232,29 @@ function parsePoliciesExcel(data: any[], fileName: string): ParseResult {
     const rowNum = i + 2; // +2 because we skipped header and Excel is 1-indexed
 
     try {
-      // Extract values from row (dealing with __EMPTY column names)
-      const keys = Object.keys(row);
-      const [
-        policyNumber,
-        primaryAdvisor,
-        productName,
-        carrierName,
-        primaryInsured,
-        statusDate,
-        type,
-        targetAmount,
-        commAnnualizedPrem,
-        weightedPremium,
-        excessPrem,
-        status
-      ] = keys.map(k => row[k]);
+      // Apply column mapping to get field values
+      const mappedRow = applyMapping(row, columnMatching.matches, 'policies');
 
       // Validate required fields
-      if (!policyNumber || policyNumber === 'Policy #') {
+      if (!mappedRow.policyNumber || mappedRow.policyNumber === 'Policy #') {
         result.metadata.skippedRows++;
         continue;
       }
 
-      // Parse record
+      // Parse record using mapped fields
       const record: PolicyRecord = {
-        policyNumber: cleanString(policyNumber)!,
-        primaryAdvisor: cleanString(primaryAdvisor) || 'Unknown',
-        productName: cleanString(productName) || 'Unknown',
-        carrierName: cleanString(carrierName) || 'Unknown',
-        primaryInsured: cleanString(primaryInsured) || 'Unknown',
-        statusDate: excelDateToJSDate(statusDate),
-        type: mapPolicyType(cleanString(type) || ''),
-        targetAmount: parseNumber(targetAmount),
-        commAnnualizedPrem: parseNumber(commAnnualizedPrem),
-        weightedPremium: parseNumber(weightedPremium),
-        excessPrem: parseNumber(excessPrem),
-        status: mapPolicyStatus(cleanString(status) || ''),
+        policyNumber: cleanString(mappedRow.policyNumber)!,
+        primaryAdvisor: cleanString(mappedRow.primaryAdvisor) || 'Unknown',
+        productName: cleanString(mappedRow.productName) || 'Unknown',
+        carrierName: cleanString(mappedRow.carrierName) || 'Unknown',
+        primaryInsured: cleanString(mappedRow.primaryInsured) || 'Unknown',
+        statusDate: excelDateToJSDate(mappedRow.statusDate),
+        type: mapPolicyType(cleanString(mappedRow.type) || ''),
+        targetAmount: parseNumber(mappedRow.targetAmount),
+        commAnnualizedPrem: parseNumber(mappedRow.commAnnualizedPrem),
+        weightedPremium: parseNumber(mappedRow.weightedPremium),
+        excessPrem: parseNumber(mappedRow.excessPrem),
+        status: mapPolicyStatus(cleanString(mappedRow.status) || ''),
         rawData: row
       };
 
@@ -255,9 +272,13 @@ function parsePoliciesExcel(data: any[], fileName: string): ParseResult {
 }
 
 /**
- * Parse Agents Excel file
+ * Parse Agents Excel file using header-based column matching
  */
-function parseAgentsExcel(data: any[], fileName: string): ParseResult {
+function parseAgentsExcel(
+  data: any[],
+  fileName: string,
+  customMapping?: Record<string, string>
+): ParseResult {
   const result: ParseResult = {
     success: true,
     type: 'agents',
@@ -272,6 +293,29 @@ function parseAgentsExcel(data: any[], fileName: string): ParseResult {
     }
   };
 
+  // Get headers from first row
+  const headers = data.length > 0 ? Object.keys(data[0]) : [];
+
+  // Match columns to system fields
+  const columnMatching = matchColumns(headers, customMapping);
+  result.columnMapping = columnMatching.matches;
+  result.unmappedColumns = columnMatching.unmapped;
+
+  // Check if we have required fields
+  const requiredFields = ['fullName'];
+  const mappedFields = new Set(
+    columnMatching.matches
+      .filter(m => m.systemField)
+      .map(m => m.systemField as string)
+  );
+
+  const missingFields = requiredFields.filter(f => !mappedFields.has(f));
+  if (missingFields.length > 0) {
+    result.errors.push(`Missing required columns for agents: ${missingFields.join(', ')}`);
+    result.success = false;
+    return result;
+  }
+
   // Skip header row
   const dataRows = data.slice(1);
 
@@ -280,42 +324,31 @@ function parseAgentsExcel(data: any[], fileName: string): ParseResult {
     const rowNum = i + 2;
 
     try {
-      // Extract values
-      const keys = Object.keys(row);
-      const [
-        fullName,
-        email,
-        phones,
-        supervisor,
-        subSource,
-        contractList,
-        ssn,
-        npn,
-        addresses
-      ] = keys.map(k => row[k]);
+      // Apply column mapping to get field values
+      const mappedRow = applyMapping(row, columnMatching.matches, 'agents');
 
       // Validate required fields
-      if (!fullName || fullName === 'Last Name, First Name') {
+      if (!mappedRow.fullName || mappedRow.fullName === 'Last Name, First Name') {
         result.metadata.skippedRows++;
         continue;
       }
 
       // Parse name
-      const { lastName, firstName } = parseName(cleanString(fullName) || '');
+      const { lastName, firstName } = parseName(cleanString(mappedRow.fullName) || '');
 
-      // Parse record
+      // Parse record using mapped fields
       const record: AgentRecord = {
-        fullName: cleanString(fullName)!,
+        fullName: cleanString(mappedRow.fullName)!,
         lastName,
         firstName,
-        email: cleanString(email),
-        phones: cleanString(phones),
-        addresses: cleanString(addresses),
-        supervisor: cleanString(supervisor),
-        subSource: cleanString(subSource),
-        contractList: cleanString(contractList),
-        ssn: cleanString(ssn),
-        npn: cleanString(npn),
+        email: cleanString(mappedRow.email),
+        phones: cleanString(mappedRow.phones),
+        addresses: cleanString(mappedRow.addresses),
+        supervisor: cleanString(mappedRow.supervisor),
+        subSource: cleanString(mappedRow.subSource),
+        contractList: cleanString(mappedRow.contractList),
+        ssn: cleanString(mappedRow.ssn),
+        npn: cleanString(mappedRow.npn),
         rawData: row
       };
 
@@ -338,10 +371,15 @@ function parseAgentsExcel(data: any[], fileName: string): ParseResult {
 
 /**
  * Parse SmartOffice Excel file from buffer
+ *
+ * @param buffer - Excel file buffer
+ * @param fileName - Name of the file
+ * @param customMapping - Optional custom column mapping (excelColumn -> systemField)
  */
 export function parseSmartOfficeExcel(
   buffer: Buffer,
-  fileName: string
+  fileName: string,
+  customMapping?: Record<string, string>
 ): ParseResult {
   try {
     // Read workbook
@@ -370,30 +408,33 @@ export function parseSmartOfficeExcel(
       };
     }
 
-    // Detect report type
-    const reportType = detectReportType(data[0]);
+    // Get headers and detect report type
+    const headers = Object.keys(data[0]);
+    const columnMatching = matchColumns(headers, customMapping);
 
-    if (reportType === 'unknown') {
+    if (columnMatching.type === 'unknown') {
       return {
         success: false,
         type: 'unknown',
         records: [],
-        errors: ['Unable to detect report type (policies or agents)'],
+        errors: ['Unable to detect report type (policies or agents). Please check column headers.'],
         warnings: [],
         metadata: {
           fileName,
           totalRows: data.length,
           parsedRows: 0,
           skippedRows: 0
-        }
+        },
+        columnMapping: columnMatching.matches,
+        unmappedColumns: columnMatching.unmapped
       };
     }
 
-    // Parse based on type
-    if (reportType === 'policies') {
-      return parsePoliciesExcel(data, fileName);
+    // Parse based on detected type
+    if (columnMatching.type === 'policies') {
+      return parsePoliciesExcel(data, fileName, customMapping);
     } else {
-      return parseAgentsExcel(data, fileName);
+      return parseAgentsExcel(data, fileName, customMapping);
     }
 
   } catch (error: any) {
