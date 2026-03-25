@@ -12,18 +12,15 @@ interface AgentContract {
   agentName: string;
   agentEmail: string | null;
   agentNpn: string | null;
-  carrierName: string;
-  contractType: string;
-  contractNumber: string;
-  status: 'Active' | 'Pending' | 'Closed';
-  rawContractText: string;
+  contractText: string;
+  supervisor: string | null;
+  subSource: string | null;
 }
 
 interface AgentContractsData {
   contracts: AgentContract[];
   filters: {
     agents: string[];
-    carriers: string[];
   };
   totalContracts: number;
   filteredContracts: number;
@@ -33,8 +30,6 @@ export default function ContractsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [agentFilter, setAgentFilter] = useState<string>("ALL");
-  const [carrierFilter, setCarrierFilter] = useState<string>("ALL");
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   // Debounce search
   useEffect(() => {
@@ -47,32 +42,17 @@ export default function ContractsPage() {
   }, [searchTerm]);
 
   const { data, isLoading, error, refetch } = useQuery<AgentContractsData>({
-    queryKey: ["agent-contracts", debouncedSearchTerm, agentFilter, carrierFilter, statusFilter],
+    queryKey: ["agent-contracts", debouncedSearchTerm, agentFilter],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
       if (agentFilter !== 'ALL') params.append('agent', agentFilter);
-      if (carrierFilter !== 'ALL') params.append('carrier', carrierFilter);
-      if (statusFilter !== 'ALL') params.append('status', statusFilter);
 
       const res = await fetch(`/api/smartoffice/agent-contracts?${params}`);
       if (!res.ok) throw new Error("Failed to fetch agent contracts");
       return res.json();
     },
   });
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "success";
-      case "Pending":
-        return "warning";
-      case "Closed":
-        return "danger";
-      default:
-        return "default";
-    }
-  };
 
   if (isLoading) {
     return (
@@ -107,9 +87,6 @@ export default function ContractsPage() {
 
   // Stats from filtered data
   const contracts = data?.contracts || [];
-  const activeContracts = contracts.filter((c) => c.status === "Active");
-  const pendingContracts = contracts.filter((c) => c.status === "Pending");
-  const closedContracts = contracts.filter((c) => c.status === "Closed");
 
   return (
     <AppLayout>
@@ -128,7 +105,7 @@ export default function ContractsPage() {
         {/* Search and Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -140,7 +117,7 @@ export default function ContractsPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Agent, carrier, contract#..."
+                  placeholder="Search contracts, agents, carriers..."
                   className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
                 />
                 <svg
@@ -178,48 +155,10 @@ export default function ContractsPage() {
                 ))}
               </select>
             </div>
-
-            {/* Carrier Filter */}
-            <div>
-              <label htmlFor="carrierFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Carrier
-              </label>
-              <select
-                id="carrierFilter"
-                value={carrierFilter}
-                onChange={(e) => setCarrierFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
-              >
-                <option value="ALL">All Carriers</option>
-                {data?.filters.carriers.map((carrier) => (
-                  <option key={carrier} value={carrier}>
-                    {carrier}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Status Filter */}
-            <div>
-              <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Status
-              </label>
-              <select
-                id="statusFilter"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="Active">Active</option>
-                <option value="Pending">Pending</option>
-                <option value="Closed">Closed</option>
-              </select>
-            </div>
           </div>
 
           {/* Active Filters Summary */}
-          {(searchTerm || agentFilter !== "ALL" || carrierFilter !== "ALL" || statusFilter !== "ALL") && (
+          {(searchTerm || agentFilter !== "ALL") && (
             <div className="mt-4 flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
               {searchTerm && (
@@ -244,34 +183,10 @@ export default function ContractsPage() {
                   </button>
                 </span>
               )}
-              {carrierFilter !== "ALL" && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm">
-                  Carrier: {carrierFilter}
-                  <button
-                    onClick={() => setCarrierFilter("ALL")}
-                    className="hover:text-blue-900 dark:hover:text-blue-100"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {statusFilter !== "ALL" && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm">
-                  Status: {statusFilter}
-                  <button
-                    onClick={() => setStatusFilter("ALL")}
-                    className="hover:text-blue-900 dark:hover:text-blue-100"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
               <button
                 onClick={() => {
                   setSearchTerm("");
                   setAgentFilter("ALL");
-                  setCarrierFilter("ALL");
-                  setStatusFilter("ALL");
                 }}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
               >
@@ -284,7 +199,7 @@ export default function ContractsPage() {
 
         {/* Stats Overview */}
         {data && (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Total Contracts</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
@@ -292,27 +207,9 @@ export default function ContractsPage() {
               </p>
             </Card>
             <Card className="p-6">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-                {activeContracts.length}
-              </p>
-            </Card>
-            <Card className="p-6">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
-              <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
-                {pendingContracts.length}
-              </p>
-            </Card>
-            <Card className="p-6">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Closed</p>
-              <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
-                {closedContracts.length}
-              </p>
-            </Card>
-            <Card className="p-6">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Carriers</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Agents</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                {data.filters.carriers.length}
+                {data.filters.agents.length}
               </p>
             </Card>
           </div>
@@ -335,22 +232,16 @@ export default function ContractsPage() {
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Carrier
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Agent
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Contract Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Contract Number
+                      Contract Details
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       NPN
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Status
+                      Supervisor
                     </th>
                   </tr>
                 </thead>
@@ -361,14 +252,9 @@ export default function ContractsPage() {
                       className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {contract.carrierName}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
                         <Link
                           href={`/smartoffice/agents/${contract.agentId}`}
-                          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                          className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
                         >
                           {contract.agentName}
                         </Link>
@@ -378,14 +264,9 @@ export default function ContractsPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">
-                          {contract.contractType}
-                        </div>
-                      </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-mono text-gray-900 dark:text-gray-100">
-                          {contract.contractNumber !== 'N/A' ? contract.contractNumber : '-'}
+                        <div className="text-sm text-gray-900 dark:text-gray-100 max-w-2xl">
+                          {contract.contractText}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -394,9 +275,9 @@ export default function ContractsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant={getStatusVariant(contract.status)}>
-                          {contract.status}
-                        </Badge>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {contract.supervisor || '-'}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -455,51 +336,11 @@ export default function ContractsPage() {
                   onClick={() => {
                     setSearchTerm("");
                     setAgentFilter("ALL");
-                    setCarrierFilter("ALL");
-                    setStatusFilter("ALL");
                   }}
                 >
                   Clear Filters
                 </Button>
               </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Contracts by Carrier */}
-        {data && data.totalContracts > 0 && (
-          <Card className="mt-8 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Top Carriers by Contract Count
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Object.entries(
-                data.contracts.reduce((acc, c) => {
-                  if (!acc[c.carrierName]) {
-                    acc[c.carrierName] = { count: 0, active: 0 };
-                  }
-                  acc[c.carrierName].count++;
-                  if (c.status === "Active") {
-                    acc[c.carrierName].active++;
-                  }
-                  return acc;
-                }, {} as Record<string, { count: number; active: number }>)
-              )
-                .sort((a, b) => b[1].count - a[1].count)
-                .slice(0, 8)
-                .map(([carrier, stats]) => (
-                  <div key={carrier} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 mb-2" title={carrier}>
-                      {carrier}
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {stats.count}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {stats.active} active
-                    </p>
-                  </div>
-                ))}
             </div>
           </Card>
         )}
