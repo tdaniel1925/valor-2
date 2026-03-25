@@ -4,11 +4,14 @@ import { requireAuth } from '@/lib/auth/server-auth';
 import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
 
 /**
- * GET /api/smartoffice/charts/status-funnel
+ * GET /api/cases/policies/[id]
  *
- * Get status distribution (conversion funnel)
+ * Get a single SmartOffice policy by ID
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const tenantContext = getTenantFromRequest(request);
 
@@ -22,42 +25,41 @@ export async function GET(request: NextRequest) {
     // Require authentication
     await requireAuth(request);
 
-    const data = await withTenantContext(tenantContext.tenantId, async (db) => {
-      const statusCounts = await db.smartOfficePolicy.groupBy({
-        by: ['status'],
+    const policyId = params.id;
+
+    const policy = await withTenantContext(tenantContext.tenantId, async (db) => {
+      return await db.smartOfficePolicy.findFirst({
         where: {
+          id: policyId,
           tenantId: tenantContext.tenantId,
         },
-        _count: {
-          id: true,
+        include: {
+          notes: {
+            orderBy: { createdAt: 'desc' },
+          },
         },
       });
-
-      // Convert to chart format - use all statuses from database dynamically
-      // Sort by count descending for best visual representation
-      const chartData = statusCounts
-        .map((item) => ({
-          name: item.status,
-          value: item._count.id,
-        }))
-        .filter((item) => item.value > 0)
-        .sort((a, b) => b.value - a.value);
-
-      return chartData;
     });
+
+    if (!policy) {
+      return NextResponse.json(
+        { error: 'Policy not found' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      data,
+      policy,
     });
 
   } catch (error: any) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error('[SmartOffice] Status funnel chart error:', error);
+    console.error('[Cases/Policy Detail] Fetch error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch status funnel data' },
+      { error: error.message || 'Failed to fetch policy' },
       { status: 500 }
     );
   }

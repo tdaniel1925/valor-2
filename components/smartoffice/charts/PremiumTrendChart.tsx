@@ -7,11 +7,8 @@ import { TrendingUp, Loader2 } from 'lucide-react';
 interface ChartData {
   month: string;
   monthLabel: string;
-  inforce: number;
-  pending: number;
-  submitted: number;
-  other: number;
   total: number;
+  [key: string]: string | number; // Dynamic status fields
 }
 
 export default function PremiumTrendChart() {
@@ -51,6 +48,43 @@ export default function PremiumTrendChart() {
       maximumFractionDigits: 0,
     }).format(value);
   };
+
+  // Extract all status keys dynamically from data
+  const getStatusKeys = (): string[] => {
+    if (data.length === 0) return [];
+
+    const keys = new Set<string>();
+    data.forEach((item) => {
+      Object.keys(item).forEach((key) => {
+        if (key !== 'month' && key !== 'monthLabel' && key !== 'total') {
+          keys.add(key);
+        }
+      });
+    });
+
+    return Array.from(keys);
+  };
+
+  // Color mapping for statuses
+  const getStatusColor = (status: string): string => {
+    const colorMap: Record<string, string> = {
+      'inforce': '#10b981',
+      'pending': '#f59e0b',
+      'submitted': '#3b82f6',
+      'declined': '#ef4444',
+      'withdrawn': '#6b7280',
+      'other': '#8b5cf6',
+    };
+
+    return colorMap[status.toLowerCase()] || '#6b7280';
+  };
+
+  // Capitalize first letter for display
+  const formatStatusName = (status: string): string => {
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+
+  const statusKeys = getStatusKeys();
 
   if (loading) {
     return (
@@ -101,10 +135,16 @@ export default function PremiumTrendChart() {
             labelFormatter={(label) => `Month: ${label}`}
           />
           <Legend />
-          <Line type="monotone" dataKey="inforce" stroke="#10b981" name="Inforce" strokeWidth={2} />
-          <Line type="monotone" dataKey="pending" stroke="#f59e0b" name="Pending" strokeWidth={2} />
-          <Line type="monotone" dataKey="submitted" stroke="#3b82f6" name="Submitted" strokeWidth={2} />
-          <Line type="monotone" dataKey="other" stroke="#6b7280" name="Other" strokeWidth={2} />
+          {statusKeys.map((status) => (
+            <Line
+              key={status}
+              type="monotone"
+              dataKey={status}
+              stroke={getStatusColor(status)}
+              name={formatStatusName(status)}
+              strokeWidth={2}
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </div>

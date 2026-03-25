@@ -44,8 +44,9 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      // Group by month and status
+      // Group by month and status - dynamically collect all statuses from database
       const monthlyData: Record<string, Record<string, number>> = {};
+      const allStatuses = new Set<string>();
 
       policies.forEach((policy) => {
         if (!policy.statusDate) return;
@@ -54,39 +55,42 @@ export async function GET(request: NextRequest) {
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
         if (!monthlyData[monthKey]) {
-          monthlyData[monthKey] = {
-            INFORCE: 0,
-            PENDING: 0,
-            SUBMITTED: 0,
-            OTHER: 0,
-          };
+          monthlyData[monthKey] = {};
         }
 
         const premium = policy.commAnnualizedPrem || 0;
         const status = policy.status;
 
-        if (['INFORCE', 'PENDING', 'SUBMITTED'].includes(status)) {
-          monthlyData[monthKey][status] += premium;
-        } else {
-          monthlyData[monthKey].OTHER += premium;
-        }
+        // Track all unique statuses
+        allStatuses.add(status);
+
+        // Add premium to this month's status total
+        monthlyData[monthKey][status] = (monthlyData[monthKey][status] || 0) + premium;
       });
 
-      // Convert to array format for chart
+      // Convert to array format for chart - include all statuses dynamically
       const chartData = Object.entries(monthlyData)
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([month, values]) => ({
-          month,
-          monthLabel: new Date(month + '-01').toLocaleDateString('en-US', {
-            month: 'short',
-            year: '2-digit',
-          }),
-          inforce: values.INFORCE,
-          pending: values.PENDING,
-          submitted: values.SUBMITTED,
-          other: values.OTHER,
-          total: values.INFORCE + values.PENDING + values.SUBMITTED + values.OTHER,
-        }));
+        .map(([month, statusValues]) => {
+          const monthData: any = {
+            month,
+            monthLabel: new Date(month + '-01').toLocaleDateString('en-US', {
+              month: 'short',
+              year: '2-digit',
+            }),
+          };
+
+          // Add each status as a property
+          let total = 0;
+          allStatuses.forEach((status) => {
+            const value = statusValues[status] || 0;
+            monthData[status.toLowerCase()] = value;
+            total += value;
+          });
+
+          monthData.total = total;
+          return monthData;
+        });
 
       return chartData;
     });
