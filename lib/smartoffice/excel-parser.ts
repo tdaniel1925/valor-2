@@ -148,41 +148,12 @@ function mapPolicyType(type: string): string {
 }
 
 /**
- * Map policy status to enum (expanded to handle more statuses)
+ * Return exact status from spreadsheet (no mapping)
  */
 function mapPolicyStatus(status: string): string {
-  const statusUpper = (status || '').toUpperCase().trim();
-
-  // Map SmartOffice status values to database enum values
-  const statusMapping: Record<string, string> = {
-    // Direct mappings
-    'INFORCE': 'INFORCE',
-    'IN FORCE': 'INFORCE',
-    'ACTIVE': 'ACTIVE',
-    'PENDING': 'PENDING',
-    'SUBMITTED': 'SUBMITTED',
-    'ISSUED': 'ISSUED',
-    'DECLINED': 'DECLINED',
-    'WITHDRAWN': 'WITHDRAWN',
-    'LAPSED': 'LAPSED',
-    'SURRENDERED': 'SURRENDERED',
-
-    // Additional status mappings
-    'APPROVED': 'ISSUED',
-    'APPROVED - AWAITING FUNDS': 'PENDING',
-    'APPROVED - AWAITING REQS': 'PENDING',
-    'APPROVED-CONDITIONAL': 'PENDING',
-    'APPROVED - PENDING 1035': 'PENDING',
-    'AWAIT APPROVAL': 'PENDING',
-    'INCOMPLETE': 'PENDING',
-    'REISSUE REQUESTED': 'PENDING',
-    'NOT TAKEN': 'WITHDRAWN',
-    'CLOSED': 'LAPSED',
-    'CANCELLED': 'LAPSED',
-    'TERMINATED': 'LAPSED',
-  };
-
-  return statusMapping[statusUpper] || 'UNKNOWN';
+  // Return the exact status value from the spreadsheet
+  // Just clean up whitespace but preserve the exact text
+  return (status || 'Unknown').trim();
 }
 
 // ============================================================================
