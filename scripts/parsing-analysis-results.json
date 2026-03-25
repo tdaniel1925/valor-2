@@ -1,0 +1,342 @@
+{
+  "summary": {
+    "totalContracts": 5642,
+    "highConfidence": 3810,
+    "mediumConfidence": 1450,
+    "lowConfidence": 382,
+    "failed": 0,
+    "successRate": "93.2%"
+  },
+  "methodCounts": {
+    "KEYWORD_MATCH": 4024,
+    "ACRONYM_MATCH": 568,
+    "LAST_10_CHARS": 382,
+    "PARENTHESES_SPLIT": 668
+  },
+  "samples": {
+    "highConfidence": [
+      {
+        "originalText": "Columbus Life Insurance CompanySolicitor77758",
+        "carrierName": "Columbus Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "77758",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Protective Life Insurance CompanySolicitorT0AD637",
+        "carrierName": "Protective Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "T0AD637",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Nationwide Life Insurance CompanyProducer - 85*Penidng",
+        "carrierName": "Nationwide Life Insurance Company",
+        "contractType": "Producer",
+        "contractNumber": "- 85*Penidng",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "American General Life Insurance Company (Corebridge Financial)SBLDDD3P676",
+        "carrierName": "American General Life Insurance Company (Corebridge Financial)",
+        "contractType": "SBLD",
+        "contractNumber": "DD3P676",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "North American Company For Life And Health InsuranceSolicitorG4K80",
+        "carrierName": "North American Company For Life And Health Insurance",
+        "contractType": "Solicitor",
+        "contractNumber": "G4K80",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "North American Company For Life And Health InsuranceSolicitorG4K80-M01 (Life) / P7W91 (Ann)",
+        "carrierName": "North American Company For Life And Health Insurance",
+        "contractType": "Solicitor",
+        "contractNumber": "G4K80-M01 (Life) / P7W91 (Ann)",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "North American Company For Life And Health InsuranceSolicitorG4K80-M01 (life) / P7W91 (Ann)",
+        "carrierName": "North American Company For Life And Health Insurance",
+        "contractType": "Solicitor",
+        "contractNumber": "G4K80-M01 (life) / P7W91 (Ann)",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "North American Company For Life And Health InsuranceSolicitorG4K80",
+        "carrierName": "North American Company For Life And Health Insurance",
+        "contractType": "Solicitor",
+        "contractNumber": "G4K80",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Symetra Life Insurance CompanySolicitor03-41-6503-01",
+        "carrierName": "Symetra Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "03-41-6503-01",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Pacific Life Insurance Company-LynchburgPL00 (Promise Solicitor)KE273",
+        "carrierName": "Pacific Life Insurance Company-LynchburgPL00 (Promise",
+        "contractType": "Solicitor",
+        "contractNumber": ")KE273",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Fidelity & Guaranty Life Insurance CompanySolicitor (Life)000206168",
+        "carrierName": "Fidelity & Guaranty Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "(Life)000206168",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Fidelity & Guaranty Life Insurance CompanySolicitor (Annuity)000697941",
+        "carrierName": "Fidelity & Guaranty Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "(Annuity)000697941",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "John Hancock Life Insurance Company USABroker - A (70%)789120",
+        "carrierName": "John Hancock Life Insurance Company USA",
+        "contractType": "Broker",
+        "contractNumber": "- A (70%)789120",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "American National Insurance CompanySolicitorT12HB",
+        "carrierName": "American National Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "T12HB",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "Protective Life Insurance CompanySolicitorT05G655",
+        "carrierName": "Protective Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "T05G655",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "United World Life Insurance CompanyLevel 00774228",
+        "carrierName": "United World Life Insurance Company",
+        "contractType": "Level",
+        "contractNumber": "00774228",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "United Of Omaha Life Insurance CompanyLevel 00774228",
+        "carrierName": "United Of Omaha Life Insurance Company",
+        "contractType": "Level",
+        "contractNumber": "00774228",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "American National Insurance CompanyGeneral AgentT12HB",
+        "carrierName": "American National Insurance CompanyGeneral",
+        "contractType": "Agent",
+        "contractNumber": "T12HB",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "The Lincoln National Life Insurance CompanySolicitor2623565",
+        "carrierName": "The Lincoln National Life Insurance Company",
+        "contractType": "Solicitor",
+        "contractNumber": "2623565",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      },
+      {
+        "originalText": "The Lincoln National Life Insurance CompanyProducer - 5.0 - Moneyguard*Pending",
+        "carrierName": "The Lincoln National Life Insurance Company",
+        "contractType": "Producer",
+        "contractNumber": "- 5.0 - Moneyguard",
+        "confidence": "HIGH",
+        "parseMethod": "KEYWORD_MATCH"
+      }
+    ],
+    "lowConfidence": [
+      {
+        "originalText": "Override 40Override 40",
+        "carrierName": "Override 40O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 40",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 40Override 40",
+        "carrierName": "Override 40O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 40",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 40Override 40",
+        "carrierName": "Override 40O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 40",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 40Override 40",
+        "carrierName": "Override 40O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 40",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 55Override 55",
+        "carrierName": "Override 55O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 55",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 50Override 50",
+        "carrierName": "Override 50O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 50",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 50Override 50",
+        "carrierName": "Override 50O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 50",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 50Override 50",
+        "carrierName": "Override 50O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 50",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "United Of Omaha Life Insurance CompanyBerkshire Contract*Penidng",
+        "carrierName": "United Of Omaha Life Insurance CompanyBerkshire Contra",
+        "contractType": "UNKNOWN",
+        "contractNumber": "ct*Penidng",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 10Override 10",
+        "carrierName": "Override 10O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 10",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Principal Life Insurance CompanyBerkshire Contract*Pending",
+        "carrierName": "Principal Life Insurance CompanyBerkshire Contra",
+        "contractType": "UNKNOWN",
+        "contractNumber": "ct*Pending",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Principal National Life Insurance CompanyBerkshire Contract*Pending",
+        "carrierName": "Principal National Life Insurance CompanyBerkshire Contra",
+        "contractType": "UNKNOWN",
+        "contractNumber": "ct*Pending",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      },
+      {
+        "originalText": "Override 30Override 30",
+        "carrierName": "Override 30O",
+        "contractType": "UNKNOWN",
+        "contractNumber": "verride 30",
+        "confidence": "LOW",
+        "parseMethod": "LAST_10_CHARS"
+      }
+    ]
+  }
+}
