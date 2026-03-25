@@ -327,70 +327,83 @@ export default function ContractsPage() {
           </div>
         )}
 
-        {/* Contracts Grid */}
+        {/* Contracts Table */}
         {contracts.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {contracts.map((contract) => (
-              <Card
-                key={contract.id}
-                className="p-6 hover:shadow-lg dark:hover:shadow-gray-900/70 transition-shadow"
-              >
-                <CardHeader className="p-0 pb-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {contract.carrierName}
-                      </h3>
-                      <Link
-                        href={`/smartoffice/agents/${contract.agentId}`}
-                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1 block"
-                      >
-                        {contract.agentName}
-                      </Link>
-                      {contract.agentNpn && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          NPN: {contract.agentNpn}
-                        </p>
-                      )}
-                    </div>
-                    <Badge variant={getStatusVariant(contract.status)}>
-                      {contract.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-0">
-                  <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Carrier
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Agent
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Contract Type
-                    </p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1">
-                      {contract.contractType}
-                    </p>
-                  </div>
-
-                  {contract.contractNumber && contract.contractNumber !== 'N/A' && (
-                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                        Contract Number
-                      </p>
-                      <p className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 mt-1 break-all">
-                        {contract.contractNumber}
-                      </p>
-                    </div>
-                  )}
-
-                  {contract.agentEmail && (
-                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {contract.agentEmail}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Contract Number
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      NPN
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                  {contracts.map((contract) => (
+                    <tr
+                      key={contract.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {contract.carrierName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Link
+                          href={`/smartoffice/agents/${contract.agentId}`}
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          {contract.agentName}
+                        </Link>
+                        {contract.agentEmail && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {contract.agentEmail}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {contract.contractType}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-mono text-gray-900 dark:text-gray-100">
+                          {contract.contractNumber !== 'N/A' ? contract.contractNumber : '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {contract.agentNpn || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge variant={getStatusVariant(contract.status)}>
+                          {contract.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         ) : data && data.totalContracts === 0 ? (
           <Card className="p-12">
             <div className="text-center">
