@@ -133,8 +133,8 @@ export function IPipelineLauncher({
       if (data.samlResponse && data.acsUrl) {
         setStatus('success');
 
-        // Open new window first (to avoid popup blocker)
-        const iPipelineWindow = window.open('about:blank', 'iPipeline', 'width=1400,height=900,menubar=no,toolbar=no,location=yes,status=no');
+        // Open in new tab (to avoid popup blocker)
+        const iPipelineWindow = window.open('about:blank', '_blank');
 
         if (!iPipelineWindow) {
           setError('Popup blocked. Please allow popups for this site and try again.');
