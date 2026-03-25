@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Shield, Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function SmartOfficeUploadPage() {
   const router = useRouter();
@@ -86,6 +87,15 @@ export default function SmartOfficeUploadPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
+        {/* Back to Dashboard Link */}
+        <Link
+          href="/smartoffice"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 font-medium transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Dashboard
+        </Link>
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
           <div className="flex items-center gap-3 mb-4">
