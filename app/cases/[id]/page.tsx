@@ -75,19 +75,30 @@ export default function PolicyDetailPage() {
   };
 
   const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'INFORCE':
-        return 'success';
-      case 'PENDING':
-        return 'warning';
-      case 'SUBMITTED':
-        return 'info';
-      case 'DECLINED':
-      case 'WITHDRAWN':
-        return 'danger';
-      default:
-        return 'default';
+    const statusLower = status.toLowerCase();
+
+    // Positive/completed statuses
+    if (statusLower.includes('inforce') || statusLower.includes('issued') || statusLower.includes('approved')) {
+      return 'success';
     }
+
+    // Pending/in-progress statuses
+    if (statusLower.includes('pending') || statusLower.includes('submitted') || statusLower.includes('await') || statusLower.includes('incomplete')) {
+      return 'warning';
+    }
+
+    // Negative statuses
+    if (statusLower.includes('declined') || statusLower.includes('withdrawn') || statusLower.includes('not taken') || statusLower.includes('closed')) {
+      return 'danger';
+    }
+
+    // Conditional/special cases
+    if (statusLower.includes('conditional') || statusLower.includes('reissue')) {
+      return 'info';
+    }
+
+    // Default
+    return 'default';
   };
 
   if (isLoading) {

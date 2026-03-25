@@ -1073,17 +1073,6 @@ enum SmartOfficePolicyType {
   OTHER
 }
 
-enum SmartOfficePolicyStatus {
-  ACTIVE
-  PENDING
-  ISSUED
-  INFORCE
-  DECLINED
-  LAPSED
-  SURRENDERED
-  UNKNOWN
-}
-
 model SmartOfficePolicy {
   id                    String                  @id @default(uuid())
 
@@ -1101,7 +1090,7 @@ model SmartOfficePolicy {
   // Status & Dates
   statusDate            DateTime?
   type                  SmartOfficePolicyType
-  status                SmartOfficePolicyStatus @default(UNKNOWN)
+  status                String                  @default("Unknown") // Free-text status from spreadsheet
 
   // Financial Data
   targetAmount          Float?
