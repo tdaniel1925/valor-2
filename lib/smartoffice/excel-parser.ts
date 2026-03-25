@@ -389,8 +389,8 @@ export function parseSmartOfficeExcel(
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    // Convert to JSON
-    const data = XLSX.utils.sheet_to_json(worksheet);
+    // Convert to JSON (default uses first row as header)
+    let data = XLSX.utils.sheet_to_json(worksheet);
 
     if (data.length === 0) {
       return {
@@ -406,6 +406,33 @@ export function parseSmartOfficeExcel(
           skippedRows: 0
         }
       };
+    }
+
+    // Check if first row is a title row by looking at column names
+    // If most columns are __EMPTY, it means row 1 is a title and row 2 has the real headers
+    const firstRowKeys = Object.keys(data[0]);
+    const emptyColumnCount = firstRowKeys.filter(k => k.startsWith('__EMPTY')).length;
+    const hasTitleRow = emptyColumnCount > firstRowKeys.length / 2;
+
+    // If first row looks like a title row, re-parse with row 2 as header
+    if (hasTitleRow) {
+      data = XLSX.utils.sheet_to_json(worksheet, { range: 1 }); // Start from row 2 (0-indexed)
+
+      if (data.length === 0) {
+        return {
+          success: false,
+          type: 'unknown',
+          records: [],
+          errors: ['Excel file contains only a title row with no data'],
+          warnings: [],
+          metadata: {
+            fileName,
+            totalRows: 1,
+            parsedRows: 0,
+            skippedRows: 0
+          }
+        };
+      }
     }
 
     // Get headers and detect report type
