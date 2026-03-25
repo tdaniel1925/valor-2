@@ -8,6 +8,7 @@ export default async function SmartOfficeDashboardPage() {
   // Get tenant ID from middleware header first
   const headersList = await headers();
   let tenantId = headersList.get('x-tenant-id');
+  let userRole: string | undefined;
 
   // If no tenant from middleware, look it up from the logged-in user
   if (!tenantId) {
@@ -17,12 +18,25 @@ export default async function SmartOfficeDashboardPage() {
     if (user) {
       const dbUser = await prisma.user.findUnique({
         where: { id: user.id },
-        select: { tenantId: true }
+        select: { tenantId: true, role: true }
       });
 
       if (dbUser?.tenantId) {
         tenantId = dbUser.tenantId;
+        userRole = dbUser.role;
       }
+    }
+  } else {
+    // Get user role if we have tenantId from middleware
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { role: true }
+      });
+      userRole = dbUser?.role;
     }
   }
 
@@ -40,7 +54,7 @@ export default async function SmartOfficeDashboardPage() {
 
   return (
     <Suspense fallback={<DashboardLoadingFallback />}>
-      <DashboardContent inboundEmailAddress={inboundEmail} />
+      <DashboardContent inboundEmailAddress={inboundEmail} userRole={userRole} />
     </Suspense>
   );
 }
