@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/auth/supabase/server';
+import { createClient } from '@/lib/auth/supabase-server';
 import { parseSmartOfficeExcel } from '@/lib/smartoffice/excel-parser';
 import { importSmartOfficeData } from '@/lib/smartoffice/import-service';
 
