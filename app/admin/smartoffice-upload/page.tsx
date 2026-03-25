@@ -7,6 +7,8 @@ import { Shield, Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2 } from '
 export default function SmartOfficeUploadPage() {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState('');
   const [results, setResults] = useState<{
     success: boolean;
     message: string;
@@ -19,6 +21,8 @@ export default function SmartOfficeUploadPage() {
 
     setUploading(true);
     setResults(null);
+    setUploadProgress(0);
+    setUploadStatus('Preparing files...');
 
     try {
       const formData = new FormData();
@@ -28,16 +32,33 @@ export default function SmartOfficeUploadPage() {
         formData.append('files', file);
       });
 
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + Math.random() * 15;
+        });
+      }, 300);
+
+      setUploadStatus(`Uploading ${files.length} file(s)...`);
+
       const response = await fetch('/api/admin/smartoffice-upload', {
         method: 'POST',
         body: formData,
       });
+
+      clearInterval(progressInterval);
+      setUploadProgress(95);
+      setUploadStatus('Processing data...');
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Upload failed');
       }
+
+      setUploadProgress(100);
+      setUploadStatus('Complete!');
 
       setResults({
         success: true,
@@ -115,15 +136,30 @@ export default function SmartOfficeUploadPage() {
             </p>
           </div>
 
-          {/* Loading State */}
+          {/* Loading State with Progress Bar */}
           {uploading && (
             <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-                <div>
+              <div className="flex items-start gap-3 mb-4">
+                <Loader2 className="w-6 h-6 text-blue-600 animate-spin flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
                   <p className="font-semibold text-blue-900">Processing...</p>
-                  <p className="text-sm text-blue-700">
-                    Uploading and importing spreadsheets. This may take a minute.
+                  <p className="text-sm text-blue-700 mb-3">
+                    {uploadStatus}
+                  </p>
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out relative overflow-hidden"
+                      style={{ width: `${uploadProgress}%` }}
+                    >
+                      {/* Animated shine effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-blue-600 mt-2 font-medium">
+                    {Math.round(uploadProgress)}% complete
                   </p>
                 </div>
               </div>
