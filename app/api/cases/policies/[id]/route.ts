@@ -10,7 +10,7 @@ import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const tenantContext = getTenantFromRequest(request);
@@ -25,7 +25,7 @@ export async function GET(
     // Require authentication
     await requireAuth(request);
 
-    const policyId = params.id;
+    const { id: policyId } = await params;
 
     const policy = await withTenantContext(tenantContext.tenantId, async (db) => {
       return await db.smartOfficePolicy.findFirst({
