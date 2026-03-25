@@ -1,60 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { formatDate, formatPercent } from "@/lib/utils";
 import { Badge, Button, Card, CardHeader, CardContent } from "@/components/ui";
-import { ContractRequestForm } from "@/components/contracts/ContractRequestForm";
 import AppLayout from "@/components/layout/AppLayout";
 
-interface Contract {
+interface AgentContract {
   id: string;
+  agentId: string;
+  agentName: string;
+  agentEmail: string | null;
+  agentNpn: string | null;
   carrierName: string;
-  productType: string;
-  contractNumber: string | null;
-  commissionLevel: number | null;
-  status: string;
-  effectiveDate: string | null;
-  expirationDate: string | null;
-  requestedAt: string;
-  approvedAt: string | null;
-  organization: {
-    id: string;
-    name: string;
-    type: string;
-  } | null;
+  contractType: string;
+  contractNumber: string;
+  status: 'Active' | 'Pending' | 'Closed';
+  rawContractText: string;
 }
 
-interface ContractsData {
-  contracts: Contract[];
+interface AgentContractsData {
+  contracts: AgentContract[];
+  filters: {
+    agents: string[];
+    carriers: string[];
+  };
+  totalContracts: number;
+  filteredContracts: number;
 }
 
 export default function ContractsPage() {
-  const [showRequestModal, setShowRequestModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [agentFilter, setAgentFilter] = useState<string>("ALL");
+  const [carrierFilter, setCarrierFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [productTypeFilter, setProductTypeFilter] = useState<string>("ALL");
 
-  const { data, isLoading, error } = useQuery<ContractsData>({
-    queryKey: ["contracts"],
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm.length === 0 || searchTerm.length >= 2) {
+        setDebouncedSearchTerm(searchTerm);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data, isLoading, error, refetch } = useQuery<AgentContractsData>({
+    queryKey: ["agent-contracts", debouncedSearchTerm, agentFilter, carrierFilter, statusFilter],
     queryFn: async () => {
-      const res = await fetch("/api/contracts");
-      if (!res.ok) throw new Error("Failed to fetch contracts");
+      const params = new URLSearchParams();
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+      if (agentFilter !== 'ALL') params.append('agent', agentFilter);
+      if (carrierFilter !== 'ALL') params.append('carrier', carrierFilter);
+      if (statusFilter !== 'ALL') params.append('status', statusFilter);
+
+      const res = await fetch(`/api/smartoffice/agent-contracts?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch agent contracts");
       return res.json();
     },
   });
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case "ACTIVE":
+      case "Active":
         return "success";
-      case "APPROVED":
-        return "info";
-      case "PENDING":
+      case "Pending":
         return "warning";
-      case "REJECTED":
-      case "INACTIVE":
+      case "Closed":
         return "danger";
       default:
         return "default";
@@ -92,34 +105,11 @@ export default function ContractsPage() {
     );
   }
 
-  // Filter contracts based on search and filters
-  const filteredContracts = data.contracts.filter((contract) => {
-    // Search filter
-    const matchesSearch =
-      searchQuery === "" ||
-      contract.carrierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contract.productType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contract.contractNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contract.organization?.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-    // Status filter
-    const matchesStatus =
-      statusFilter === "ALL" || contract.status === statusFilter;
-
-    // Product type filter
-    const matchesProductType =
-      productTypeFilter === "ALL" || contract.productType === productTypeFilter;
-
-    return matchesSearch && matchesStatus && matchesProductType;
-  });
-
-  const activeContracts = data.contracts.filter((c) => c.status === "ACTIVE");
-  const pendingContracts = data.contracts.filter((c) => c.status === "PENDING");
-
-  // Get unique product types for filter
-  const productTypes = Array.from(
-    new Set(data.contracts.map((c) => c.productType))
-  ).sort();
+  // Stats from filtered data
+  const contracts = data?.contracts || [];
+  const activeContracts = contracts.filter((c) => c.status === "Active");
+  const pendingContracts = contracts.filter((c) => c.status === "Pending");
+  const closedContracts = contracts.filter((c) => c.status === "Closed");
 
   return (
     <AppLayout>
@@ -128,17 +118,10 @@ export default function ContractsPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Contracts</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Agent Contracts</h1>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Manage your carrier appointments and contracts
+                View all agent carrier appointments and contract numbers from SmartOffice
               </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => setShowRequestModal(true)}
-              >
-                + Request Contract
-              </Button>
             </div>
           </div>
         </div>
@@ -147,7 +130,7 @@ export default function ContractsPage() {
           <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
-            <div className="md:col-span-2">
+            <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Search
               </label>
@@ -155,9 +138,9 @@ export default function ContractsPage() {
                 <input
                   id="search"
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by carrier, product, contract number..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Agent, carrier, contract#..."
                   className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
                 />
                 <svg
@@ -176,6 +159,46 @@ export default function ContractsPage() {
               </div>
             </div>
 
+            {/* Agent Filter */}
+            <div>
+              <label htmlFor="agentFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Agent
+              </label>
+              <select
+                id="agentFilter"
+                value={agentFilter}
+                onChange={(e) => setAgentFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+              >
+                <option value="ALL">All Agents</option>
+                {data?.filters.agents.map((agent) => (
+                  <option key={agent} value={agent}>
+                    {agent}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Carrier Filter */}
+            <div>
+              <label htmlFor="carrierFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Carrier
+              </label>
+              <select
+                id="carrierFilter"
+                value={carrierFilter}
+                onChange={(e) => setCarrierFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+              >
+                <option value="ALL">All Carriers</option>
+                {data?.filters.carriers.map((carrier) => (
+                  <option key={carrier} value={carrier}>
+                    {carrier}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Status Filter */}
             <div>
               <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -188,44 +211,44 @@ export default function ContractsPage() {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
               >
                 <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="APPROVED">Approved</option>
-                <option value="PENDING">Pending</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-            </div>
-
-            {/* Product Type Filter */}
-            <div>
-              <label htmlFor="productTypeFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Product Type
-              </label>
-              <select
-                id="productTypeFilter"
-                value={productTypeFilter}
-                onChange={(e) => setProductTypeFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
-              >
-                <option value="ALL">All Products</option>
-                {productTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Closed">Closed</option>
               </select>
             </div>
           </div>
 
           {/* Active Filters Summary */}
-          {(searchQuery || statusFilter !== "ALL" || productTypeFilter !== "ALL") && (
+          {(searchTerm || agentFilter !== "ALL" || carrierFilter !== "ALL" || statusFilter !== "ALL") && (
             <div className="mt-4 flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
-              {searchQuery && (
+              {searchTerm && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm">
-                  Search: {searchQuery}
+                  Search: {searchTerm}
                   <button
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => setSearchTerm("")}
+                    className="hover:text-blue-900 dark:hover:text-blue-100"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {agentFilter !== "ALL" && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+                  Agent: {agentFilter}
+                  <button
+                    onClick={() => setAgentFilter("ALL")}
+                    className="hover:text-blue-900 dark:hover:text-blue-100"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {carrierFilter !== "ALL" && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+                  Carrier: {carrierFilter}
+                  <button
+                    onClick={() => setCarrierFilter("ALL")}
                     className="hover:text-blue-900 dark:hover:text-blue-100"
                   >
                     ×
@@ -243,22 +266,12 @@ export default function ContractsPage() {
                   </button>
                 </span>
               )}
-              {productTypeFilter !== "ALL" && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm">
-                  Product: {productTypeFilter}
-                  <button
-                    onClick={() => setProductTypeFilter("ALL")}
-                    className="hover:text-blue-900 dark:hover:text-blue-100"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
               <button
                 onClick={() => {
-                  setSearchQuery("");
+                  setSearchTerm("");
+                  setAgentFilter("ALL");
+                  setCarrierFilter("ALL");
                   setStatusFilter("ALL");
-                  setProductTypeFilter("ALL");
                 }}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
               >
@@ -270,59 +283,75 @@ export default function ContractsPage() {
         </Card>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total Contracts</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-              {data.contracts.length}
-            </p>
-          </Card>
-          <Card className="p-6">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-              {activeContracts.length}
-            </p>
-          </Card>
-          <Card className="p-6">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
-            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
-              {pendingContracts.length}
-            </p>
-          </Card>
-          <Card className="p-6">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Carriers</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-              {new Set(data.contracts.map((c) => c.carrierName)).size}
-            </p>
-          </Card>
-        </div>
+        {data && (
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <Card className="p-6">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Contracts</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                {data.totalContracts}
+              </p>
+            </Card>
+            <Card className="p-6">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
+                {activeContracts.length}
+              </p>
+            </Card>
+            <Card className="p-6">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
+              <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
+                {pendingContracts.length}
+              </p>
+            </Card>
+            <Card className="p-6">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Closed</p>
+              <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
+                {closedContracts.length}
+              </p>
+            </Card>
+            <Card className="p-6">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Carriers</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                {data.filters.carriers.length}
+              </p>
+            </Card>
+          </div>
+        )}
 
         {/* Results Count */}
-        {data.contracts.length > 0 && (
+        {data && data.totalContracts > 0 && (
           <div className="mb-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {filteredContracts.length} of {data.contracts.length} contracts
+              Showing {data.filteredContracts} of {data.totalContracts} contracts
             </p>
           </div>
         )}
 
         {/* Contracts Grid */}
-        {filteredContracts.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredContracts.map((contract) => (
+        {contracts.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {contracts.map((contract) => (
               <Card
                 key={contract.id}
                 className="p-6 hover:shadow-lg dark:hover:shadow-gray-900/70 transition-shadow"
               >
                 <CardHeader className="p-0 pb-4">
                   <div className="flex justify-between items-start">
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                         {contract.carrierName}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {contract.productType}
-                      </p>
+                      <Link
+                        href={`/smartoffice/agents/${contract.agentId}`}
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1 block"
+                      >
+                        {contract.agentName}
+                      </Link>
+                      {contract.agentNpn && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          NPN: {contract.agentNpn}
+                        </p>
+                      )}
                     </div>
                     <Badge variant={getStatusVariant(contract.status)}>
                       {contract.status}
@@ -331,96 +360,38 @@ export default function ContractsPage() {
                 </CardHeader>
 
                 <CardContent className="p-0">
-                  {contract.contractNumber && (
-                    <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                      Contract Type
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1">
+                      {contract.contractType}
+                    </p>
+                  </div>
+
+                  {contract.contractNumber && contract.contractNumber !== 'N/A' && (
+                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
                         Contract Number
                       </p>
-                      <p className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 mt-1">
+                      <p className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 mt-1 break-all">
                         {contract.contractNumber}
                       </p>
                     </div>
                   )}
 
-                  <div className="space-y-3 mb-4">
-                    {contract.commissionLevel && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          Commission Level:
-                        </span>
-                        <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                          {formatPercent(contract.commissionLevel)}
-                        </span>
-                      </div>
-                    )}
-
-                    {contract.organization && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          Organization:
-                        </span>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {contract.organization.name}
-                        </span>
-                      </div>
-                    )}
-
-                    {contract.effectiveDate && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          Effective Date:
-                        </span>
-                        <span className="text-sm text-gray-900 dark:text-gray-100">
-                          {formatDate(contract.effectiveDate)}
-                        </span>
-                      </div>
-                    )}
-
-                    {contract.expirationDate && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          Expiration Date:
-                        </span>
-                        <span className="text-sm text-gray-900 dark:text-gray-100">
-                          {formatDate(contract.expirationDate)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-                      <span>
-                        Requested {formatDate(contract.requestedAt)}
-                      </span>
-                      {contract.approvedAt && (
-                        <span>
-                          Approved {formatDate(contract.approvedAt)}
-                        </span>
-                      )}
+                  {contract.agentEmail && (
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {contract.agentEmail}
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="mt-4 flex gap-2">
-                    <Link
-                      href={`/contracts/${contract.id}`}
-                      className="flex-1"
-                    >
-                      <Button variant="outline" className="w-full" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
-                    {contract.status === "PENDING" && (
-                      <Button variant="danger" size="sm">
-                        Cancel
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
-        ) : data.contracts.length === 0 ? (
+        ) : data && data.totalContracts === 0 ? (
           <Card className="p-12">
             <div className="text-center">
               <svg
@@ -437,18 +408,11 @@ export default function ContractsPage() {
                 />
               </svg>
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-                No contracts
+                No contracts found
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Get started by requesting your first carrier contract.
+                Upload agent data via SmartOffice admin panel to see contracts.
               </p>
-              <div className="mt-6">
-                <Button
-                  onClick={() => setShowRequestModal(true)}
-                >
-                  + Request Contract
-                </Button>
-              </div>
             </div>
           </Card>
         ) : (
@@ -476,9 +440,10 @@ export default function ContractsPage() {
               <div className="mt-6">
                 <Button
                   onClick={() => {
-                    setSearchQuery("");
+                    setSearchTerm("");
+                    setAgentFilter("ALL");
+                    setCarrierFilter("ALL");
                     setStatusFilter("ALL");
-                    setProductTypeFilter("ALL");
                   }}
                 >
                   Clear Filters
@@ -488,44 +453,43 @@ export default function ContractsPage() {
           </Card>
         )}
 
-        {/* Contracts by Product Type */}
-        {data.contracts.length > 0 && (
+        {/* Contracts by Carrier */}
+        {data && data.totalContracts > 0 && (
           <Card className="mt-8 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Contracts by Product Type
+              Top Carriers by Contract Count
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Object.entries(
                 data.contracts.reduce((acc, c) => {
-                  if (!acc[c.productType]) {
-                    acc[c.productType] = { count: 0, active: 0 };
+                  if (!acc[c.carrierName]) {
+                    acc[c.carrierName] = { count: 0, active: 0 };
                   }
-                  acc[c.productType].count++;
-                  if (c.status === "ACTIVE") {
-                    acc[c.productType].active++;
+                  acc[c.carrierName].count++;
+                  if (c.status === "Active") {
+                    acc[c.carrierName].active++;
                   }
                   return acc;
                 }, {} as Record<string, { count: number; active: number }>)
-              ).map(([type, stats]) => (
-                <div key={type} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{type}</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                    {stats.count}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {stats.active} active
-                  </p>
-                </div>
-              ))}
+              )
+                .sort((a, b) => b[1].count - a[1].count)
+                .slice(0, 8)
+                .map(([carrier, stats]) => (
+                  <div key={carrier} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 mb-2" title={carrier}>
+                      {carrier}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {stats.count}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {stats.active} active
+                    </p>
+                  </div>
+                ))}
             </div>
           </Card>
         )}
-
-        {/* Contract Request Modal */}
-        <ContractRequestForm
-          isOpen={showRequestModal}
-          onClose={() => setShowRequestModal(false)}
-        />
       </div>
     </AppLayout>
   );
