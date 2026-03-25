@@ -87,7 +87,7 @@ export default function SmartOfficeUploadPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-blue-900 mb-2">How to use:</h3>
             <ol className="list-decimal list-inside space-y-1 text-blue-800 text-sm">
-              <li>Select one or more Excel files (.xlsx or .xls)</li>
+              <li>Select one or more spreadsheet files (.xlsx, .xls, or .csv)</li>
               <li>System automatically detects if they're policies or agents</li>
               <li>All old data is deleted and replaced with new data</li>
               <li>Dashboard updates immediately</li>
@@ -104,14 +104,14 @@ export default function SmartOfficeUploadPage() {
               <input
                 type="file"
                 multiple
-                accept=".xlsx,.xls"
+                accept=".xlsx,.xls,.csv"
                 onChange={handleFileUpload}
                 disabled={uploading}
                 className="hidden"
               />
             </label>
             <p className="text-sm text-gray-500 mt-2">
-              Accepts .xlsx and .xls files (can select multiple)
+              Accepts .xlsx, .xls, and .csv files (can select multiple)
             </p>
           </div>
 
