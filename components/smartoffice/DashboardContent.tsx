@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2, Save, Sparkles } from 'lucide-react';
+import { FileSpreadsheet, Users, Upload, Search, Filter, Download, DollarSign, RefreshCw, Clock, TrendingUp, Building2, Save, Sparkles, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuickActionCard from '@/components/smartoffice/QuickActionCard';
@@ -52,9 +52,10 @@ interface Stats {
 
 interface DashboardContentProps {
   inboundEmailAddress: string;
+  userRole?: string;
 }
 
-export default function DashboardContent({ inboundEmailAddress }: DashboardContentProps) {
+export default function DashboardContent({ inboundEmailAddress, userRole }: DashboardContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'policies' | 'agents'>('policies');
@@ -412,6 +413,16 @@ export default function DashboardContent({ inboundEmailAddress }: DashboardConte
                 <RefreshCw className="w-5 h-5" />
                 <span className="hidden sm:inline font-medium">Refresh</span>
               </button>
+              {userRole === 'ADMINISTRATOR' && (
+                <Link
+                  href="/admin/smartoffice-upload"
+                  className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 inline-flex items-center gap-2 font-semibold shadow-lg"
+                  aria-label="Admin panel"
+                >
+                  <Shield className="w-5 h-5" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Link>
+              )}
               <Link
                 href="/smartoffice/import"
                 className="px-6 py-3 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-all duration-200 inline-flex items-center gap-2 font-semibold shadow-lg"
