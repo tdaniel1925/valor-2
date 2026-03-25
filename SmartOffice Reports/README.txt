@@ -5,9 +5,10 @@
 SIMPLE WORKFLOW:
 
 1. PUT YOUR SPREADSHEETS HERE
-   - Drag your latest Excel files into this "SmartOffice Reports" folder
-   - Files can be named anything (e.g., "Policies Feb 2026.xlsx")
+   - Drag your latest Excel or CSV files into this "SmartOffice Reports" folder
+   - Files can be named anything (e.g., "Policies Feb 2026.xlsx" or "Agents.csv")
    - Both policies and agents spreadsheets go here
+   - Supports: .xlsx, .xls, and .csv formats
 
 2. RUN THE UPDATE
    - Double-click "Update SmartOffice Data.bat" in the main folder
@@ -37,7 +38,7 @@ TIPS:
 
 CURRENT FILES:
 
-The system will import ANY .xlsx or .xls file it finds here.
+The system will import ANY .xlsx, .xls, or .csv file it finds here.
 Name them whatever you want!
 
 ================================================================================

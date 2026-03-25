@@ -7,7 +7,7 @@
  * Usage: npx tsx scripts/auto-import-smartoffice.ts
  */
 
-import { parseSmartOfficeExcel } from '@/lib/smartoffice/excel-parser';
+import { parseSmartOfficeExcel, parseSmartOfficeCSV } from '@/lib/smartoffice/excel-parser';
 import { importSmartOfficeData } from '@/lib/smartoffice/import-service';
 import { prisma } from '@/lib/db/prisma';
 import fs from 'fs';
@@ -34,9 +34,9 @@ async function autoImportSmartOffice() {
       return;
     }
 
-    // Get all Excel files in the folder
+    // Get all Excel and CSV files in the folder
     const files = fs.readdirSync(REPORTS_FOLDER)
-      .filter(f => f.endsWith('.xlsx') || f.endsWith('.xls'))
+      .filter(f => f.endsWith('.xlsx') || f.endsWith('.xls') || f.endsWith('.csv'))
       .map(f => ({
         name: f,
         path: path.join(REPORTS_FOLDER, f),
@@ -44,12 +44,12 @@ async function autoImportSmartOffice() {
       }));
 
     if (files.length === 0) {
-      console.log(`⚠️  No Excel files found in: ${REPORTS_FOLDER}\n`);
-      console.log(`   Drop your spreadsheets there and run this again.\n`);
+      console.log(`⚠️  No spreadsheet files found in: ${REPORTS_FOLDER}\n`);
+      console.log(`   Drop your Excel or CSV files there and run this again.\n`);
       return;
     }
 
-    console.log(`📁 Found ${files.length} Excel file(s):\n`);
+    console.log(`📁 Found ${files.length} file(s):\n`);
     files.forEach(f => {
       console.log(`   - ${f.name}`);
       console.log(`     Modified: ${f.stats.mtime.toLocaleString()}`);
@@ -68,8 +68,11 @@ async function autoImportSmartOffice() {
         // Read file
         const buffer = fs.readFileSync(file.path);
 
-        // Parse file
-        const parseResult = parseSmartOfficeExcel(buffer, file.name);
+        // Parse file based on type
+        const isCSV = file.name.toLowerCase().endsWith('.csv');
+        const parseResult = isCSV
+          ? parseSmartOfficeCSV(buffer, file.name)
+          : parseSmartOfficeExcel(buffer, file.name);
 
         if (!parseResult.success) {
           console.log(`   ⚠️  Skipping - could not parse file:`);

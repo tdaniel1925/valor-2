@@ -493,3 +493,116 @@ export function parseSmartOfficeExcelFromPath(filePath: string): ParseResult {
 
   return parseSmartOfficeExcel(buffer, fileName);
 }
+
+/**
+ * Parse SmartOffice CSV file from buffer
+ */
+export function parseSmartOfficeCSV(
+  buffer: Buffer,
+  fileName: string
+): ParseResult {
+  try {
+    // Convert buffer to string
+    const csvText = buffer.toString('utf-8');
+
+    // Split into lines
+    const lines = csvText.split(/\r?\n/).filter(line => line.trim());
+
+    if (lines.length === 0) {
+      return {
+        success: false,
+        type: 'unknown',
+        records: [],
+        errors: ['CSV file is empty'],
+        warnings: [],
+        metadata: {
+          fileName,
+          totalRows: 0,
+          parsedRows: 0,
+          skippedRows: 0
+        }
+      };
+    }
+
+    // Parse CSV (simple parser - handles quoted fields)
+    const parseCSVLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    // Get headers from first line
+    const headers = parseCSVLine(lines[0]);
+
+    // Convert to JSON-like format (same as XLSX output)
+    const data: any[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = parseCSVLine(lines[i]);
+      const row: any = {};
+
+      headers.forEach((header, index) => {
+        row[header] = values[index] || '';
+      });
+
+      data.push(row);
+    }
+
+    // Use the same column matching logic as Excel
+    const columnMatching = matchColumns(headers);
+
+    if (columnMatching.type === 'unknown') {
+      return {
+        success: false,
+        type: 'unknown',
+        records: [],
+        errors: ['Unable to detect report type (policies or agents). Please check column headers.'],
+        warnings: [],
+        metadata: {
+          fileName,
+          totalRows: data.length,
+          parsedRows: 0,
+          skippedRows: 0
+        },
+        columnMapping: columnMatching.matches,
+        unmappedColumns: columnMatching.unmapped
+      };
+    }
+
+    // Parse based on detected type
+    if (columnMatching.type === 'policies') {
+      return parsePoliciesExcel(data, fileName);
+    } else {
+      return parseAgentsExcel(data, fileName);
+    }
+
+  } catch (error: any) {
+    return {
+      success: false,
+      type: 'unknown',
+      records: [],
+      errors: [`Failed to parse CSV file: ${error.message}`],
+      warnings: [],
+      metadata: {
+        fileName,
+        totalRows: 0,
+        parsedRows: 0,
+        skippedRows: 0
+      }
+    };
+  }
+}
