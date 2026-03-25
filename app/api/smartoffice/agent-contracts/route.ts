@@ -3,6 +3,103 @@ import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
 import { requireAuth } from '@/lib/auth/server-auth';
 
+// Known contract type keywords
+const CONTRACT_TYPES = [
+  'Solicitor',
+  'Producer',
+  'Agent',
+  'Broker',
+  'General Agent',
+  'Regional General Agent',
+  'PLRAGT',
+  'Level',
+  'Schedule',
+  'SBLD',
+  'PL00',
+  'GA',
+  'GAH',
+  'BGA',
+];
+
+/**
+ * Parse contract text using multiple methods
+ */
+function parseContractText(text: string): {
+  carrierName: string | null;
+  contractType: string | null;
+  contractNumber: string | null;
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  parseMethod: string;
+} {
+  // Method 1: Try to find contract type keyword
+  for (const type of CONTRACT_TYPES) {
+    const index = text.indexOf(type);
+    if (index > -1) {
+      const carrierName = text.substring(0, index).trim();
+      const remainder = text.substring(index + type.length).trim();
+      const contractNumber = remainder
+        .replace('*Pending', '')
+        .replace('Closed', '')
+        .replace(/^\*+/, '')
+        .trim();
+
+      return {
+        carrierName: carrierName || null,
+        contractType: type,
+        contractNumber: contractNumber || null,
+        confidence: carrierName.length > 0 && contractNumber.length > 0 ? 'HIGH' : 'MEDIUM',
+        parseMethod: 'KEYWORD_MATCH',
+      };
+    }
+  }
+
+  // Method 2: Try to find uppercase acronyms
+  const acronymMatch = text.match(/([A-Z]{2,})/);
+  if (acronymMatch) {
+    const acronym = acronymMatch[0];
+    const acronymIndex = text.indexOf(acronym);
+
+    return {
+      carrierName: text.substring(0, acronymIndex).trim() || null,
+      contractType: acronym,
+      contractNumber: text.substring(acronymIndex + acronym.length).trim() || null,
+      confidence: 'MEDIUM',
+      parseMethod: 'ACRONYM_MATCH',
+    };
+  }
+
+  // Method 3: Try to split on parentheses
+  const parenMatch = text.match(/^(.+?)\((.+?)\)(.+)$/);
+  if (parenMatch) {
+    return {
+      carrierName: parenMatch[1].trim() || null,
+      contractType: parenMatch[2],
+      contractNumber: parenMatch[3].trim() || null,
+      confidence: 'MEDIUM',
+      parseMethod: 'PARENTHESES_SPLIT',
+    };
+  }
+
+  // Method 4: Fallback - assume last 10 chars are contract number
+  if (text.length > 15) {
+    return {
+      carrierName: text.slice(0, -10).trim() || null,
+      contractType: 'UNKNOWN',
+      contractNumber: text.slice(-10).trim() || null,
+      confidence: 'LOW',
+      parseMethod: 'LAST_10_CHARS',
+    };
+  }
+
+  return {
+    carrierName: null,
+    contractType: null,
+    contractNumber: null,
+    confidence: 'LOW',
+    parseMethod: 'FAILED',
+  };
+}
+
 export interface AgentContract {
   id: string;
   agentId: string;
@@ -12,6 +109,12 @@ export interface AgentContract {
   contractText: string; // Raw contract text from spreadsheet
   supervisor: string | null;
   subSource: string | null;
+  // Parsed fields
+  carrierName: string | null;
+  contractType: string | null;
+  contractNumber: string | null;
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  parseMethod: string;
 }
 
 // GET /api/smartoffice/agent-contracts
@@ -72,6 +175,7 @@ export async function GET(request: NextRequest) {
 
       for (let i = 0; i < contractLines.length; i++) {
         const contractText = contractLines[i];
+        const parsed = parseContractText(contractText);
 
         allContracts.push({
           id: `${agent.id}-${i}`,
@@ -82,6 +186,11 @@ export async function GET(request: NextRequest) {
           contractText: contractText,
           supervisor: agent.supervisor,
           subSource: agent.subSource,
+          carrierName: parsed.carrierName,
+          contractType: parsed.contractType,
+          contractNumber: parsed.contractNumber,
+          confidence: parsed.confidence,
+          parseMethod: parsed.parseMethod,
         });
       }
     }
