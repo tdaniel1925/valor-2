@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -40,16 +40,29 @@ interface PoliciesData {
 
 export default function CasesPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
   const [selectedAgency, setSelectedAgency] = useState('');
   const [selectedCarrier, setSelectedCarrier] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Debounce search - only search after user stops typing for 300ms
+  // AND only if they've typed at least 2 characters
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm.length === 0 || searchTerm.length >= 2) {
+        setDebouncedSearchTerm(searchTerm);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Build query params
   const buildQueryParams = () => {
     const params = new URLSearchParams();
-    if (searchTerm) params.append('search', searchTerm);
+    if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
     if (selectedAgent) params.append('agent', selectedAgent);
     if (selectedAgency) params.append('agency', selectedAgency);
     if (selectedCarrier) params.append('carrier', selectedCarrier);
@@ -58,7 +71,7 @@ export default function CasesPage() {
   };
 
   const { data, isLoading, error, refetch } = useQuery<PoliciesData>({
-    queryKey: ['policies', searchTerm, selectedAgent, selectedAgency, selectedCarrier, selectedStatus],
+    queryKey: ['policies', debouncedSearchTerm, selectedAgent, selectedAgency, selectedCarrier, selectedStatus],
     queryFn: async () => {
       const queryString = buildQueryParams();
       const url = `/api/cases/policies${queryString ? `?${queryString}` : ''}`;
