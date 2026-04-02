@@ -484,6 +484,18 @@ model Commission {
   carrier         String
   policyNumber    String?
 
+  // SmartOffice integration fields
+  primaryAdvisor  String?          // Primary Advisor name
+  advisorName     String?          // Agency/Organization name
+  subSource       String?          // Sub-Source
+  supervisor      String?          // Supervisor name
+  primaryInsured  String?          // Client name
+  commAnnualizedPrem Float?        // Annualized Premium
+  premiumMode     String?          // Premium Mode (Annual, Semi-Annual, etc)
+  checkDate       DateTime?        // Commission check date
+  statusDate      DateTime?        // Status date from SmartOffice
+  receivable      Float?           // Receivable amount
+
   amount          Float
   percentage      Float?
   splitAmount     Float?           // Amount after hierarchy splits
@@ -499,6 +511,8 @@ model Commission {
   @@index([userId])
   @@index([status])
   @@index([caseId])
+  @@index([policyNumber])
+  @@index([primaryAdvisor])
   @@map("commissions")
 }
 
