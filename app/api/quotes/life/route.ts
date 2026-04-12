@@ -15,7 +15,7 @@ const winFlexQuoteRequestSchema = z.object({
       .min(18, 'Age must be at least 18')
       .max(85, 'Age must be at most 85')
       .or(z.string().regex(/^\d+$/, 'Invalid age').transform(Number)),
-    gender: z.enum(['Male', 'Female'], { errorMap: () => ({ message: 'Gender must be Male or Female' }) }),
+    gender: z.enum(['Male', 'Female'], { message: 'Gender must be Male or Female' }),
     state: z
       .string()
       .length(2, 'State must be 2-letter code')
@@ -29,7 +29,7 @@ const winFlexQuoteRequestSchema = z.object({
   }),
   product: z.object({
     type: z.enum(['Term', 'Whole Life', 'Universal Life', 'Variable Life'], {
-      errorMap: () => ({ message: 'Invalid product type' }),
+      message: 'Invalid product type',
     }),
     term: z
       .number()
