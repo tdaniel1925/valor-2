@@ -52,10 +52,28 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        result = await prisma.user.updateMany({
-          where: { id: { in: userIds } },
-          data: { organizationId: data.organizationId },
-        });
+        // Create organization memberships for users who don't have them
+        const createResults = await Promise.all(
+          userIds.map(async (userId) => {
+            return prisma.organizationMember.upsert({
+              where: {
+                organizationId_userId: {
+                  organizationId: data.organizationId!,
+                  userId,
+                },
+              },
+              update: {
+                isActive: true,
+              },
+              create: {
+                organizationId: data.organizationId!,
+                userId,
+                isActive: true,
+              },
+            });
+          })
+        );
+        result = { count: createResults.length };
         break;
 
       case "delete":
