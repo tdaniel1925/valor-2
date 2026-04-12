@@ -92,10 +92,16 @@ export async function withTenantContext<T>(
   callback: (prisma: PrismaClient) => Promise<T>
 ): Promise<T> {
   return await prisma.$transaction(async (tx) => {
+    // Validate tenantId is a valid UUID to prevent SQL injection
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(tenantId)) {
+      throw new Error('Invalid tenant ID format');
+    }
+
     // Set tenant context within transaction
-    await tx.$executeRawUnsafe(
-      `SET LOCAL app.current_tenant_id = '${tenantId}'`
-    );
+    // PostgreSQL SET LOCAL doesn't support parameterized values, so we use string interpolation
+    // This is safe because we validated the UUID format above
+    await tx.$executeRawUnsafe(`SET LOCAL app.current_tenant_id = '${tenantId}'`);
 
     // Execute the callback with the transaction client
     return await callback(tx as PrismaClient);

@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { requireAdmin } from "@/lib/auth/server-auth";
+import { bulkUserOperationSchema } from "@/lib/validation/admin-schemas";
+import { ZodError } from "zod";
 
 // POST /api/admin/users/bulk - Perform bulk operations on users
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add admin role check from Supabase auth
+    // Require admin role
+    await requireAdmin(request);
 
     const body = await request.json();
-    const { action, userIds, data } = body;
 
-    if (!action || !userIds || !Array.isArray(userIds) || userIds.length === 0) {
-      return NextResponse.json(
-        { error: "Invalid request. Action and userIds array required." },
-        { status: 400 }
-      );
-    }
+    // Validate input with Zod
+    const validatedData = bulkUserOperationSchema.parse(body);
+    const { action, userIds, data } = validatedData;
 
     let result;
 

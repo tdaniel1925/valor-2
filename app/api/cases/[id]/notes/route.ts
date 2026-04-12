@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addCaseNote, getCaseHistory } from "@/lib/cases/workflow";
 import { getUserId } from "@/lib/auth/supabase";
+import { z } from "zod";
+
+// UUID validation schema for case ID
+const caseIdSchema = z.string().uuid('Invalid case ID');
 
 /**
  * GET /api/cases/:id/notes
@@ -11,7 +15,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: caseId } = await params;
+    const { id } = await params;
+
+    // Validate case ID
+    const caseId = caseIdSchema.parse(id);
 
     const history = await getCaseHistory(caseId);
 
@@ -20,6 +27,12 @@ export async function GET(
       data: history,
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
     console.error("Get case history error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to get case history" },
@@ -27,6 +40,15 @@ export async function GET(
     );
   }
 }
+
+// Schema for adding a note
+const addNoteSchema = z.object({
+  content: z
+    .string()
+    .min(1, 'Note content is required')
+    .max(5000, 'Note cannot exceed 5,000 characters'),
+  isInternal: z.boolean().default(false),
+});
 
 /**
  * POST /api/cases/:id/notes
@@ -37,24 +59,22 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: caseId } = await params;
-    const body = await request.json();
-    const { content, isInternal } = body;
+    const { id } = await params;
 
-    if (!content) {
-      return NextResponse.json(
-        { error: "content is required" },
-        { status: 400 }
-      );
-    }
+    // Validate case ID
+    const caseId = caseIdSchema.parse(id);
+
+    // Validate request body
+    const body = await request.json();
+    const validatedData = addNoteSchema.parse(body);
 
     const userId = await getUserId();
 
     const note = await addCaseNote(
       caseId,
-      content,
+      validatedData.content,
       userId,
-      isInternal || false
+      validatedData.isInternal
     );
 
     return NextResponse.json({
@@ -62,6 +82,12 @@ export async function POST(
       data: note,
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
     console.error("Add case note error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to add note" },

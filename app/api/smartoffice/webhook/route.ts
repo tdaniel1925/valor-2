@@ -36,10 +36,24 @@ export async function POST(request: NextRequest) {
 
   try {
     // ============================================
-    // 1. WEBHOOK SIGNATURE VERIFICATION
+    // 1. READ AND VERIFY WEBHOOK PAYLOAD
     // ============================================
 
-    // Verify webhook is from Supabase
+    // Read body once as text for signature verification
+    const rawBody = await request.text();
+    let payload;
+
+    try {
+      payload = JSON.parse(rawBody);
+    } catch (error) {
+      console.error("[SmartOffice Webhook] Invalid JSON payload");
+      return NextResponse.json(
+        { error: "Invalid JSON payload" },
+        { status: 400 }
+      );
+    }
+
+    // Verify webhook is from Supabase using HMAC signature
     const webhookSecret = process.env.SUPABASE_WEBHOOK_SECRET;
 
     if (webhookSecret) {
@@ -53,9 +67,35 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // TODO: Implement HMAC signature verification
-      // For now, we rely on the secret being in env vars
-      // Production: Verify signature matches HMAC-SHA256(payload, secret)
+      // Verify HMAC-SHA256 signature
+      try {
+        const crypto = require('crypto');
+        const expectedSignature = crypto
+          .createHmac('sha256', webhookSecret)
+          .update(rawBody)
+          .digest('hex');
+
+        const isValid = crypto.timingSafeEqual(
+          Buffer.from(signature),
+          Buffer.from(expectedSignature)
+        );
+
+        if (!isValid) {
+          console.error("[SmartOffice Webhook] Invalid signature");
+          return NextResponse.json(
+            { error: "Invalid webhook signature" },
+            { status: 401 }
+          );
+        }
+
+        console.log("[SmartOffice Webhook] Signature verified successfully");
+      } catch (error) {
+        console.error("[SmartOffice Webhook] Signature verification error:", error);
+        return NextResponse.json(
+          { error: "Signature verification failed" },
+          { status: 401 }
+        );
+      }
     } else {
       console.warn(
         "[SmartOffice Webhook] SUPABASE_WEBHOOK_SECRET not configured - skipping signature verification"
@@ -65,8 +105,6 @@ export async function POST(request: NextRequest) {
     // ============================================
     // 2. PARSE WEBHOOK PAYLOAD
     // ============================================
-
-    const payload = await request.json();
 
     console.log("[SmartOffice Webhook] Received payload:", {
       type: payload.type,

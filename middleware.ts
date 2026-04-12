@@ -84,16 +84,65 @@ export async function middleware(request: NextRequest) {
     (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
   );
 
-  const publicPaths = ["/login", "/signup", "/reset-password", "/unauthorized", "/api/auth", "/api/webhooks", "/api/inbound", "/"];
+  const publicPaths = ["/login", "/signup", "/reset-password", "/unauthorized", "/api/auth", "/api/webhooks", "/api/inbound", "/", "/tenant-not-found", "/no-tenant"];
   const isPublic = publicPaths.some((p) => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + "/"));
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
 
-  if (!hasSession && !isPublic) {
+  // Don't redirect API routes - let them handle their own authentication
+  // via requireTenantAccess() which returns proper 401/403 status codes
+  if (!hasSession && !isPublic && !isApiRoute) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirectTo", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  // Note: Cross-tenant verification is handled at the API route level
+  // via withTenantContext() which sets RLS context and verifies user belongs to tenant
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+
+  // ============================================
+  // SECURITY HEADERS
+  // ============================================
+
+  // Content Security Policy (CSP) - prevents XSS attacks
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://vercel.live;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https:;
+    font-src 'self' data:;
+    connect-src 'self' https://*.supabase.co https://api.stripe.com https://vercel.live wss://*.supabase.co;
+    frame-src 'self' https://js.stripe.com https://vercel.live;
+    worker-src 'self' blob:;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `.replace(/\s{2,}/g, ' ').trim();
+
+  response.headers.set('Content-Security-Policy', cspHeader);
+
+  // Prevent clickjacking attacks
+  response.headers.set('X-Frame-Options', 'DENY');
+
+  // Prevent MIME type sniffing
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // Enable browser XSS protection
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+
+  // Control referrer information
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Enforce HTTPS
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+
+  // Permissions Policy (formerly Feature Policy)
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  return response;
 }
 
 export const config = {

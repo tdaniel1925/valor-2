@@ -66,13 +66,34 @@ export abstract class BaseWebhookHandler implements WebhookHandler {
  */
 export class WinFlexWebhookHandler extends BaseWebhookHandler {
   validateSignature(payload: string, signature: string): boolean {
-    // Implement WinFlex signature validation
-    // This would typically use HMAC SHA-256
+    // Implement WinFlex signature validation using HMAC SHA-256
     const secret = process.env.WINFLEX_WEBHOOK_SECRET || '';
-    if (!secret) return false;
+    if (!secret) {
+      console.error('[WINFLEX_WEBHOOK] Missing WINFLEX_WEBHOOK_SECRET');
+      return false;
+    }
 
-    // TODO: Implement actual signature validation
-    return true;
+    if (!signature) {
+      console.error('[WINFLEX_WEBHOOK] Missing signature header');
+      return false;
+    }
+
+    try {
+      const crypto = require('crypto');
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(payload)
+        .digest('hex');
+
+      // Use timing-safe comparison to prevent timing attacks
+      return crypto.timingSafeEqual(
+        Buffer.from(signature),
+        Buffer.from(expectedSignature)
+      );
+    } catch (error) {
+      console.error('[WINFLEX_WEBHOOK] Signature validation error:', error);
+      return false;
+    }
   }
 
   async handle(event: WebhookEvent): Promise<void> {
@@ -130,10 +151,31 @@ export class WinFlexWebhookHandler extends BaseWebhookHandler {
 export class IPipelineWebhookHandler extends BaseWebhookHandler {
   validateSignature(payload: string, signature: string): boolean {
     const secret = process.env.IPIPELINE_WEBHOOK_SECRET || '';
-    if (!secret) return false;
+    if (!secret) {
+      console.error('[IPIPELINE_WEBHOOK] Missing IPIPELINE_WEBHOOK_SECRET');
+      return false;
+    }
 
-    // TODO: Implement actual signature validation
-    return true;
+    if (!signature) {
+      console.error('[IPIPELINE_WEBHOOK] Missing signature header');
+      return false;
+    }
+
+    try {
+      const crypto = require('crypto');
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(payload)
+        .digest('hex');
+
+      return crypto.timingSafeEqual(
+        Buffer.from(signature),
+        Buffer.from(expectedSignature)
+      );
+    } catch (error) {
+      console.error('[IPIPELINE_WEBHOOK] Signature validation error:', error);
+      return false;
+    }
   }
 
   async handle(event: WebhookEvent): Promise<void> {
@@ -198,10 +240,31 @@ export class IPipelineWebhookHandler extends BaseWebhookHandler {
 export class RateWatchWebhookHandler extends BaseWebhookHandler {
   validateSignature(payload: string, signature: string): boolean {
     const secret = process.env.RATEWATCH_WEBHOOK_SECRET || '';
-    if (!secret) return false;
+    if (!secret) {
+      console.error('[RATEWATCH_WEBHOOK] Missing RATEWATCH_WEBHOOK_SECRET');
+      return false;
+    }
 
-    // TODO: Implement actual signature validation
-    return true;
+    if (!signature) {
+      console.error('[RATEWATCH_WEBHOOK] Missing signature header');
+      return false;
+    }
+
+    try {
+      const crypto = require('crypto');
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(payload)
+        .digest('hex');
+
+      return crypto.timingSafeEqual(
+        Buffer.from(signature),
+        Buffer.from(expectedSignature)
+      );
+    } catch (error) {
+      console.error('[RATEWATCH_WEBHOOK] Signature validation error:', error);
+      return false;
+    }
   }
 
   async handle(event: WebhookEvent): Promise<void> {
@@ -258,11 +321,32 @@ export class RateWatchWebhookHandler extends BaseWebhookHandler {
 export class VapiWebhookHandler extends BaseWebhookHandler {
   validateSignature(payload: string, signature: string): boolean {
     const secret = process.env.VAPI_WEBHOOK_SECRET || '';
-    if (!secret) return false;
+    if (!secret) {
+      console.error('[VAPI_WEBHOOK] Missing VAPI_WEBHOOK_SECRET');
+      return false;
+    }
 
-    // TODO: Implement actual signature validation
-    // VAPI typically uses HMAC SHA-256 for webhook signatures
-    return true;
+    if (!signature) {
+      console.error('[VAPI_WEBHOOK] Missing signature header');
+      return false;
+    }
+
+    try {
+      const crypto = require('crypto');
+      // VAPI uses HMAC SHA-256 for webhook signatures
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(payload)
+        .digest('hex');
+
+      return crypto.timingSafeEqual(
+        Buffer.from(signature),
+        Buffer.from(expectedSignature)
+      );
+    } catch (error) {
+      console.error('[VAPI_WEBHOOK] Signature validation error:', error);
+      return false;
+    }
   }
 
   async handle(event: WebhookEvent): Promise<void> {

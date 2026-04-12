@@ -5,6 +5,9 @@ import {
 } from "@/lib/admin/organization-management";
 import { getUserId } from "@/lib/auth/supabase";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
+import { requireAdmin } from "@/lib/auth/server-auth";
+import { createOrganizationSchema } from "@/lib/validation/admin-schemas";
+import { ZodError } from "zod";
 
 /**
  * GET /api/admin/organizations
@@ -12,6 +15,9 @@ import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require admin role
+    await requireAdmin(request);
+
     const { searchParams } = new URL(request.url);
 
     const result = await getOrganizations({
@@ -46,7 +52,14 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Require admin role
+    await requireAdmin(request);
+
     const body = await request.json();
+
+    // Validate input with Zod
+    const validatedData = createOrganizationSchema.parse(body);
+
     const adminId = await getUserId();
     const tenantContext = getTenantFromRequest(request);
 
@@ -57,7 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const organization = await createOrganization(tenantContext.tenantId, body, adminId);
+    const organization = await createOrganization(tenantContext.tenantId, validatedData, adminId);
 
     return NextResponse.json({
       success: true,

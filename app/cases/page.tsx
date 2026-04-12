@@ -11,19 +11,18 @@ import { Search, Filter, X } from 'lucide-react';
 interface Policy {
   id: string;
   policyNumber: string;
-  primaryAdvisor: string;
-  productName: string;
-  carrierName: string;
-  primaryInsured: string;
-  status: string;
+  primaryAdvisor: string | null;
+  productName: string | null;
+  carrier: string | null;
+  primaryInsured: string | null;
+  status: string | null;
   statusDate: string | null;
-  type: string;
+  type: string | null;
   targetAmount: number | null;
   commAnnualizedPrem: number | null;
   weightedPremium: number | null;
-  firstYearCommission: number | null;
-  renewalCommission: number | null;
-  additionalData: any;
+  excessPrem: number | null;
+  requirements: string | null;
 }
 
 interface PoliciesData {
@@ -154,10 +153,20 @@ export default function CasesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Policies</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            View and manage all SmartOffice policies
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Policies</h1>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                View and manage all SmartOffice policies
+              </p>
+            </div>
+            <Link
+              href="/smartoffice/policies"
+              className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              View in SmartOffice
+            </Link>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -381,7 +390,7 @@ export default function CasesPage() {
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Carrier</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {policy.carrierName}
+                        {policy.carrier || '—'}
                       </p>
                     </div>
                     <div>

@@ -41,7 +41,12 @@ export async function GET(request: NextRequest) {
     const { startDate, endDate } = getDateRange(period);
 
     const data = await withTenantContext(tenantContext.tenantId, async (db) => {
-      // Get all quotes with carrier information
+      // Get previous period for growth calculation
+      const periodLength = endDate.getTime() - startDate.getTime();
+      const prevStartDate = new Date(startDate.getTime() - periodLength);
+      const prevEndDate = new Date(startDate.getTime());
+
+      // Get all quotes with carrier information for current period
       const quotes = await db.quote.findMany({
         where: {
           tenantId: tenantContext.tenantId,
@@ -59,8 +64,35 @@ export async function GET(request: NextRequest) {
             select: {
               status: true,
               createdAt: true,
+              submittedDate: true,
             },
           },
+        },
+      });
+
+      // Get previous period quotes for growth comparison
+      const prevQuotes = await db.quote.findMany({
+        where: {
+          tenantId: tenantContext.tenantId,
+          createdAt: { gte: prevStartDate, lte: prevEndDate },
+          carrier: { not: null },
+        },
+        select: {
+          carrier: true,
+          premium: true,
+        },
+      });
+
+      // Get commissions by carrier for current period
+      const commissions = await db.commission.findMany({
+        where: {
+          tenantId: tenantContext.tenantId,
+          createdAt: { gte: startDate, lte: endDate },
+          carrier: { not: null },
+        },
+        select: {
+          carrier: true,
+          amount: true,
         },
       });
 
@@ -79,6 +111,7 @@ export async function GET(request: NextRequest) {
             casesApproved: 0,
             totalCommissions: 0,
             productTypes: {} as Record<string, number>,
+            underwritingTimes: [] as number[],
           });
         }
 
@@ -90,12 +123,42 @@ export async function GET(request: NextRequest) {
         const productType = quote.type || 'OTHER';
         carrier.productTypes[productType] = (carrier.productTypes[productType] || 0) + 1;
 
-        // Count approved cases
+        // Count approved cases and calculate underwriting time
         const approvedCase = quote.cases.find((c: any) => c.status === 'APPROVED');
         if (approvedCase) {
           carrier.casesApproved += 1;
           carrier.policyCount += 1;
+
+          // Calculate underwriting time if we have submission date
+          if (approvedCase.submittedDate && approvedCase.createdAt) {
+            const underwritingDays = Math.ceil(
+              (new Date(approvedCase.createdAt).getTime() - new Date(approvedCase.submittedDate).getTime()) /
+              (1000 * 60 * 60 * 24)
+            );
+            if (underwritingDays > 0) {
+              carrier.underwritingTimes.push(underwritingDays);
+            }
+          }
         }
+      });
+
+      // Add commissions to carriers
+      commissions.forEach((commission) => {
+        const carrierName = commission.carrier || 'Unknown';
+        if (carrierMap.has(carrierName)) {
+          const carrier = carrierMap.get(carrierName);
+          carrier.totalCommissions += commission.amount || 0;
+        }
+      });
+
+      // Calculate previous period premiums for growth
+      const prevCarrierPremiums = new Map<string, number>();
+      prevQuotes.forEach((quote) => {
+        const carrierName = quote.carrier || 'Unknown';
+        prevCarrierPremiums.set(
+          carrierName,
+          (prevCarrierPremiums.get(carrierName) || 0) + (quote.premium || 0)
+        );
       });
 
       // Calculate metrics and convert to array
@@ -115,7 +178,29 @@ export async function GET(request: NextRequest) {
 
         const marketShare = totalPremium > 0 ? (carrier.totalPremium / totalPremium) * 100 : 0;
 
-        // Convert product types to percentages
+        // Calculate commission rate (commissions / premium)
+        const commissionRate =
+          carrier.totalPremium > 0
+            ? (carrier.totalCommissions / carrier.totalPremium) * 100
+            : 0;
+
+        // Calculate growth vs previous period
+        const prevPremium = prevCarrierPremiums.get(carrier.carrierName) || 0;
+        const growth =
+          prevPremium > 0
+            ? ((carrier.totalPremium - prevPremium) / prevPremium) * 100
+            : carrier.totalPremium > 0
+            ? 100
+            : 0;
+
+        // Calculate average underwriting time
+        const averageUnderwritingTime =
+          carrier.underwritingTimes.length > 0
+            ? carrier.underwritingTimes.reduce((sum: number, time: number) => sum + time, 0) /
+              carrier.underwritingTimes.length
+            : 0;
+
+        // Convert product types to percentages and get top products
         const totalProducts = Object.values(carrier.productTypes).reduce<number>(
           (sum, count) => sum + Number(count),
           0
@@ -125,20 +210,30 @@ export async function GET(request: NextRequest) {
           productTypesPercent[type] = totalProducts > 0 ? ((count as number) / totalProducts) * 100 : 0;
         });
 
+        // Get top 3 products
+        const topProducts = Object.entries(carrier.productTypes)
+          .sort(([, a], [, b]) => (b as number) - (a as number))
+          .slice(0, 3)
+          .map(([type, count]) => ({
+            type,
+            count: count as number,
+            percentage: totalProducts > 0 ? ((count as number) / totalProducts) * 100 : 0,
+          }));
+
         return {
           carrierId: carrier.carrierName.toLowerCase().replace(/\s+/g, '-'),
           carrierName: carrier.carrierName,
-          totalPremium: carrier.totalPremium,
+          totalPremium: Math.round(carrier.totalPremium),
           policyCount: carrier.policyCount,
-          averagePremium,
-          commissionRate: 0, // TODO: Get from contracts table if needed
-          totalCommissions: carrier.totalCommissions,
-          marketShare,
-          growth: 0, // TODO: Compare with previous period
-          approvalRate,
-          averageUnderwritingTime: 0, // TODO: Calculate from case dates
+          averagePremium: Math.round(averagePremium),
+          commissionRate: Math.round(commissionRate * 100) / 100,
+          totalCommissions: Math.round(carrier.totalCommissions),
+          marketShare: Math.round(marketShare * 100) / 100,
+          growth: Math.round(growth * 100) / 100,
+          approvalRate: Math.round(approvalRate * 100) / 100,
+          averageUnderwritingTime: Math.round(averageUnderwritingTime),
           productTypes: productTypesPercent,
-          topProducts: [], // TODO: Break down by specific products if needed
+          topProducts,
         };
       });
 

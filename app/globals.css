@@ -16,6 +16,11 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 /* Mobile touch optimizations */

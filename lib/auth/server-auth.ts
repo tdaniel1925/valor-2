@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { createClient } from "./supabase-server";
+import { prisma } from "@/lib/db/prisma";
 
 /**
  * Get the authenticated user from the request
@@ -44,6 +45,32 @@ export async function requireAuth(request: NextRequest) {
 }
 
 /**
+ * Require admin role - throws 403 error if not admin
+ * Admin roles: ADMINISTRATOR, EXECUTIVE
+ */
+export async function requireAdmin(request: NextRequest) {
+  const authUser = await requireAuth(request);
+
+  // Get full user record with role
+  const dbUser = await prisma.user.findUnique({
+    where: { id: authUser.id },
+    select: { id: true, role: true, tenantId: true, email: true },
+  });
+
+  if (!dbUser) {
+    throw new Error("User not found");
+  }
+
+  // Check if user has admin role
+  const adminRoles = ['ADMINISTRATOR', 'EXECUTIVE'];
+  if (!adminRoles.includes(dbUser.role)) {
+    throw new Error("Insufficient permissions - admin access required");
+  }
+
+  return dbUser;
+}
+
+/**
  * Check if user has access to a resource owned by a specific user
  */
 export async function canAccessUserResource(
@@ -61,7 +88,35 @@ export async function canAccessUserResource(
     return true;
   }
 
-  // TODO: Add organization-level access checks here
-  // For now, only allow access to own resources
+  // Check if user is admin or manager with org-level access
+  const dbUser = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: {
+      role: true,
+      organizationId: true,
+    },
+  });
+
+  if (!dbUser) {
+    return false;
+  }
+
+  // Admins and executives can access all resources in their tenant
+  if (['ADMINISTRATOR', 'EXECUTIVE'].includes(dbUser.role)) {
+    return true;
+  }
+
+  // Managers can access resources in their organization
+  if (dbUser.role === 'MANAGER' && dbUser.organizationId) {
+    const resourceUser = await prisma.user.findUnique({
+      where: { id: resourceUserId },
+      select: { organizationId: true },
+    });
+
+    if (resourceUser?.organizationId === dbUser.organizationId) {
+      return true;
+    }
+  }
+
   return false;
 }

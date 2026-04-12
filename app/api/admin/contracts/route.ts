@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
-import { requireAuth } from "@/lib/auth/server-auth";
+import { requireAdmin } from "@/lib/auth/server-auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,10 +14,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Require authentication
-    const user = await requireAuth(request);
-
-    // TODO: Add admin role check for user
+    // Require admin role
+    await requireAdmin(request);
 
     const contracts = await withTenantContext(tenantContext.tenantId, async (db) => {
       return await db.contract.findMany({

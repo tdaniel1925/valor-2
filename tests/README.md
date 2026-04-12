@@ -7,10 +7,17 @@ This directory contains end-to-end tests for the Valor Insurance Platform using 
 ```
 tests/
 ├── e2e/
-│   ├── smoke.spec.ts                    # Basic health checks
+│   ├── smoke.spec.ts                     # Basic health checks
+│   ├── cross-tenant-security.spec.ts     # Multi-tenant security tests
 │   └── integrations/
 │       ├── ipipeline-integration.spec.ts # UI integration tests
 │       └── ipipeline-api.spec.ts         # API endpoint tests
+├── helpers/
+│   └── auth.ts                           # Authentication helper functions
+├── setup/
+│   ├── test-tenants.ts                   # Test tenant creation/cleanup
+│   └── setup-test-tenants.ts             # Setup script
+├── MULTI-TENANT-TESTING-GUIDE.md         # Comprehensive multi-tenant testing guide
 └── README.md
 ```
 
@@ -27,6 +34,12 @@ tests/
    ```bash
    npx playwright install
    ```
+
+3. **For multi-tenant tests:** Setup test tenants
+   ```bash
+   npx ts-node tests/setup/setup-test-tenants.ts
+   ```
+   This creates test-agency-a and test-agency-b tenants with admin users.
 
 ### Test Commands
 
@@ -45,6 +58,9 @@ npm run test:smoke
 
 # Run only iPipeline tests
 npm run test:ipipeline
+
+# Run only cross-tenant security tests
+npx playwright test cross-tenant-security
 
 # Run tests in debug mode
 npm run test:debug
@@ -83,6 +99,22 @@ Direct API endpoint tests for `/api/integrations/ipipeline/sso`:
 - **Timestamps**: Verifies SAML timestamp validity
 - **Concurrency**: Tests multiple simultaneous requests
 - **iPipeline Attributes**: Validates GAID, channel, and other attributes
+
+### Cross-Tenant Security Tests (`cross-tenant-security.spec.ts`) ⭐ HIGH PRIORITY
+Multi-tenant data isolation and security tests:
+- **Data Isolation**: User from Tenant A cannot see Tenant B data via UI
+- **API Access Control**: Cross-tenant API requests are rejected
+- **Subdomain Security**: Switching subdomains redirects to unauthorized
+- **Header Injection**: Wrong tenant headers are rejected
+- **URL Manipulation**: Cannot access other tenant data by changing URL
+- **Query Parameter Bypass**: Cannot inject tenant IDs via query params
+- **Rate Limiting**: Rate limits are per-tenant, not global
+- **Session Isolation**: Multiple browser contexts maintain separate sessions
+- **SQL Injection**: Tenant context setter is protected from SQL injection
+
+**Prerequisites:** Run `npx ts-node tests/setup/setup-test-tenants.ts` first
+
+See [MULTI-TENANT-TESTING-GUIDE.md](./MULTI-TENANT-TESTING-GUIDE.md) for comprehensive testing documentation.
 
 ## Testing Against Different Environments
 
@@ -175,12 +207,78 @@ npx playwright test -g "should launch iGO"
 npm run test:headed
 ```
 
+## Test Helpers
+
+### Authentication Helpers (`helpers/auth.ts`)
+
+```typescript
+import { loginToTenant, logout, isAuthenticated, getAuthCookies } from '../helpers/auth';
+
+// Login to a tenant
+await loginToTenant(page, 'test-agency-a', 'admin@test-agency-a.com', 'TestPassword123!');
+
+// Check if authenticated
+const isLoggedIn = await isAuthenticated(page);
+
+// Logout
+await logout(page);
+
+// Get tenant from URL
+const tenant = getTenantFromUrl(page.url());
+```
+
+### Test Tenant Management (`setup/test-tenants.ts`)
+
+```typescript
+import { createTestTenants, cleanupTestTenants, verifyTestTenants, TEST_TENANTS } from '../setup/test-tenants';
+
+// Create test tenants (idempotent - safe to run multiple times)
+await createTestTenants();
+
+// Create sample test data
+await createTestData('test-agency-a');
+
+// Verify setup
+await verifyTestTenants();
+
+// Cleanup (WARNING: deletes all test data)
+await cleanupTestTenants();
+```
+
+**Test Tenant Credentials:**
+```
+Tenant A: http://test-agency-a.localhost:2050
+  Email: admin@test-agency-a.com
+  Password: TestPassword123!
+
+Tenant B: http://test-agency-b.localhost:2050
+  Email: admin@test-agency-b.com
+  Password: TestPassword123!
+```
+
+## Cleanup Test Data
+
+To remove test tenants and associated data:
+
+```bash
+npx ts-node tests/setup/setup-test-tenants.ts --cleanup
+```
+
+**WARNING:** This permanently deletes:
+- Test tenant records
+- All test users (from Supabase Auth and database)
+- All cases, quotes, commissions, and other data for test tenants
+
 ## Known Limitations
 
 1. **iPipeline Login**: Tests verify SAML form submission but don't fully test iPipeline login (would require iPipeline credentials)
 2. **Popup Blockers**: Some tests may behave differently with strict popup blockers
 3. **Network Conditions**: Tests assume stable network connection
+4. **Test Tenants**: Cross-tenant security tests require test tenants to be created first
+5. **Rate Limiting**: In-memory rate limiting resets on server restart
 
 ## Support
 
 For issues or questions about tests, contact the development team or create an issue in the repository.
+
+For detailed multi-tenant testing documentation, see [MULTI-TENANT-TESTING-GUIDE.md](./MULTI-TENANT-TESTING-GUIDE.md).
