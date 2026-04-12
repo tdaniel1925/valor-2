@@ -13,16 +13,16 @@ const commissionsQuerySchema = z.object({
     .optional(),
   limit: z
     .string()
+    .default('100')
     .regex(/^\d+$/, 'Limit must be a number')
     .transform(Number)
-    .refine((n) => n >= 1 && n <= 1000, 'Limit must be between 1 and 1000')
-    .default('100'),
+    .refine((n) => n >= 1 && n <= 1000, 'Limit must be between 1 and 1000'),
   offset: z
     .string()
+    .default('0')
     .regex(/^\d+$/, 'Offset must be a number')
     .transform(Number)
-    .refine((n) => n >= 0, 'Offset must be non-negative')
-    .default('0'),
+    .refine((n) => n >= 0, 'Offset must be non-negative'),
 });
 
 // Update commission validation schema
