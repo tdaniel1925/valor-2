@@ -9,23 +9,29 @@ export async function GET(
   try {
     const { id: userId } = await params;
 
-    const organizations = await prisma.organizationMember.findMany({
+    const members = await prisma.organizationMember.findMany({
       where: {
         userId,
         isActive: true,
       },
       include: {
-        organization: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            status: true,
-          },
-        },
+        organization: true,
       },
       orderBy: { joinedAt: "desc" },
     });
+
+    // Filter out members with null organizations and map to expected format
+    const organizations = members
+      .filter((member) => member.organization !== null)
+      .map((member) => ({
+        ...member,
+        organization: {
+          id: member.organization!.id,
+          name: member.organization!.name,
+          type: member.organization!.type,
+          status: member.organization!.status,
+        },
+      }));
 
     return NextResponse.json({ organizations });
   } catch (error) {

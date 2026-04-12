@@ -1,0 +1,25 @@
+[
+  {
+    "action": "navigate",
+    "url": "https://3mark.com/login/3-mark-producer-home/welcome/"
+  },
+  {
+    "action": "click",
+    "selector": "a.ubermenu-target.ubermenu-item-layout-default.ubermenu-item-layout-text_only",
+    "text": "Underwriting & Impaired Risk"
+  },
+  {
+    "action": "navigate",
+    "url": "https://3mark.com/login/3-mark-producer-home/underwriting-and-impaired-risk/"
+  },
+  {
+    "action": "click",
+    "selector": "a",
+    "text": "Underwriting Questionnaires"
+  },
+  {
+    "action": "click",
+    "selector": "a",
+    "text": "Underwriting Questionnaires"
+  }
+]

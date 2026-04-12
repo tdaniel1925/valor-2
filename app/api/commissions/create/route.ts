@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCommissionRecords } from "@/lib/commissions/calculator";
+import { createCommissionSchema } from "@/lib/validation/commission-schemas";
+import { ZodError } from "zod";
 
 /**
  * POST /api/commissions/create
@@ -9,47 +11,28 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const {
-      userId,
-      caseId,
-      carrier,
-      policyNumber,
-      grossPremium,
-      commissionRate,
-      type,
-      periodStart,
-      periodEnd,
-    } = body;
-
-    // Validate required fields
-    if (
-      !userId ||
-      !caseId ||
-      !carrier ||
-      !policyNumber ||
-      grossPremium === undefined ||
-      commissionRate === undefined ||
-      !type ||
-      !periodStart ||
-      !periodEnd
-    ) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    // Validate input with Zod
+    const validatedData = createCommissionSchema.parse(body);
 
     // Create commission records
     await createCommissionRecords({
-      userId,
-      caseId,
-      carrier,
-      policyNumber,
-      grossPremium: parseFloat(grossPremium),
-      commissionRate: parseFloat(commissionRate),
-      type,
-      periodStart: new Date(periodStart),
-      periodEnd: new Date(periodEnd),
+      userId: validatedData.userId,
+      caseId: validatedData.caseId,
+      carrier: validatedData.carrier,
+      policyNumber: validatedData.policyNumber,
+      grossPremium: typeof validatedData.grossPremium === 'string'
+        ? parseFloat(validatedData.grossPremium)
+        : validatedData.grossPremium,
+      commissionRate: typeof validatedData.commissionRate === 'string'
+        ? parseFloat(validatedData.commissionRate)
+        : validatedData.commissionRate,
+      type: validatedData.type,
+      periodStart: typeof validatedData.periodStart === 'string'
+        ? new Date(validatedData.periodStart)
+        : validatedData.periodStart,
+      periodEnd: typeof validatedData.periodEnd === 'string'
+        ? new Date(validatedData.periodEnd)
+        : validatedData.periodEnd,
     });
 
     return NextResponse.json({

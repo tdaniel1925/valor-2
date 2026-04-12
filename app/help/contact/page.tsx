@@ -31,18 +31,35 @@ export default function ContactSupportPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch('/api/help/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    alert('Support request submitted successfully! Our team will respond within 24 hours.');
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      category: '',
-      message: '',
-    });
-    setIsSubmitting(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit support request');
+      }
+
+      alert('Support request submitted successfully! Our team will respond within 24 hours.');
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        category: '',
+        message: '',
+      });
+    } catch (error) {
+      console.error('Error submitting support request:', error);
+      alert(error instanceof Error ? error.message : 'Failed to submit support request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

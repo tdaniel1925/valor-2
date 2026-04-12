@@ -8,46 +8,27 @@ import React from 'react';
 import { renderToStream } from '@react-pdf/renderer';
 import { QuotePDF } from '@/lib/pdf/quote-template';
 import type { QuotePDFData } from '@/lib/pdf/types';
-import type { WinFlexQuote } from '@/lib/integrations/winflex/types';
-
-interface GenerateQuotePDFRequest {
-  clientName: string;
-  agentName?: string;
-  agentEmail?: string;
-  agentPhone?: string;
-  quotes: WinFlexQuote[];
-}
+import { generateQuotePDFSchema } from '@/lib/validation/quote-schemas';
+import { z } from 'zod';
 
 export async function POST(request: NextRequest) {
   try {
-    const body: GenerateQuotePDFRequest = await request.json();
+    const body = await request.json();
 
-    // Validation
-    if (!body.clientName) {
-      return NextResponse.json(
-        { error: 'Client name is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!body.quotes || body.quotes.length === 0) {
-      return NextResponse.json(
-        { error: 'At least one quote is required' },
-        { status: 400 }
-      );
-    }
+    // Validate request body with Zod
+    const validatedData = generateQuotePDFSchema.parse(body);
 
     // Use default agent info if not provided
-    const agentName = body.agentName || 'Valor Insurance Specialist';
-    const agentEmail = body.agentEmail || 'quotes@valorinsurance.com';
+    const agentName = validatedData.agentName || 'Valor Insurance Specialist';
+    const agentEmail = validatedData.agentEmail || 'quotes@valorinsurance.com';
 
     // Transform quotes data for PDF
     const pdfData: QuotePDFData = {
-      clientName: body.clientName,
+      clientName: validatedData.clientName,
       agentName,
       agentEmail,
-      agentPhone: body.agentPhone,
-      quotes: body.quotes.map((quote) => ({
+      agentPhone: validatedData.agentPhone,
+      quotes: validatedData.quotes.map((quote) => ({
         carrierName: quote.carrierName,
         productName: quote.productName,
         monthlyPremium: quote.monthlyPremium,
@@ -58,17 +39,10 @@ export async function POST(request: NextRequest) {
           ...(quote.features?.convertible ? ['Convertible'] : []),
           ...(quote.features?.renewable ? ['Renewable'] : []),
           ...(quote.features?.livingBenefits ? ['Living Benefits'] : []),
-          ...(quote.features?.acceleratedDeathBenefit
-            ? ['Accelerated Death Benefit']
-            : []),
-          ...(quote.features?.waiverOfPremium ? ['Waiver of Premium'] : []),
         ],
       })),
-      quoteDate:
-        body.quotes[0]?.quoteDate || new Date().toISOString(),
-      expiresAt:
-        body.quotes[0]?.expirationDate ||
-        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      quoteDate: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     };
 
     // Generate PDF
@@ -87,10 +61,16 @@ export async function POST(request: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="life-insurance-quotes-${body.clientName.replace(/\s+/g, '-').toLowerCase()}.pdf"`,
+        'Content-Disposition': `attachment; filename="life-insurance-quotes-${validatedData.clientName.replace(/\s+/g, '-').toLowerCase()}.pdf"`,
       },
     });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
     console.error('Error generating quote PDF:', error);
     return NextResponse.json(
       { error: 'Failed to generate PDF' },

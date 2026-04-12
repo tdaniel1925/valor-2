@@ -76,6 +76,15 @@ export async function GET(request: NextRequest) {
             },
           });
 
+          // Get quotes for conversion rate calculation
+          const totalQuotes = await db.quote.count({
+            where: {
+              tenantId: tenantContext.tenantId,
+              userId: agent.id,
+              createdAt: { gte: startDate, lte: endDate },
+            },
+          });
+
           // Get commissions
           const commissions = await db.commission.aggregate({
             where: {
@@ -88,6 +97,35 @@ export async function GET(request: NextRequest) {
             },
           });
 
+          // Get previous period data for growth calculation
+          const periodLength = endDate.getTime() - startDate.getTime();
+          const prevStartDate = new Date(startDate.getTime() - periodLength);
+          const prevCommissions = await db.commission.aggregate({
+            where: {
+              tenantId: tenantContext.tenantId,
+              userId: agent.id,
+              createdAt: { gte: prevStartDate, lt: startDate },
+            },
+            _sum: {
+              amount: true,
+            },
+          });
+
+          // Get organization membership
+          const orgMembership = await db.organizationMember.findFirst({
+            where: {
+              userId: agent.id,
+              isActive: true,
+            },
+            include: {
+              organization: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          });
+
           // Calculate metrics
           const totalPremium = cases.reduce(
             (sum, c) => sum + (c.quote?.premium || 0),
@@ -95,6 +133,38 @@ export async function GET(request: NextRequest) {
           );
           const policyCount = cases.filter((c) => c.status === 'APPROVED').length;
           const averageCase = policyCount > 0 ? totalPremium / policyCount : 0;
+
+          // Conversion rate (approved cases / total quotes)
+          const conversionRate = totalQuotes > 0 ? (policyCount / totalQuotes) * 100 : 0;
+
+          // Quote to app ratio
+          const applications = cases.filter((c) =>
+            ['SUBMITTED', 'UNDERWRITING', 'APPROVED', 'ISSUED'].includes(c.status)
+          ).length;
+          const quoteToAppRatio = totalQuotes > 0 ? (applications / totalQuotes) * 100 : 0;
+
+          // Average time to close (in days)
+          const closedCases = cases.filter((c) => c.status === 'APPROVED');
+          const avgTimeToClose = closedCases.length > 0
+            ? closedCases.reduce((sum, c) => {
+                const daysDiff = Math.floor(
+                  (c.updatedAt.getTime() - c.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+                );
+                return sum + daysDiff;
+              }, 0) / closedCases.length
+            : 0;
+
+          // Persistency (policies still active)
+          const persistency = policyCount > 0
+            ? ((policyCount - cases.filter(c => c.status === 'CANCELLED').length) / policyCount) * 100
+            : 100;
+
+          // Growth calculation
+          const currentCommissions = commissions._sum.amount || 0;
+          const previousCommissions = prevCommissions._sum.amount || 0;
+          const growth = previousCommissions > 0
+            ? ((currentCommissions - previousCommissions) / previousCommissions) * 100
+            : currentCommissions > 0 ? 100 : 0;
 
           // Product mix
           const productCounts = cases.reduce(

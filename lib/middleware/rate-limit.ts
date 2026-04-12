@@ -123,6 +123,24 @@ export const RATE_LIMITS = {
     maxRequests: 20, // 20 requests per minute
     windowSeconds: 60,
   },
+
+  // Authentication endpoints - very strict
+  AUTH: {
+    maxRequests: 5, // 5 attempts per minute
+    windowSeconds: 60,
+  },
+
+  // Public-facing endpoints
+  PUBLIC: {
+    maxRequests: 60, // 60 requests per minute
+    windowSeconds: 60,
+  },
+
+  // Webhook endpoints
+  WEBHOOKS: {
+    maxRequests: 100, // 100 webhooks per minute
+    windowSeconds: 60,
+  },
 } as const;
 
 /**
@@ -140,4 +158,50 @@ export function getRateLimitHeaders(result: ReturnType<typeof checkRateLimit>, c
   }
 
   return headers;
+}
+
+/**
+ * Helper to apply rate limiting to an API route
+ *
+ * @example
+ * ```typescript
+ * import { applyRateLimit, RATE_LIMITS } from '@/lib/middleware/rate-limit';
+ *
+ * export async function POST(request: NextRequest) {
+ *   const user = await requireAuth(request);
+ *
+ *   const rateLimitResponse = applyRateLimit(user.id, request.url, RATE_LIMITS.AUTH);
+ *   if (rateLimitResponse) {
+ *     return rateLimitResponse; // Rate limit exceeded
+ *   }
+ *
+ *   // Your route logic here
+ * }
+ * ```
+ */
+export function applyRateLimit(
+  userId: string,
+  path: string,
+  config: RateLimitConfig
+): Response | null {
+  const result = checkRateLimit(userId, path, config);
+
+  if (!result.allowed) {
+    const headers = getRateLimitHeaders(result, config);
+    return new Response(
+      JSON.stringify({
+        error: 'Rate limit exceeded',
+        message: `Too many requests. Please try again in ${result.retryAfter} seconds.`,
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers,
+        },
+      }
+    );
+  }
+
+  return null; // No rate limit exceeded
 }

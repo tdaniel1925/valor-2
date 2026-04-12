@@ -3,7 +3,7 @@
  */
 
 import { IntegrationAuditLog } from './types';
-// import { prisma } from '@/lib/db'; // Uncomment when audit log table is ready
+import { prisma } from '@/lib/db/prisma';
 
 /**
  * Log an integration API call for audit purposes
@@ -31,21 +31,26 @@ export async function logIntegrationCall(
       error: log.error,
     });
 
-    // TODO: Store in database when AuditLog table is available
-    // await prisma.auditLog.create({
-    //   data: {
-    //     type: 'INTEGRATION_CALL',
-    //     action: `${log.integrationName}:${log.method}:${log.endpoint}`,
-    //     details: {
-    //       requestData: log.requestData,
-    //       responseData: log.responseData,
-    //       error: log.error,
-    //       duration: log.duration,
-    //     },
-    //     userId: log.userId,
-    //     timestamp: log.timestamp,
-    //   },
-    // });
+    // Store in database for audit trail compliance
+    if (log.tenantId && log.userId) {
+      await prisma.auditLog.create({
+        data: {
+          tenantId: log.tenantId,
+          userId: log.userId,
+          action: `${log.integrationName}:${log.method}`,
+          entityType: 'integration',
+          entityId: log.integrationName,
+          changes: JSON.stringify({
+            endpoint: log.endpoint,
+            requestData: sanitizeForLogging(log.requestData),
+            responseData: sanitizeForLogging(log.responseData),
+            error: log.error,
+            duration: log.duration,
+            statusCode: log.statusCode,
+          }),
+        },
+      });
+    }
   } catch (error) {
     // Don't throw errors from audit logging - it shouldn't break the main flow
     console.error('Failed to log integration audit:', error);

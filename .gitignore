@@ -52,3 +52,7 @@ next-env.d.ts
 
 # prisma
 /prisma/migrations/*_*
+
+# logs
+/logs
+*.log

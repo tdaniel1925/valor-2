@@ -67,9 +67,50 @@ export function ProductComparison({ products, onRemoveProduct, onAddProduct }: P
   const [selectedMetric, setSelectedMetric] = useState<'premium' | 'cashValue' | 'deathBenefit'>('premium');
   const [showAllFeatures, setShowAllFeatures] = useState(false);
 
-  const handleExport = () => {
-    // TODO: Implement export to PDF
-    console.log('Export to PDF');
+  const handleExport = async () => {
+    try {
+      // Transform product data for PDF generation
+      const pdfData = {
+        clientName: 'Product Comparison',
+        quotes: products.map(p => ({
+          carrierName: p.carrier,
+          productName: p.productName,
+          monthlyPremium: p.monthlyPremium,
+          annualPremium: p.annualPremium,
+          faceAmount: p.deathBenefit,
+          term: p.term,
+          features: {
+            convertible: p.features.conversion,
+            renewable: true, // Assumed from level premium
+            livingBenefits: p.features.acceleratedDeathBenefit,
+          },
+        })),
+      };
+
+      const response = await fetch('/api/quotes/life/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pdfData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      // Download the PDF
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `insurance-comparison-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export to PDF error:', error);
+      alert('Failed to export PDF. Please try again.');
+    }
   };
 
   const handlePrint = () => {

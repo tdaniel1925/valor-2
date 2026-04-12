@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { transitionCaseStatus } from "@/lib/cases/workflow";
 import { getUserId } from "@/lib/auth/supabase";
+import { z } from "zod";
+
+// UUID validation schema for case ID
+const caseIdSchema = z.string().uuid('Invalid case ID');
+
+// Case status enum
+const caseStatusSchema = z.enum([
+  'LEAD',
+  'CONTACTED',
+  'QUOTED',
+  'SUBMITTED',
+  'UNDERWRITING',
+  'APPROVED',
+  'ISSUED',
+  'DECLINED',
+  'CANCELLED',
+  'LAPSED',
+]);
+
+// Transition request schema
+const transitionSchema = z.object({
+  newStatus: caseStatusSchema,
+  notes: z.string().max(1000, 'Notes cannot exceed 1,000 characters').optional(),
+  metadata: z.record(z.any()).optional(),
+});
 
 /**
  * POST /api/cases/:id/transition
@@ -11,25 +36,23 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: caseId } = await params;
-    const body = await request.json();
-    const { newStatus, notes, metadata } = body;
+    const { id } = await params;
 
-    if (!newStatus) {
-      return NextResponse.json(
-        { error: "newStatus is required" },
-        { status: 400 }
-      );
-    }
+    // Validate case ID
+    const caseId = caseIdSchema.parse(id);
+
+    // Validate request body
+    const body = await request.json();
+    const validatedData = transitionSchema.parse(body);
 
     const userId = await getUserId();
 
     const result = await transitionCaseStatus({
       caseId,
-      newStatus,
+      newStatus: validatedData.newStatus,
       userId,
-      notes,
-      metadata,
+      notes: validatedData.notes,
+      metadata: validatedData.metadata,
     });
 
     if (!result.success) {
@@ -41,6 +64,12 @@ export async function POST(
       data: result,
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
     console.error("Case transition error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to transition case" },

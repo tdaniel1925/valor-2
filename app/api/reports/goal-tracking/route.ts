@@ -39,9 +39,76 @@ export async function GET(request: NextRequest) {
 
       const now = new Date();
 
-      const goalTracking = goals.map((goal) => {
+      // Calculate current progress for each goal based on actual data
+      const goalProgress = await Promise.all(
+        goals.map(async (goal) => {
+          const target = goal.target;
+          let current = 0;
+
+          // Calculate current value based on goal type
+          switch (goal.type) {
+            case 'COMMISSION':
+              // Sum commissions for this user in the goal period
+              const commissionResult = await db.commission.aggregate({
+                where: {
+                  userId: goal.userId,
+                  createdAt: {
+                    gte: new Date(goal.startDate),
+                    lte: new Date(goal.endDate),
+                  },
+                  status: {
+                    in: ['PAID', 'PENDING'],
+                  },
+                },
+                _sum: {
+                  amount: true,
+                },
+              });
+              current = commissionResult._sum.amount || 0;
+              break;
+
+            case 'CASES':
+              // Count cases created by this user in the goal period
+              current = await db.case.count({
+                where: {
+                  userId: goal.userId,
+                  createdAt: {
+                    gte: new Date(goal.startDate),
+                    lte: new Date(goal.endDate),
+                  },
+                },
+              });
+              break;
+
+            case 'PRODUCTION':
+              // Sum premium/target amounts from policies/cases
+              const productionResult = await db.smartOfficePolicy.aggregate({
+                where: {
+                  primaryAdvisor: {
+                    contains: goal.user.lastName, // Match by advisor name
+                  },
+                  statusDate: {
+                    gte: new Date(goal.startDate),
+                    lte: new Date(goal.endDate),
+                  },
+                },
+                _sum: {
+                  targetAmount: true,
+                },
+              });
+              current = productionResult._sum.targetAmount || 0;
+              break;
+
+            default:
+              current = 0;
+          }
+
+          return { goal, current };
+        })
+      );
+
+      const goalTracking = goalProgress.map(({ goal, current }) => {
         const target = goal.target;
-        const current = 0; // TODO: Calculate from actual data based on goal.type
         const percentage = target > 0 ? (current / target) * 100 : 0;
 
         const endDate = new Date(goal.endDate);

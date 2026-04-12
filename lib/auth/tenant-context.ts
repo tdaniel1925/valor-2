@@ -176,9 +176,8 @@ export async function resolveTenantContext(
 export async function setTenantContext(tenantId: string): Promise<void> {
   try {
     // Set PostgreSQL session variable for RLS
-    await prisma.$executeRawUnsafe(
-      `SET LOCAL app.current_tenant_id = '${tenantId}'`
-    );
+    // Using template literal for parameterized query (SQL injection safe)
+    await prisma.$executeRaw`SET LOCAL app.current_tenant_id = ${tenantId}`;
   } catch (error: any) {
     // In development/test environments, the RLS parameter may not be configured
     // Log the error but don't throw if it's just a parameter configuration issue

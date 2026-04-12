@@ -2,13 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { generateProductionReport, exportToCSV } from '@/lib/reports/generator';
 import { getUserId } from '@/lib/auth/supabase';
+import { z } from 'zod';
+
+// Query parameter validation schema
+const productionReportQuerySchema = z.object({
+  period: z.enum(['month', 'quarter', 'year', 'ytd']).default('month'),
+  userId: z.string().uuid('Invalid user ID').optional(),
+  teamView: z
+    .string()
+    .transform((val) => val === 'true')
+    .default('false'),
+});
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const period = searchParams.get('period') || 'month';
-    const userId = searchParams.get('userId');
-    const teamView = searchParams.get('teamView') === 'true';
+
+    // Validate query parameters
+    const queryParams = productionReportQuerySchema.parse({
+      period: searchParams.get('period') || 'month',
+      userId: searchParams.get('userId') || undefined,
+      teamView: searchParams.get('teamView') || 'false',
+    });
+
+    const { period, userId, teamView } = queryParams;
 
     // Calculate date range
     const now = new Date();
@@ -229,6 +246,12 @@ export async function GET(request: NextRequest) {
       recentCases: cases.slice(0, 10),
     });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid query parameters', details: error.errors },
+        { status: 400 }
+      );
+    }
     console.error('[PRODUCTION_REPORT_API] Error:', error);
     return NextResponse.json(
       {

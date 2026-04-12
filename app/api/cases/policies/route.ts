@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
-import { requireAuth } from '@/lib/auth/server-auth';
-import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
+import { withVerifiedTenant } from '@/lib/auth/require-tenant-access';
+import { z } from 'zod';
+
+// Query parameter validation schema
+const policiesQuerySchema = z.object({
+  agent: z.string().max(100, 'Agent name is too long').optional(),
+  agency: z.string().max(100, 'Agency name is too long').optional(),
+  carrier: z.string().max(100, 'Carrier name is too long').optional(),
+  status: z.string().max(50, 'Status is too long').optional(),
+  search: z.string().max(200, 'Search query is too long').optional(),
+  sortBy: z
+    .enum(['statusDate', 'premium', 'status', 'carrier', 'agent'])
+    .default('statusDate'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+});
 
 /**
  * GET /api/cases/policies
@@ -17,33 +29,25 @@ import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
  *   - sortOrder: asc or desc (default: desc)
  */
 export async function GET(request: NextRequest) {
-  try {
-    const tenantContext = getTenantFromRequest(request);
+  return await withVerifiedTenant(request, async ({ tenantId }, prisma) => {
+    try {
+      // Get and validate query parameters
+      const { searchParams } = new URL(request.url);
+      const queryParams = policiesQuerySchema.parse({
+        agent: searchParams.get('agent') || undefined,
+        agency: searchParams.get('agency') || undefined,
+        carrier: searchParams.get('carrier') || undefined,
+        status: searchParams.get('status') || undefined,
+        search: searchParams.get('search') || undefined,
+        sortBy: searchParams.get('sortBy') || 'statusDate',
+        sortOrder: searchParams.get('sortOrder') || 'desc',
+      });
 
-    if (!tenantContext) {
-      return NextResponse.json(
-        { error: 'Tenant context not found' },
-        { status: 400 }
-      );
-    }
+      const { agent, agency, carrier, status, search, sortBy, sortOrder } = queryParams;
 
-    // Require authentication
-    await requireAuth(request);
-
-    // Get query parameters
-    const { searchParams } = new URL(request.url);
-    const agent = searchParams.get('agent');
-    const agency = searchParams.get('agency');
-    const carrier = searchParams.get('carrier');
-    const status = searchParams.get('status');
-    const search = searchParams.get('search');
-    const sortBy = searchParams.get('sortBy') || 'statusDate';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
-
-    const policies = await withTenantContext(tenantContext.tenantId, async (db) => {
       // Build where clause
       const where: any = {
-        tenantId: tenantContext.tenantId,
+        tenantId: tenantId,
       };
 
       if (agent) {
@@ -51,7 +55,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (carrier) {
-        where.carrierName = { contains: carrier, mode: 'insensitive' };
+        where.carrier = { contains: carrier, mode: 'insensitive' };
       }
 
       if (status) {
@@ -63,9 +67,8 @@ export async function GET(request: NextRequest) {
           { policyNumber: { contains: search, mode: 'insensitive' } },
           { primaryInsured: { contains: search, mode: 'insensitive' } },
           { primaryAdvisor: { contains: search, mode: 'insensitive' } },
-          { carrierName: { contains: search, mode: 'insensitive' } },
+          { carrier: { contains: search, mode: 'insensitive' } },
           { productName: { contains: search, mode: 'insensitive' } },
-          { searchText: { contains: search, mode: 'insensitive' } },
         ];
       }
 
@@ -76,14 +79,14 @@ export async function GET(request: NextRequest) {
       } else if (sortBy === 'status') {
         orderBy.status = sortOrder;
       } else if (sortBy === 'carrier') {
-        orderBy.carrierName = sortOrder;
+        orderBy.carrier = sortOrder;
       } else if (sortBy === 'agent') {
         orderBy.primaryAdvisor = sortOrder;
       } else {
         orderBy.statusDate = sortOrder;
       }
 
-      return await db.smartOfficePolicy.findMany({
+      const policies = await prisma.case.findMany({
         where,
         orderBy,
         include: {
@@ -93,55 +96,52 @@ export async function GET(request: NextRequest) {
           },
         },
       });
-    });
 
-    // Get unique values for filters
-    const allPolicies = await withTenantContext(tenantContext.tenantId, async (db) => {
-      return await db.smartOfficePolicy.findMany({
-        where: { tenantId: tenantContext.tenantId },
+      // Get unique values for filters
+      const allPolicies = await prisma.case.findMany({
+        where: { tenantId: tenantId },
         select: {
           primaryAdvisor: true,
-          carrierName: true,
+          carrier: true,
           status: true,
-          additionalData: true,
         },
       });
-    });
 
-    // Extract unique values
-    const agents = Array.from(new Set(allPolicies.map(p => p.primaryAdvisor))).sort();
-    const carriers = Array.from(new Set(allPolicies.map(p => p.carrierName))).sort();
-    const statuses = Array.from(new Set(allPolicies.map(p => p.status))).sort();
+      // Extract unique values and filter out null/undefined
+      const agents = Array.from(new Set(allPolicies.map(p => p.primaryAdvisor).filter(Boolean))).sort();
+      const carriers = Array.from(new Set(allPolicies.map(p => p.carrier).filter(Boolean))).sort();
+      const statuses = Array.from(new Set(allPolicies.map(p => p.status).filter(Boolean))).sort();
 
-    // Extract agencies from additionalData if available
-    const agencies = Array.from(
-      new Set(
-        allPolicies
-          .map(p => p.additionalData && typeof p.additionalData === 'object' && 'agency' in p.additionalData ? (p.additionalData as any).agency : null)
-          .filter(Boolean)
-      )
-    ).sort();
+      // For now, agencies are not in the new structure
+      const agencies: string[] = [];
 
-    return NextResponse.json({
-      success: true,
-      policies,
-      filters: {
-        agents,
-        agencies,
-        carriers,
-        statuses,
-      },
-      total: policies.length,
-    });
+      return NextResponse.json({
+        success: true,
+        policies,
+        filters: {
+          agents,
+          agencies,
+          carriers,
+          statuses,
+        },
+        total: policies.length,
+      });
 
-  } catch (error: any) {
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          { error: 'Invalid query parameters', details: error.errors },
+          { status: 400 }
+        );
+      }
+      if (error instanceof Error && error.message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      console.error('[Cases/Policies] Fetch error:', error);
+      return NextResponse.json(
+        { error: error.message || 'Failed to fetch policies' },
+        { status: 500 }
+      );
     }
-    console.error('[Cases/Policies] Fetch error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch policies' },
-      { status: 500 }
-    );
-  }
+  });
 }
