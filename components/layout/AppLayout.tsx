@@ -47,26 +47,6 @@ const mainNavigation: NavItem[] = [
 // Business section
 const businessNavigation: NavItem[] = [
   {
-    name: "SmartOffice",
-    href: "/smartoffice",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-    children: [
-      {
-        name: "Import Data",
-        href: "/smartoffice/import",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
-        ),
-      },
-    ],
-  },
-  {
     name: "Cases",
     href: "/cases",
     icon: (
@@ -151,13 +131,49 @@ const businessNavigation: NavItem[] = [
   },
   {
     name: "Illustrations",
-    href: "/illustrations",
+    href: "/illustrations/universal-life",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     ),
     children: [
+      {
+        name: "Universal Life",
+        href: "/illustrations/universal-life",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        ),
+      },
+      {
+        name: "Whole Life",
+        href: "/illustrations/whole-life",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        ),
+      },
+      {
+        name: "Term Life",
+        href: "/illustrations/term-life",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        ),
+      },
+      {
+        name: "Compare",
+        href: "/illustrations/compare",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        ),
+      },
       {
         name: "WinFlex",
         href: "/integrations/winflex",
@@ -176,20 +192,11 @@ const businessNavigation: NavItem[] = [
           </svg>
         ),
       },
-      {
-        name: "Firelight",
-        href: "#",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-          </svg>
-        ),
-      },
     ],
   },
   {
     name: "Submissions",
-    href: "/submissions",
+    href: "/cases",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -198,28 +205,28 @@ const businessNavigation: NavItem[] = [
     children: [
       {
         name: "iGo - Life Insurance eApplications",
-        href: "#",
+        href: "https://ipipeline.com",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         ),
       },
       {
         name: "FormsPipe - Insurance Forms",
-        href: "#",
+        href: "https://formspipe.com",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         ),
       },
       {
         name: "Firelight",
-        href: "#",
+        href: "https://firelight.com",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         ),
       },
@@ -265,7 +272,7 @@ const businessNavigation: NavItem[] = [
   },
   {
     name: "Underwriting",
-    href: "/underwriting",
+    href: "/underwriting-guidelines",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -273,17 +280,17 @@ const businessNavigation: NavItem[] = [
     ),
     children: [
       {
-        name: "Product Info",
-        href: "#",
+        name: "Underwriting Guidelines",
+        href: "/underwriting-guidelines",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         ),
       },
       {
         name: "Catalog",
-        href: "#",
+        href: "/catalog",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -291,11 +298,20 @@ const businessNavigation: NavItem[] = [
         ),
       },
       {
-        name: "X-Ray",
-        href: "#",
+        name: "IntelliSheets",
+        href: "/intellisheets",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+          </svg>
+        ),
+      },
+      {
+        name: "XRAE",
+        href: "https://www.examone.com",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         ),
       },
@@ -462,6 +478,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
   const pathname = usePathname();
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     smartoffice: false,
     quotes: false,
@@ -476,12 +493,25 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     admin: true,
   });
 
-  // Load dark mode and expanded sections from localStorage
+  // Load dark mode, zoom level, and expanded sections from localStorage
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedMode);
     if (savedMode) {
       document.documentElement.classList.add('dark');
+    }
+
+    // Load zoom level
+    const savedZoom = localStorage.getItem('zoomLevel');
+    if (savedZoom) {
+      const zoom = parseInt(savedZoom);
+      setZoomLevel(zoom);
+      document.documentElement.style.fontSize = `${zoom}%`;
+    } else {
+      // Set default smaller zoom for more content
+      setZoomLevel(85);
+      document.documentElement.style.fontSize = '85%';
+      localStorage.setItem('zoomLevel', '85');
     }
 
     // Load expanded sections state
@@ -500,6 +530,27 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle('dark');
     localStorage.setItem('darkMode', (!darkMode).toString());
+  };
+
+  // Zoom controls
+  const handleZoomIn = () => {
+    const newZoom = Math.min(zoomLevel + 10, 150);
+    setZoomLevel(newZoom);
+    document.documentElement.style.fontSize = `${newZoom}%`;
+    localStorage.setItem('zoomLevel', newZoom.toString());
+  };
+
+  const handleZoomOut = () => {
+    const newZoom = Math.max(zoomLevel - 10, 60);
+    setZoomLevel(newZoom);
+    document.documentElement.style.fontSize = `${newZoom}%`;
+    localStorage.setItem('zoomLevel', newZoom.toString());
+  };
+
+  const handleZoomReset = () => {
+    setZoomLevel(100);
+    document.documentElement.style.fontSize = '100%';
+    localStorage.setItem('zoomLevel', '100');
   };
 
   // Toggle section expansion
@@ -1107,7 +1158,50 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
         )}>
           <div className="flex items-center justify-between gap-4 w-full">
             <OrganizationSwitcher />
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              {/* Zoom Controls */}
+              <div className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-lg border",
+                darkMode ? "border-gray-600 bg-gray-700/50" : "border-gray-200 bg-gray-50"
+              )}>
+                <button
+                  onClick={handleZoomOut}
+                  className={cn(
+                    "p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                    darkMode ? "text-gray-300" : "text-gray-600"
+                  )}
+                  title="Zoom Out"
+                  aria-label="Zoom Out"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleZoomReset}
+                  className={cn(
+                    "px-2 py-1 text-xs font-medium rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors min-w-[3rem] text-center",
+                    darkMode ? "text-gray-300" : "text-gray-700"
+                  )}
+                  title="Reset Zoom"
+                  aria-label="Reset Zoom"
+                >
+                  {zoomLevel}%
+                </button>
+                <button
+                  onClick={handleZoomIn}
+                  className={cn(
+                    "p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                    darkMode ? "text-gray-300" : "text-gray-600"
+                  )}
+                  title="Zoom In"
+                  aria-label="Zoom In"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
               <QuickActions />
               <NotificationCenter />
             </div>
