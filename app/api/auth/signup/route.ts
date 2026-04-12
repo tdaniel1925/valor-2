@@ -3,27 +3,35 @@ import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/db/prisma";
 import { isValidSlug } from "@/lib/tenants/slug-validator";
 import { generateInboundEmailAddress } from "@/lib/email/generate-inbound-address";
+import { applyRateLimit, RATE_LIMITS } from "@/lib/auth/rate-limit";
+import { signUpSchema } from "@/lib/validation/auth-schemas";
+import { ZodError } from "zod";
+import { createLogger } from "@/lib/logging/logger";
+import { getRequestId } from "@/lib/logging/request-id";
 
 export async function POST(request: NextRequest) {
+  const requestId = getRequestId(request);
+  const logger = createLogger({
+    requestId,
+    method: request.method,
+    path: '/api/auth/signup',
+  });
+
+  // Apply rate limiting to prevent signup abuse
+  const rateLimitResponse = applyRateLimit(request, RATE_LIMITS.AUTH_SIGNUP);
+  if (rateLimitResponse) {
+    logger.warn('Rate limit exceeded for signup attempt');
+    return rateLimitResponse;
+  }
+
   try {
     const body = await request.json();
-    const { email, password, agencyName, subdomain } = body;
 
-    // Validate inputs
-    if (!email || !password || !agencyName || !subdomain) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
-    }
+    // Validate input with Zod
+    const validatedData = signUpSchema.parse(body);
+    const { email, password, agencyName, subdomain } = validatedData;
 
-    // Validate subdomain
-    if (!isValidSlug(subdomain)) {
-      return NextResponse.json(
-        { error: "Invalid subdomain format" },
-        { status: 400 }
-      );
-    }
+    logger.info('Signup attempt', { email, subdomain, agencyName });
 
     // Check if subdomain already exists
     const existingTenant = await prisma.tenant.findUnique({
@@ -31,6 +39,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingTenant) {
+      logger.warn('Signup failed - subdomain already exists', { subdomain });
       return NextResponse.json(
         { error: "This subdomain is already taken" },
         { status: 409 }
@@ -50,7 +59,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (authError || !authData.user) {
-      console.error("Supabase auth error:", authError);
+      logger.error('Supabase auth error during signup', {
+        email,
+        error: authError?.message,
+        code: authError?.code
+      });
       return NextResponse.json(
         { error: authError?.message || "Failed to create user" },
         { status: 500 }
@@ -96,6 +109,12 @@ export async function POST(request: NextRequest) {
       return newTenant;
     });
 
+    logger.info('Signup successful', {
+      tenantId: tenant.id,
+      slug: tenant.slug,
+      email,
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -105,7 +124,11 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("Signup error:", error);
+    logger.error('Signup error', {
+      error: error.message,
+      stack: error.stack,
+      code: error.code,
+    });
 
     // Check for unique constraint violations
     if (error.code === 'P2002') {
