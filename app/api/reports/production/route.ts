@@ -10,8 +10,11 @@ const productionReportQuerySchema = z.object({
   userId: z.string().uuid('Invalid user ID').optional(),
   teamView: z
     .string()
-    .transform((val) => val === 'true')
-    .default('false'),
+    .optional()
+    .default('false')
+    .pipe(
+      z.string().transform((val) => val === 'true')
+    ),
 });
 
 export async function GET(request: NextRequest) {

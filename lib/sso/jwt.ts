@@ -47,7 +47,7 @@ export async function createAccessToken(
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jose.jwtVerify(token, secretKey);
-    return payload as JWTPayload;
+    return payload as unknown as JWTPayload;
   } catch (error) {
     console.error('Token verification failed:', error);
     return null;

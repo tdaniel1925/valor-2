@@ -93,7 +93,11 @@ export async function canAccessUserResource(
     where: { id: currentUserId },
     select: {
       role: true,
-      organizationId: true,
+      organizations: {
+        select: {
+          organizationId: true,
+        },
+      },
     },
   });
 
@@ -107,13 +111,24 @@ export async function canAccessUserResource(
   }
 
   // Managers can access resources in their organization
-  if (dbUser.role === 'MANAGER' && dbUser.organizationId) {
+  if (dbUser.role === 'MANAGER' && dbUser.organizations.length > 0) {
     const resourceUser = await prisma.user.findUnique({
       where: { id: resourceUserId },
-      select: { organizationId: true },
+      select: {
+        organizations: {
+          select: {
+            organizationId: true,
+          },
+        },
+      },
     });
 
-    if (resourceUser?.organizationId === dbUser.organizationId) {
+    // Check if any organization overlaps
+    const currentUserOrgIds = dbUser.organizations.map(o => o.organizationId);
+    const resourceUserOrgIds = resourceUser?.organizations.map(o => o.organizationId) || [];
+    const hasSharedOrg = currentUserOrgIds.some(id => resourceUserOrgIds.includes(id));
+
+    if (hasSharedOrg) {
       return true;
     }
   }

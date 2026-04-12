@@ -189,16 +189,24 @@ export const casesQuerySchema = z.object({
   search: z.string().max(100, 'Search query is too long').optional(),
   page: z
     .string()
-    .regex(/^\d+$/, 'Page must be a positive number')
-    .transform(Number)
-    .refine((n) => n >= 1, 'Page must be at least 1')
-    .default('1'),
+    .optional()
+    .default('1')
+    .pipe(
+      z.string()
+        .regex(/^\d+$/, 'Page must be a positive number')
+        .transform(Number)
+        .refine((n) => n >= 1, 'Page must be at least 1')
+    ),
   limit: z
     .string()
-    .regex(/^\d+$/, 'Limit must be a positive number')
-    .transform(Number)
-    .refine((n) => n >= 1 && n <= 100, 'Limit must be between 1 and 100')
-    .default('20'),
+    .optional()
+    .default('20')
+    .pipe(
+      z.string()
+        .regex(/^\d+$/, 'Limit must be a positive number')
+        .transform(Number)
+        .refine((n) => n >= 1 && n <= 100, 'Limit must be between 1 and 100')
+    ),
   sortBy: z
     .enum(['createdAt', 'updatedAt', 'clientName', 'status', 'priority'])
     .default('updatedAt'),

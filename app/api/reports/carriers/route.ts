@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
             select: {
               status: true,
               createdAt: true,
-              submittedDate: true,
+              submittedAt: true,
             },
           },
         },
@@ -130,9 +130,9 @@ export async function GET(request: NextRequest) {
           carrier.policyCount += 1;
 
           // Calculate underwriting time if we have submission date
-          if (approvedCase.submittedDate && approvedCase.createdAt) {
+          if (approvedCase.submittedAt && approvedCase.createdAt) {
             const underwritingDays = Math.ceil(
-              (new Date(approvedCase.createdAt).getTime() - new Date(approvedCase.submittedDate).getTime()) /
+              (new Date(approvedCase.createdAt).getTime() - new Date(approvedCase.submittedAt).getTime()) /
               (1000 * 60 * 60 * 24)
             );
             if (underwritingDays > 0) {

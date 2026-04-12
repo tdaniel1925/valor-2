@@ -21,14 +21,14 @@ const winFlexQuoteRequestSchema = z.object({
       .length(2, 'State must be 2-letter code')
       .regex(/^[A-Z]{2}$/, 'State must be uppercase 2-letter code'),
     tobacco: z
-      .enum(['Never', 'Quit > 12 months', 'Quit < 12 months', 'Current'])
+      .enum(['Never', 'Former', 'Current'])
       .default('Never'),
     healthClass: z
       .enum(['Preferred Plus', 'Preferred', 'Standard Plus', 'Standard', 'Substandard'])
       .default('Standard'),
   }),
   product: z.object({
-    type: z.enum(['Term', 'Whole Life', 'Universal Life', 'Variable Life'], {
+    type: z.enum(['Term', 'Whole Life', 'Universal Life', 'Variable Universal Life'], {
       message: 'Invalid product type',
     }),
     term: z
