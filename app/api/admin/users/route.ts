@@ -6,13 +6,24 @@ import {
   deleteUser,
 } from "@/lib/admin/user-management";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
-import { requireAuth } from "@/lib/auth/server-auth";
+import { requireAdmin } from "@/lib/auth/server-auth";
+import { createUserSchema, updateUserSchema } from "@/lib/validation/admin-schemas";
+import { ZodError } from "zod";
+import { createLogger } from "@/lib/logging/logger";
+import { getRequestId } from "@/lib/logging/request-id";
 
 /**
  * GET /api/admin/users
  * Get all users with filters (admin only, tenant-scoped)
  */
 export async function GET(request: NextRequest) {
+  const requestId = getRequestId(request);
+  const logger = createLogger({
+    requestId,
+    method: request.method,
+    path: '/api/admin/users',
+  });
+
   try {
     const tenantContext = getTenantFromRequest(request);
 
@@ -23,11 +34,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Require authentication
-    const user = await requireAuth(request);
-
-    // TODO: Add admin role check for user
-    // TODO: Update getUsers function to accept tenantId and use withTenantContext
+    // Require admin authentication
+    const user = await requireAdmin(request);
     const { searchParams } = new URL(request.url);
 
     const result = await getUsers({
@@ -51,7 +59,7 @@ export async function GET(request: NextRequest) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error("Get users error:", error);
+    logger.error('Get users error', { error: error.message, stack: error.stack });
     return NextResponse.json(
       { error: error.message || "Failed to get users" },
       { status: 500 }
@@ -64,6 +72,13 @@ export async function GET(request: NextRequest) {
  * Create a new user (admin only, tenant-scoped)
  */
 export async function POST(request: NextRequest) {
+  const requestId = getRequestId(request);
+  const logger = createLogger({
+    requestId,
+    method: request.method,
+    path: '/api/admin/users',
+  });
+
   try {
     const tenantContext = getTenantFromRequest(request);
 
@@ -74,13 +89,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Require authentication
-    const user = await requireAuth(request);
+    // Require admin authentication
+    const user = await requireAdmin(request);
 
-    // TODO: Add admin role check
     const body = await request.json();
 
-    const newUser = await createUser(tenantContext.tenantId, body, user.id);
+    // Validate input with Zod
+    const validatedData = createUserSchema.parse(body);
+
+    const newUser = await createUser(tenantContext.tenantId, validatedData, user.id);
+
+    logger.info('User created by admin', {
+      newUserId: newUser.id,
+      email: newUser.email,
+      createdBy: user.id,
+    });
 
     return NextResponse.json({
       success: true,
@@ -90,7 +113,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error("Create user error:", error);
+    logger.error('Create user error', { error: error.message, stack: error.stack });
     return NextResponse.json(
       { error: error.message || "Failed to create user" },
       { status: 500 }
@@ -103,6 +126,13 @@ export async function POST(request: NextRequest) {
  * Update a user (admin only, tenant-scoped)
  */
 export async function PATCH(request: NextRequest) {
+  const requestId = getRequestId(request);
+  const logger = createLogger({
+    requestId,
+    method: request.method,
+    path: '/api/admin/users',
+  });
+
   try {
     const tenantContext = getTenantFromRequest(request);
 
@@ -113,11 +143,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Require authentication
-    const user = await requireAuth(request);
+    // Require admin authentication
+    const user = await requireAdmin(request);
 
-    // TODO: Add admin role check
-    // TODO: Update updateUser function to accept tenantId and use withTenantContext
     const body = await request.json();
     const { userId, ...updates } = body;
 
@@ -128,7 +156,16 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const updatedUser = await updateUser(userId, updates, user.id);
+    // Validate update fields with Zod
+    const validatedUpdates = updateUserSchema.parse(updates);
+
+    const updatedUser = await updateUser(userId, validatedUpdates, user.id);
+
+    logger.info('User updated by admin', {
+      updatedUserId: userId,
+      updatedBy: user.id,
+      fields: Object.keys(validatedUpdates),
+    });
 
     return NextResponse.json({
       success: true,
@@ -138,7 +175,7 @@ export async function PATCH(request: NextRequest) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error("Update user error:", error);
+    logger.error('Update user error', { error: error.message, stack: error.stack });
     return NextResponse.json(
       { error: error.message || "Failed to update user" },
       { status: 500 }
@@ -151,6 +188,13 @@ export async function PATCH(request: NextRequest) {
  * Delete a user (soft delete) (admin only, tenant-scoped)
  */
 export async function DELETE(request: NextRequest) {
+  const requestId = getRequestId(request);
+  const logger = createLogger({
+    requestId,
+    method: request.method,
+    path: '/api/admin/users',
+  });
+
   try {
     const tenantContext = getTenantFromRequest(request);
 
@@ -161,11 +205,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Require authentication
-    const user = await requireAuth(request);
+    // Require admin authentication
+    const user = await requireAdmin(request);
 
-    // TODO: Add admin role check
-    // TODO: Update deleteUser function to accept tenantId and use withTenantContext
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 
@@ -178,6 +220,11 @@ export async function DELETE(request: NextRequest) {
 
     await deleteUser(userId, user.id);
 
+    logger.info('User deleted by admin', {
+      deletedUserId: userId,
+      deletedBy: user.id,
+    });
+
     return NextResponse.json({
       success: true,
       message: "User deleted successfully",
@@ -186,7 +233,7 @@ export async function DELETE(request: NextRequest) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error("Delete user error:", error);
+    logger.error('Delete user error', { error: error.message, stack: error.stack });
     return NextResponse.json(
       { error: error.message || "Failed to delete user" },
       { status: 500 }
