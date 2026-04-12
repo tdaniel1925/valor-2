@@ -30,6 +30,8 @@ export interface IntegrationAuditLog {
   duration: number; // ms
   timestamp: Date;
   userId?: string;
+  tenantId?: string;
+  statusCode?: number;
 }
 
 export interface HealthCheckResult {
