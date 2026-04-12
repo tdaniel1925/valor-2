@@ -24,7 +24,7 @@ const caseStatusSchema = z.enum([
 const transitionSchema = z.object({
   newStatus: caseStatusSchema,
   notes: z.string().max(1000, 'Notes cannot exceed 1,000 characters').optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 /**
