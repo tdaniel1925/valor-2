@@ -53,8 +53,6 @@ export default function PolicyDetailPage() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     basic: true,
     financial: true,
-    metadata: false,
-    raw: false,
   });
 
   const { data: policy, isLoading, error } = useQuery<PolicyDetail>({
@@ -254,76 +252,6 @@ export default function PolicyDetailPage() {
               {policy.renewalCommission ? formatCurrency(policy.renewalCommission) : '—'}
             </p>
           </div>
-        </div>
-      ),
-    },
-    {
-      id: 'metadata',
-      title: 'Import & Sync Information',
-      icon: Info,
-      content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              Source File
-            </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-gray-100 break-all">
-              {policy.sourceFile || '—'}
-            </p>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              Import Date
-            </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-              {formatDate(policy.importDate)}
-            </p>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              Last Sync Date
-            </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-              {formatDate(policy.lastSyncDate)}
-            </p>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              Created At
-            </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-              {formatDate(policy.createdAt)}
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: 'raw',
-      title: 'Raw Data',
-      icon: Building2,
-      content: (
-        <div className="space-y-4">
-          {policy.additionalData && Object.keys(policy.additionalData).length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Additional Data
-              </h4>
-              <pre className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-xs overflow-auto max-h-64">
-                {JSON.stringify(policy.additionalData, null, 2)}
-              </pre>
-            </div>
-          )}
-          {policy.rawData && Object.keys(policy.rawData).length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Original Import Data
-              </h4>
-              <pre className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-xs overflow-auto max-h-64">
-                {JSON.stringify(policy.rawData, null, 2)}
-              </pre>
-            </div>
-          )}
         </div>
       ),
     },
