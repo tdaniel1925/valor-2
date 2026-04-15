@@ -1,17 +1,16 @@
 /**
- * Import SmartOffice Commissions Report CSV
+ * Import SmartOffice Advisors & Contracts CSV
  *
- * Imports commission payment data from SmartOffice export:
- * - Check dates and payment amounts
- * - Policy and advisor information
- * - Premium details
- * - Receivables
+ * Imports advisor contract information from SmartOffice export:
+ * - Advisor details (name, email, phone)
+ * - Contract information (carrier, type, number, commission levels)
+ * - Effective and expiration dates
  *
  * Usage:
- *   npm run import:commissions <csv-file-path> [--tenant-id <id>]
+ *   npm run import:contracts <csv-file-path> [--tenant-id <id>]
  *
  * Example:
- *   npm run import:commissions "scripts/New_sm-reports/Valor - Commissions Report (1).csv"
+ *   npm run import:contracts "scripts/New_sm-reports/Valor - Advisors & Contracts (1).csv"
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -21,21 +20,18 @@ import { parse } from 'csv-parse/sync';
 
 const prisma = new PrismaClient();
 
-interface CommissionRow {
-  'Policy #': string;
-  'Check Date': string;
-  'Primary Advisor': string;
-  'Advisor Name': string;
+interface ContractRow {
+  'Advisor': string;
+  'Preferred E-mail': string;
+  'Full Phone': string;
   'Sub-Source': string;
   'Supervisor': string;
-  'Status Date': string;
-  'Plan Type': string;
-  'Carrier Name': string;
-  'Primary Insured': string;
-  'Comm Annualized Prem': string;
-  'Premium Mode': string;
-  'Actual Amount Paid': string;
-  'Receivable': string;
+  'Contract': string;
+  'Contract Name': string;
+  'Contract Type': string;
+  'Contract No.': string;
+  'Effective Date': string;
+  'Expiration Date': string;
 }
 
 function parseDate(dateStr: string | null | undefined): Date | null {
@@ -57,34 +53,27 @@ function parseDate(dateStr: string | null | undefined): Date | null {
   }
 }
 
-function parseFloatValue(value: string | null | undefined): number | null {
-  if (!value || value.trim() === '') return null;
-
-  try {
-    // Remove commas and parse
-    const cleaned = value.replace(/,/g, '');
-    const num = Number(cleaned);
-    return isNaN(num) ? null : num;
-  } catch (e) {
-    return null;
-  }
+function extractCarrierName(contractName: string): string | null {
+  // Extract carrier name from contract string like "Symetra Life Insurance Company-Contract"
+  const match = contractName.match(/^(.+?)-Contract$/i);
+  return match ? match[1].trim() : contractName;
 }
 
-function buildSearchText(commission: any): string {
+function buildSearchText(contract: any): string {
   return [
-    commission.policyNumber,
-    commission.primaryAdvisor,
-    commission.advisorName,
-    commission.carrierName,
-    commission.primaryInsured,
+    contract.advisorName,
+    contract.advisorEmail,
+    contract.contractName,
+    contract.contractNumber,
+    contract.carrierName,
   ]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
 }
 
-async function importCommissions(filePath: string, tenantId: string) {
-  console.log(`\n🔄 Importing SmartOffice Commissions from: ${filePath}`);
+async function importContracts(filePath: string, tenantId: string) {
+  console.log(`\n🔄 Importing SmartOffice Contracts from: ${filePath}`);
   console.log(`📋 Tenant ID: ${tenantId}\n`);
 
   // Read and parse CSV
@@ -93,15 +82,15 @@ async function importCommissions(filePath: string, tenantId: string) {
     columns: true,
     skip_empty_lines: true,
     trim: true,
-  }) as CommissionRow[];
+  }) as ContractRow[];
 
-  console.log(`📊 Found ${records.length} commission records\n`);
+  console.log(`📊 Found ${records.length} contract records\n`);
 
   // Create import record
   const importRecord = await prisma.smartOfficeImport.create({
     data: {
       tenantId,
-      userId: 'system',
+      userId: 'system', // Will need to be replaced with actual user ID
       fileName: path.basename(filePath),
       source: 'manual',
       status: 'PROCESSING',
@@ -119,22 +108,20 @@ async function importCommissions(filePath: string, tenantId: string) {
     const row = records[i];
 
     try {
-      const commissionData = {
+      const contractData = {
         tenantId,
-        policyNumber: row['Policy #'] || null,
-        checkDate: parseDate(row['Check Date']),
-        actualAmountPaid: parseFloatValue(row['Actual Amount Paid']),
-        receivable: parseFloatValue(row['Receivable']),
-        primaryAdvisor: row['Primary Advisor'] || null,
-        advisorName: row['Advisor Name'] || null,
+        advisorName: row['Advisor'] || '',
+        advisorEmail: row['Preferred E-mail'] || null,
+        advisorPhone: row['Full Phone'] || null,
         subSource: row['Sub-Source'] || null,
         supervisor: row['Supervisor'] || null,
-        statusDate: parseDate(row['Status Date']),
-        planType: row['Plan Type'] || null,
-        carrierName: row['Carrier Name'] || null,
-        primaryInsured: row['Primary Insured'] || null,
-        commAnnualizedPrem: parseFloatValue(row['Comm Annualized Prem']),
-        premiumMode: row['Premium Mode'] || null,
+        contractName: row['Contract'] || '',
+        contractType: row['Contract Type'] || null,
+        contractNumber: row['Contract No.'] || null,
+        commissionLevel: row['Contract Name'] || null,
+        effectiveDate: parseDate(row['Effective Date']),
+        expirationDate: parseDate(row['Expiration Date']),
+        carrierName: extractCarrierName(row['Contract'] || ''),
         importId: importRecord.id,
         sourceFile: path.basename(filePath),
         rawData: row,
@@ -143,40 +130,38 @@ async function importCommissions(filePath: string, tenantId: string) {
       };
 
       // Build search text
-      commissionData.searchText = buildSearchText(commissionData);
+      contractData.searchText = buildSearchText(contractData);
 
-      // Upsert by unique combination of policy number + check date + advisor
-      const existing = await prisma.smartOfficeCommission.findFirst({
+      // Upsert by unique combination of advisor + contract number
+      const existing = await prisma.smartOfficeContract.findFirst({
         where: {
           tenantId,
-          policyNumber: commissionData.policyNumber || '',
-          checkDate: commissionData.checkDate,
-          advisorName: commissionData.advisorName || '',
+          advisorName: contractData.advisorName,
+          contractNumber: contractData.contractNumber || '',
         },
       });
 
       if (existing) {
-        await prisma.smartOfficeCommission.update({
+        await prisma.smartOfficeContract.update({
           where: { id: existing.id },
-          data: commissionData,
+          data: contractData,
         });
         updated++;
       } else {
-        await prisma.smartOfficeCommission.create({
-          data: commissionData,
+        await prisma.smartOfficeContract.create({
+          data: contractData,
         });
         created++;
       }
 
       if ((i + 1) % 10 === 0) {
-        process.stdout.write(`\r✓ Processed ${i + 1}/${records.length} commissions...`);
+        process.stdout.write(`\r✓ Processed ${i + 1}/${records.length} contracts...`);
       }
     } catch (error: any) {
       failed++;
       errors.push({
         row: i + 1,
-        policy: row['Policy #'],
-        advisor: row['Advisor Name'],
+        advisor: row['Advisor'],
         error: error.message,
       });
       console.error(`\n❌ Error on row ${i + 1}:`, error.message);
@@ -204,7 +189,7 @@ async function importCommissions(filePath: string, tenantId: string) {
   if (errors.length > 0) {
     console.log(`\n⚠️  ${errors.length} errors encountered:`);
     errors.slice(0, 5).forEach((err) => {
-      console.log(`   Row ${err.row} (${err.policy} - ${err.advisor}): ${err.error}`);
+      console.log(`   Row ${err.row} (${err.advisor}): ${err.error}`);
     });
     if (errors.length > 5) {
       console.log(`   ... and ${errors.length - 5} more`);
@@ -224,8 +209,8 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error('Usage: ts-node import-smartoffice-commissions.ts <csv-file-path> [--tenant-id <id>]');
-    console.error('Example: ts-node import-smartoffice-commissions.ts "scripts/New_sm-reports/Valor - Commissions Report (1).csv"');
+    console.error('Usage: ts-node import-smartoffice-contracts.ts <csv-file-path> [--tenant-id <id>]');
+    console.error('Example: ts-node import-smartoffice-contracts.ts "scripts/New_sm-reports/Valor - Advisors & Contracts (1).csv"');
     process.exit(1);
   }
 
@@ -239,7 +224,7 @@ async function main() {
   }
 
   try {
-    await importCommissions(filePath, tenantId);
+    await importContracts(filePath, tenantId);
     console.log('\n🎉 Import completed successfully!\n');
   } catch (error: any) {
     console.error('\n❌ Import failed:', error.message);
