@@ -12,10 +12,22 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 /**
  * Create Supabase client for server-side use
  */
-export function createServerSupabaseClient() {
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies();
+
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
+    },
+    global: {
+      headers: {
+        cookie: cookieStore.toString(),
+      },
+    },
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value;
+      },
     },
   });
 }
@@ -36,7 +48,7 @@ export function createBrowserSupabaseClient() {
  * Get current user from request
  */
 export async function getCurrentUser() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const {
     data: { session },
@@ -77,7 +89,7 @@ export async function requireAuth() {
  * Sign up new user
  */
 export async function signUp(email: string, password: string, metadata?: any) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -98,7 +110,7 @@ export async function signUp(email: string, password: string, metadata?: any) {
  * Sign in user
  */
 export async function signIn(email: string, password: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -116,7 +128,7 @@ export async function signIn(email: string, password: string) {
  * Sign out user
  */
 export async function signOut() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { error } = await supabase.auth.signOut();
 
@@ -129,7 +141,7 @@ export async function signOut() {
  * Reset password
  */
 export async function resetPassword(email: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/update-password`,
@@ -144,7 +156,7 @@ export async function resetPassword(email: string) {
  * Update password
  */
 export async function updatePassword(newPassword: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { error } = await supabase.auth.updateUser({
     password: newPassword,
