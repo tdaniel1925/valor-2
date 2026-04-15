@@ -72,6 +72,8 @@ model Tenant {
   // SmartOffice Intelligence
   smartOfficePolicies  SmartOfficePolicy[]
   smartOfficeAgents    SmartOfficeAgent[]
+  smartOfficeContracts SmartOfficeContract[]
+  smartOfficeCommissions SmartOfficeCommission[]
   smartOfficeReports   SmartOfficeCustomReport[]
   smartOfficeChatHistory SmartOfficeChatHistory[]
   syncLogs        SmartOfficeSyncLog[]
@@ -1442,6 +1444,8 @@ model SmartOfficeImport {
   // Relations
   policies              SmartOfficePolicy[]
   agents                SmartOfficeAgent[]
+  contracts             SmartOfficeContract[]
+  commissions           SmartOfficeCommission[]
 
   @@index([tenantId])
   @@index([userId])
@@ -1449,6 +1453,120 @@ model SmartOfficeImport {
   @@index([source])
   @@index([startedAt])
   @@map("smartoffice_imports")
+}
+
+// SmartOffice Advisor Contracts
+// Stores contract information for advisors with carriers
+model SmartOfficeContract {
+  id                    String                  @id @default(cuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Agent/Advisor Information
+  advisorName           String                  // Full name of advisor
+  advisorEmail          String?                 // Preferred email
+  advisorPhone          String?                 // Full phone number
+  subSource             String?                 // Sub-agency name
+  supervisor            String?                 // Supervisor name
+
+  // Contract Details
+  contractName          String                  // e.g., "Symetra Life Insurance Company-Contract"
+  contractType          String?                 // e.g., "Advisor", "Agent"
+  contractNumber        String?                 // e.g., "06-34-3834-01"
+  commissionLevel       String?                 // e.g., "70% (Combo #869 / Combo #708)"
+
+  effectiveDate         DateTime?               // Contract start date
+  expirationDate        DateTime?               // Contract end date (null if ongoing)
+
+  // Carrier Information (derived from contract name)
+  carrierName           String?                 // Extracted carrier name
+
+  // Import Metadata
+  importId              String?
+  import                SmartOfficeImport?      @relation(fields: [importId], references: [id], onDelete: SetNull)
+  importDate            DateTime                @default(now())
+  lastSyncDate          DateTime                @updatedAt
+  sourceFile            String?                 // Original CSV filename
+
+  // Raw Data Storage
+  rawData               Json?                   // Original row data
+  additionalData        Json?                   // Parsed/structured data
+
+  // Full-text search
+  searchText            String?                 @db.Text
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([tenantId])
+  @@index([advisorName])
+  @@index([advisorEmail])
+  @@index([contractNumber])
+  @@index([carrierName])
+  @@index([importId])
+  @@map("smartoffice_contracts")
+}
+
+// SmartOffice Commissions
+// Tracks commission payments from carriers
+model SmartOfficeCommission {
+  id                    String                  @id @default(cuid())
+
+  // Tenant scoping
+  tenantId              String
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Policy Reference
+  policyNumber          String?                 // Policy number from smartoffice_policies
+
+  // Payment Information
+  checkDate             DateTime?               // Date check was issued
+  actualAmountPaid      Float?                  // Amount paid on this check
+  receivable            Float?                  // Amount still owed/pending
+
+  // Advisor Information
+  primaryAdvisor        String?                 // Main advisor name
+  advisorName           String?                 // Specific advisor name (for splits)
+  subSource             String?                 // Sub-agency
+  supervisor            String?                 // Supervisor name
+
+  // Policy Details
+  statusDate            DateTime?               // Policy status date
+  planType              String?                 // UL, Term, etc.
+  carrierName           String?                 // Insurance carrier
+  primaryInsured        String?                 // Client name
+
+  // Premium Information
+  commAnnualizedPrem    Float?                  // Annualized premium
+  premiumMode           String?                 // Monthly, Annual, etc.
+
+  // Import Metadata
+  importId              String?
+  import                SmartOfficeImport?      @relation(fields: [importId], references: [id], onDelete: SetNull)
+  importDate            DateTime                @default(now())
+  lastSyncDate          DateTime                @updatedAt
+  sourceFile            String?                 // Original CSV filename
+
+  // Raw Data Storage
+  rawData               Json?                   // Original row data
+  additionalData        Json?                   // Parsed/structured data
+
+  // Full-text search
+  searchText            String?                 @db.Text
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([tenantId])
+  @@index([policyNumber])
+  @@index([primaryAdvisor])
+  @@index([advisorName])
+  @@index([carrierName])
+  @@index([checkDate])
+  @@index([importId])
+  @@map("smartoffice_commissions")
 }
 
 // ============================================
