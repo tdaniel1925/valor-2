@@ -53,15 +53,20 @@ const fileFormat = winston.format.combine(
   winston.format.json()
 );
 
-// Create the logger
-const logger = winston.createLogger({
-  level: level(),
-  levels,
-  transports: [
-    // Console transport for development
-    new winston.transports.Console({
-      format: consoleFormat,
-    }),
+// Create transports array
+const transports: winston.transport[] = [
+  // Console transport - always available
+  new winston.transports.Console({
+    format: consoleFormat,
+  }),
+];
+
+// Only add file transports in environments with writable filesystem
+// Vercel and other serverless platforms have read-only filesystems
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.FUNCTION_NAME;
+
+if (!isServerless) {
+  transports.push(
     // Error log file (errors only)
     new DailyRotateFile({
       filename: 'logs/error-%DATE%.log',
@@ -80,8 +85,15 @@ const logger = winston.createLogger({
       maxSize: '20m',
       maxFiles: '14d',
       zippedArchive: true,
-    }),
-  ],
+    })
+  );
+}
+
+// Create the logger
+const logger = winston.createLogger({
+  level: level(),
+  levels,
+  transports,
 });
 
 // Sensitive fields to redact
