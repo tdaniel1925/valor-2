@@ -137,20 +137,32 @@ export default function CompareProductsPage() {
         </div>
 
         {/* Info Card */}
-        <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-semibold">!</span>
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
-              <div>
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                  Sample Data Loaded
+              <div className="flex-1">
+                <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2 text-lg">
+                  Premium Comparison Service - Sample Preview
                 </h3>
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  This page is showing sample comparison data for demonstration purposes. In production,
-                  this would connect to your quote system to compare actual products selected by the user.
+                <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                  This is a sample of what we can offer you as part of our <strong>Premium Comparison Service</strong>.
+                  Get access to comprehensive product comparisons, advanced analytics, and personalized recommendations
+                  tailored to your clients' needs.
                 </p>
+                <a
+                  href="/help/contact"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Learn More & Upgrade
+                </a>
               </div>
             </div>
           </CardContent>

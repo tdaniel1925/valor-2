@@ -8,6 +8,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import PerformanceCharts from "@/components/dashboard/PerformanceCharts";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
+import NewAgentsWidget from "@/components/dashboard/NewAgentsWidget";
 
 interface DashboardData {
   user: {
@@ -701,6 +702,11 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* New Agents Widget */}
+        <div className="mb-6 sm:mb-8">
+          <NewAgentsWidget />
+        </div>
 
         {/* Performance Charts Section */}
         <div className="mb-6 sm:mb-8">

@@ -60,15 +60,81 @@ export async function middleware(request: NextRequest) {
       // Tenant lookup failed — continue without tenant headers
     }
   } else {
-    // Root domain (valorfs.app) — use the default single tenant from env vars
-    const defaultTenantId = process.env.DEFAULT_TENANT_ID;
-    if (defaultTenantId) {
-      const tenantSlug = process.env.DEFAULT_TENANT_SLUG || "valor";
-      const tenantName = process.env.DEFAULT_TENANT_NAME || "Valor";
-      requestHeaders.set("x-tenant-id", defaultTenantId);
-      requestHeaders.set("x-tenant-slug", tenantSlug);
-      requestHeaders.set("x-tenant-name", tenantName);
-      requestHeaders.set("x-subdomain", tenantSlug);
+    // Root domain (valorfs.app) — determine tenant from logged-in user
+    // Check for a Supabase session cookie
+    const authCookie = request.cookies
+      .getAll()
+      .find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
+
+    if (authCookie) {
+      // User is logged in - look up their tenant
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        if (supabaseUrl && supabaseKey) {
+          // Decode auth token to get user ID
+          let cookieValue = authCookie.value;
+          if (cookieValue.startsWith('base64-')) {
+            cookieValue = Buffer.from(cookieValue.substring(7), 'base64').toString('utf-8');
+          }
+          const tokenData = JSON.parse(cookieValue);
+          const accessToken = tokenData.access_token || tokenData[0];
+
+          // Get user info from Supabase
+          const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          const userData = await userRes.json();
+          const userId = userData?.id;
+
+          if (userId) {
+            // Look up user's tenant from database
+            const res = await fetch(
+              `${supabaseUrl}/rest/v1/users?id=eq.${encodeURIComponent(userId)}&select=tenantId&limit=1`,
+              { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+            );
+            const users: { tenantId: string }[] = await res.json();
+            const userTenantId = users?.[0]?.tenantId;
+
+            if (userTenantId) {
+              // Look up tenant details
+              const tenantRes = await fetch(
+                `${supabaseUrl}/rest/v1/tenants?id=eq.${encodeURIComponent(userTenantId)}&select=id,name,slug&limit=1`,
+                { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+              );
+              const tenants: { id: string; name: string; slug: string }[] = await tenantRes.json();
+              const tenant = tenants?.[0];
+
+              if (tenant) {
+                requestHeaders.set("x-tenant-id", tenant.id);
+                requestHeaders.set("x-tenant-slug", tenant.slug);
+                requestHeaders.set("x-tenant-name", tenant.name);
+                requestHeaders.set("x-subdomain", tenant.slug);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        // Failed to look up user's tenant - fall back to default
+        console.error('[middleware] Failed to lookup user tenant:', error);
+      }
+    }
+
+    // If no tenant was set from user lookup, use default tenant
+    if (!requestHeaders.get("x-tenant-id")) {
+      const defaultTenantId = process.env.DEFAULT_TENANT_ID;
+      if (defaultTenantId) {
+        const tenantSlug = process.env.DEFAULT_TENANT_SLUG || "valor";
+        const tenantName = process.env.DEFAULT_TENANT_NAME || "Valor";
+        requestHeaders.set("x-tenant-id", defaultTenantId);
+        requestHeaders.set("x-tenant-slug", tenantSlug);
+        requestHeaders.set("x-tenant-name", tenantName);
+        requestHeaders.set("x-subdomain", tenantSlug);
+      }
     }
   }
 

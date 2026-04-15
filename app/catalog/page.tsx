@@ -19,84 +19,21 @@ export default function CatalogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(20);
 
-  // Load documents from public folder
+  // Load documents dynamically from the filesystem
   useEffect(() => {
-    // Parse filenames and categorize
-    const catalogDocs: CatalogDocument[] = [
-      // Medical Conditions
-      { title: "Acute Coronary Syndrome (ACS)", fileName: "articlesUnderwriting QuestionnairesAcute Coronary Syndrome ACS Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "ADHD (Attention Deficit Hyperactivity Disorder)", fileName: "articlesUnderwriting QuestionnairesADHD Attention Deficit Hyperactivity Disorder Impairment Guide.pdf", category: "Mental Health" },
-      { title: "Adjustment Disorder", fileName: "articlesUnderwriting QuestionnairesAdjustment Disorder Impairment Guide.pdf", category: "Mental Health" },
-      { title: "Albuminuria", fileName: "articlesUnderwriting QuestionnairesAlbuminuria Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Alcohol Usage", fileName: "articlesUnderwriting QuestionnairesAlcohol Usage Questionnaire.pdf", category: "Lifestyle" },
-      { title: "Alcohol Use Disorder", fileName: "articlesUnderwriting QuestionnairesAlcohol Use Disorder Impairment Guide.pdf", category: "Lifestyle" },
-      { title: "Alcoholic Liver Disease", fileName: "articlesUnderwriting QuestionnairesAlcoholic Liver Disease Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "All NAILBA Underwriting Questionnaires", fileName: "articlesUnderwriting QuestionnairesAll NAILBA Underwriting Questionnaires.pdf", category: "General" },
-      { title: "Amputation", fileName: "articlesUnderwriting QuestionnairesAmputation Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Anemia", fileName: "articlesUnderwriting QuestionnairesAnemia Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Aneurysms and AV Malformations", fileName: "articlesUnderwriting QuestionnairesAneurysms and AV Malformations Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Angioplasty", fileName: "articlesUnderwriting QuestionnairesAngioplasty Questionnaire.pdf", category: "Medical Procedures" },
-      { title: "Ankylosing Spondylitis (AS)", fileName: "articlesUnderwriting QuestionnairesAnkylosing Spondylitis AS Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Anxiety Disorders", fileName: "articlesUnderwriting QuestionnairesAnxiety Disorders Questionnaire.pdf", category: "Mental Health" },
-      { title: "Arthritis", fileName: "articlesUnderwriting QuestionnairesArthritis Questionnaire.pdf", category: "Medical Conditions" },
-      { title: "Asthma", fileName: "articlesUnderwriting QuestionnairesAsthma Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Atrial Fibrillation", fileName: "articlesUnderwriting QuestionnairesAtrial Fibrillation Questionnaire.pdf", category: "Cardiac" },
-      { title: "Aviation", fileName: "articlesUnderwriting QuestionnairesAviation Questionnaire.pdf", category: "Occupational" },
-      { title: "Avocations", fileName: "articlesUnderwriting QuestionnairesAvocations Questionnaire.pdf", category: "Lifestyle" },
-      { title: "Barrett Esophagus (BA)", fileName: "articlesUnderwriting QuestionnairesBarrett Esophagus BA Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Bipolar Disorder", fileName: "articlesUnderwriting QuestionnairesBI-Polar Disorder Impairment Guide.pdf", category: "Mental Health" },
-      { title: "Borderline Personality Disorder", fileName: "articlesUnderwriting QuestionnairesBodyweight Questionnaire.pdf", category: "Mental Health" },
-      { title: "Bodyweight", fileName: "articlesUnderwriting QuestionnairesBodyweight Questionnaire.pdf", category: "Physical Health" },
-      { title: "Breast Cancer", fileName: "articlesUnderwriting QuestionnairesBreast Cancer Impairment Guide.pdf", category: "Cancer" },
-      { title: "Cardiac Arrest (Non-MI)", fileName: "articlesUnderwriting QuestionnairesCardiac Arrest Non-MI Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Cardiomyopathy", fileName: "articlesUnderwriting QuestionnairesCardiomyopathy Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Celiac Disease", fileName: "articlesUnderwriting QuestionnairesCardiomyopathy Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Cerebral Aneurysm", fileName: "articlesUnderwriting QuestionnairesCerebral Aneurysm Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Cerebral Palsy", fileName: "articlesUnderwriting QuestionnairesCerebral Palsy Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Chest Pain", fileName: "articlesUnderwriting QuestionnairesChest Pain Questionnaire.pdf", category: "Cardiac" },
-      { title: "Chronic Kidney Disease", fileName: "articlesUnderwriting QuestionnairesChronic Kidney Disease Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Chronic Obstructive Pulmonary Disease (COPD)", fileName: "articlesUnderwriting QuestionnairesChronic Obstructive Pulmonary Disease COPD Impairment Guide.pdf", category: "Respiratory" },
-      { title: "Cirrhosis", fileName: "articlesUnderwriting QuestionnairesCirrhosis Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Coronary Artery Bypass Graft (CABG)", fileName: "articlesUnderwriting QuestionnairesCoronary Artery Bypass Graft CABG Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Coronary Artery Disease (CAD)", fileName: "articlesUnderwriting QuestionnairesCoronary Artery Disease CAD Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Depression", fileName: "articlesUnderwriting QuestionnairesDepression Impairment Guide.pdf", category: "Mental Health" },
-      { title: "Diabetes Mellitus Type 1", fileName: "articlesUnderwriting QuestionnairesDepression Impairment Guide.pdf", category: "Endocrine" },
-      { title: "Diabetes Mellitus Type 2", fileName: "articlesUnderwriting QuestionnairesDiabetes Mellitus Type 2 Impairment Guide.pdf", category: "Endocrine" },
-      { title: "Drug Usage", fileName: "articlesUnderwriting QuestionnairesDrug Usage Questionnaire.pdf", category: "Lifestyle" },
-      { title: "Epilepsy", fileName: "articlesUnderwriting QuestionnairesEpilepsy Impairment Guide.pdf", category: "Neurological" },
-      { title: "Family History", fileName: "articlesUnderwriting QuestionnairesFamily History Questionnaire.pdf", category: "General" },
-      { title: "Heart Failure", fileName: "articlesUnderwriting QuestionnairesHeart Failure Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Hepatitis", fileName: "articlesUnderwriting QuestionnairesHepatitis Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "HIV/AIDS", fileName: "articlesUnderwriting QuestionnairesHIV-AIDS Impairment Guide.pdf", category: "Infectious Diseases" },
-      { title: "Hypertension", fileName: "articlesUnderwriting QuestionnairesHypertension Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Inflammatory Bowel Disease (IBD)", fileName: "articlesUnderwriting QuestionnairesInflammatory Bowel Disease IBD Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Kidney Stones", fileName: "articlesUnderwriting QuestionnairesKidney Stones Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Liver Disease", fileName: "articlesUnderwriting QuestionnairesLiver Disease Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Lupus", fileName: "articlesUnderwriting QuestionnairesLupus Impairment Guide.pdf", category: "Autoimmune" },
-      { title: "Melanoma", fileName: "articlesUnderwriting Questionnairesmelanoma Impairment Guide.pdf", category: "Cancer" },
-      { title: "Multiple Sclerosis (MS)", fileName: "articlesUnderwriting QuestionnairesMultiple Sclerosis MS Impairment Guide.pdf", category: "Neurological" },
-      { title: "Myocardial Infarction (Heart Attack)", fileName: "articlesUnderwriting QuestionnairesMyocardial Infarction Heart Attack Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Obesity", fileName: "articlesUnderwriting QuestionnairesObesity Impairment Guide.pdf", category: "Physical Health" },
-      { title: "Obstructive Sleep Apnea (OSA)", fileName: "articlesUnderwriting QuestionnairesObstructive Sleep Apnea OSA Impairment Guide.pdf", category: "Respiratory" },
-      { title: "Occupations", fileName: "articlesUnderwriting QuestionnairesOccupation Questionnaire.pdf", category: "Occupational" },
-      { title: "Parkinson's Disease", fileName: "articlesUnderwriting QuestionnairesParkinsons Disease Impairment Guide.pdf", category: "Neurological" },
-      { title: "Peripheral Artery Disease (PAD)", fileName: "articlesUnderwriting QuestionnairesPeripheral Artery Disease PAD Impairment Guide.pdf", category: "Cardiac" },
-      { title: "Post-Traumatic Stress Disorder (PTSD)", fileName: "articlesUnderwriting QuestionnairesPost-Traumatic Stress Disorder PTSD Impairment Guide.pdf", category: "Mental Health" },
-      { title: "Prostate Cancer", fileName: "articlesUnderwriting QuestionnairesProstate Cancer Impairment Guide.pdf", category: "Cancer" },
-      { title: "Rheumatoid Arthritis", fileName: "articlesUnderwriting QuestionnairesRheumatoid Arthritis Impairment Guide.pdf", category: "Autoimmune" },
-      { title: "Schizophrenia", fileName: "articlesUnderwriting QuestionnairesSchizophrenia Impairment Guide.pdf", category: "Mental Health" },
-      { title: "Sickle Cell Disease", fileName: "articlesUnderwriting QuestionnairesSickle Cell Disease Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Stroke (CVA)", fileName: "articlesUnderwriting QuestionnairesStroke CVA Impairment Guide.pdf", category: "Neurological" },
-      { title: "Thyroid Disorders", fileName: "articlesUnderwriting QuestionnairesThyroid Disorders Impairment Guide.pdf", category: "Endocrine" },
-      { title: "Tobacco Usage", fileName: "articlesUnderwriting QuestionnairesTobacco Usage Questionnaire.pdf", category: "Lifestyle" },
-      { title: "Transient Ischemic Attack (TIA)", fileName: "articlesUnderwriting QuestionnairesTransient Ischemic Attack TIA Impairment Guide.pdf", category: "Neurological" },
-      { title: "Traumatic Brain Injury (TBI)", fileName: "articlesUnderwriting QuestionnairesTraumatic Brain Injury TBI Impairment Guide.pdf", category: "Neurological" },
-      { title: "Ulcerative Colitis", fileName: "articlesUnderwriting QuestionnairesUlcerative Colitis Impairment Guide.pdf", category: "Medical Conditions" },
-      { title: "Valvular Heart Disease", fileName: "articlesUnderwriting QuestionnairesValvular Heart Disease Impairment Guide.pdf", category: "Cardiac" },
-    ];
-
-    setDocuments(catalogDocs);
-    setLoading(false);
+    async function loadDocuments() {
+      try {
+        const response = await fetch('/api/catalog/list');
+        const data = await response.json();
+        setDocuments(data.documents || []);
+      } catch (error) {
+        console.error('Failed to load catalog documents:', error);
+        setDocuments([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDocuments();
   }, []);
 
   // Get unique categories
@@ -335,7 +272,7 @@ export default function CatalogPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center gap-2">
                           <a
-                            href={`/catalog/${encodeURIComponent(doc.fileName)}`}
+                            href={`/api/catalog/${encodeURIComponent(doc.fileName)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
@@ -347,8 +284,8 @@ export default function CatalogPage() {
                             View
                           </a>
                           <a
-                            href={`/catalog/${encodeURIComponent(doc.fileName)}`}
-                            download
+                            href={`/api/catalog/${encodeURIComponent(doc.fileName)}`}
+                            download={`${doc.title}.pdf`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

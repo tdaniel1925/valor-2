@@ -131,40 +131,13 @@ const businessNavigation: NavItem[] = [
   },
   {
     name: "Illustrations",
-    href: "/illustrations/universal-life",
+    href: "/illustrations/compare",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     ),
     children: [
-      {
-        name: "Universal Life",
-        href: "/illustrations/universal-life",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        ),
-      },
-      {
-        name: "Whole Life",
-        href: "/illustrations/whole-life",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        ),
-      },
-      {
-        name: "Term Life",
-        href: "/illustrations/term-life",
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        ),
-      },
       {
         name: "Compare",
         href: "/illustrations/compare",
@@ -184,11 +157,11 @@ const businessNavigation: NavItem[] = [
         ),
       },
       {
-        name: "iPipeline",
-        href: "/integrations/ipipeline",
+        name: "Term Quoting",
+        href: "/integrations/ipipeline/lifepipe",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
         ),
       },
@@ -205,7 +178,7 @@ const businessNavigation: NavItem[] = [
     children: [
       {
         name: "iGo - Life Insurance eApplications",
-        href: "https://ipipeline.com",
+        href: "/integrations/ipipeline/igo",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -214,7 +187,7 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "FormsPipe - Insurance Forms",
-        href: "https://formspipe.com",
+        href: "/integrations/ipipeline/formspipe",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -308,38 +281,19 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "XRAE",
-        href: "https://www.examone.com",
+        href: "/integrations/xrae",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
         ),
       },
     ],
   },
-  {
-    name: "Goals",
-    href: "/goals",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
 ];
 
 // Applications section
-const applicationsNavigation: NavItem[] = [
-  {
-    name: "New Life Application",
-    href: "/applications/life/new",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-      </svg>
-    ),
-  },
-];
+const applicationsNavigation: NavItem[] = [];
 
 // Reports section (ADMIN, MANAGER, EXECUTIVE)
 const reportsNavigation: NavItem[] = [
@@ -349,34 +303,6 @@ const reportsNavigation: NavItem[] = [
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Commission Reports",
-    href: "/reports/commissions",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Production Reports",
-    href: "/reports/production",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Executive Dashboard",
-    href: "/reports/executive",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
       </svg>
     ),
   },
@@ -478,6 +404,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
   const pathname = usePathname();
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     smartoffice: false,
@@ -493,13 +420,16 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     admin: true,
   });
 
-  // Load dark mode, zoom level, and expanded sections from localStorage
+  // Load dark mode, sidebar state, zoom level, and expanded sections from localStorage
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedMode);
     if (savedMode) {
       document.documentElement.classList.add('dark');
     }
+
+    const savedCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    setSidebarCollapsed(savedCollapsed);
 
     // Load zoom level
     const savedZoom = localStorage.getItem('zoomLevel');
@@ -553,6 +483,13 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     localStorage.setItem('zoomLevel', '100');
   };
 
+  // Toggle sidebar collapse
+  const toggleSidebar = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', newState.toString());
+  };
+
   // Toggle section expansion
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => {
@@ -578,6 +515,41 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     const isExpanded = expandedSections[item.name.toLowerCase().replace(/\s+/g, '')];
     const isExternalLink = item.href.startsWith('http://') || item.href.startsWith('https://');
 
+    // For collapsed sidebar, don't render children and show only icon with tooltip
+    if (sidebarCollapsed && !isChild) {
+      const LinkComponent = isExternalLink ? 'a' : Link;
+      const linkProps = isExternalLink
+        ? { href: item.href, target: "_blank", rel: "noopener noreferrer" }
+        : { href: item.href };
+
+      return (
+        <LinkComponent
+          key={item.name}
+          {...linkProps}
+          className={cn(
+            "flex items-center justify-center p-3 rounded-lg transition-colors group relative",
+            isActive
+              ? darkMode
+                ? "bg-blue-900/30 text-blue-400"
+                : "bg-blue-50 text-blue-600"
+              : darkMode
+              ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+          )}
+          title={item.name}
+        >
+          {item.icon}
+          {/* Tooltip */}
+          <span className={cn(
+            "absolute left-full ml-2 px-2 py-1 rounded-md text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50",
+            darkMode ? "bg-gray-700 text-white" : "bg-gray-900 text-white"
+          )}>
+            {item.name}
+          </span>
+        </LinkComponent>
+      );
+    }
+
     return (
       <div key={item.name}>
         {hasChildren ? (
@@ -597,7 +569,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
             >
               <div className="flex items-center gap-3">
                 {item.icon}
-                {item.name}
+                <span>{item.name}</span>
               </div>
               <svg
                 className={cn(
@@ -631,7 +603,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
             )}
           >
             {item.icon}
-            {item.name}
+            <span>{item.name}</span>
           </a>
         ) : (
           <Link
@@ -650,7 +622,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
             )}
           >
             {item.icon}
-            {item.name}
+            <span>{item.name}</span>
           </Link>
         )}
       </div>
@@ -926,41 +898,54 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       {/* Desktop Sidebar - hide on mobile */}
       <aside className="hidden lg:flex lg:flex-shrink-0">
         <div className={cn(
-          "flex flex-col w-64 border-r",
+          "flex flex-col border-r transition-all duration-300",
+          sidebarCollapsed ? "w-16" : "w-64",
           darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         )}>
           {/* Logo */}
           <div className={cn(
-            "flex items-center justify-between h-16 px-6 border-b",
+            "flex items-center h-16 border-b",
+            sidebarCollapsed ? "justify-center px-2" : "justify-between px-6",
             darkMode ? "border-gray-700" : "border-gray-200"
           )}>
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">V</span>
-              </div>
-              <span className={cn("font-bold", darkMode ? "text-white" : "text-gray-900")}>
-                Valor
-              </span>
-            </Link>
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleDarkMode}
-              className={cn(
-                "p-2 rounded-lg transition-colors",
-                darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"
-              )}
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
-            </button>
+            {!sidebarCollapsed && (
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">V</span>
+                </div>
+                <span className={cn("font-bold", darkMode ? "text-white" : "text-gray-900")}>
+                  Valor
+                </span>
+              </Link>
+            )}
+            {sidebarCollapsed && (
+              <Link href="/dashboard" className="flex items-center">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">V</span>
+                </div>
+              </Link>
+            )}
+            {!sidebarCollapsed && (
+              <button
+                onClick={toggleDarkMode}
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"
+                )}
+                aria-label="Toggle dark mode"
+                title="Toggle dark mode"
+              >
+                {darkMode ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Navigation */}
@@ -970,66 +955,76 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
 
             {/* Business Section */}
             <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
-              <div className="px-3 mb-2">
-                <p className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  darkMode ? "text-gray-500" : "text-gray-400"
-                )}>
-                  Business
-                </p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-2">
+                  <p className={cn(
+                    "text-xs font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-400"
+                  )}>
+                    Business
+                  </p>
+                </div>
+              )}
               {businessNavigation.map((item) => renderNavItem(item))}
             </div>
 
             {/* Applications Section */}
             <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
-              <div className="px-3 mb-2">
-                <p className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  darkMode ? "text-gray-500" : "text-gray-400"
-                )}>
-                  Applications
-                </p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-2">
+                  <p className={cn(
+                    "text-xs font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-400"
+                  )}>
+                    Applications
+                  </p>
+                </div>
+              )}
               {applicationsNavigation.map((item) => renderNavItem(item))}
             </div>
 
             {/* Reports Section (ADMIN, MANAGER, EXECUTIVE) */}
             <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
-              <div className="px-3 mb-2">
-                <p className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  darkMode ? "text-gray-500" : "text-gray-400"
-                )}>
-                  Reports
-                </p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-2">
+                  <p className={cn(
+                    "text-xs font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-400"
+                  )}>
+                    Reports
+                  </p>
+                </div>
+              )}
               {reportsNavigation.map((item) => renderNavItem(item))}
             </div>
 
             {/* Administration Section (ADMIN only) */}
             <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
-              <div className="px-3 mb-2">
-                <p className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  darkMode ? "text-gray-500" : "text-gray-400"
-                )}>
-                  Administration
-                </p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-2">
+                  <p className={cn(
+                    "text-xs font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-400"
+                  )}>
+                    Administration
+                  </p>
+                </div>
+              )}
               {adminNavigation.map((item) => renderNavItem(item))}
             </div>
 
             {/* Learning & Support Section */}
             <div className={cn("pt-4 mt-4 border-t", darkMode ? "border-gray-700" : "border-gray-200")}>
-              <div className="px-3 mb-2">
-                <p className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  darkMode ? "text-gray-500" : "text-gray-400"
-                )}>
-                  Learning & Support
-                </p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-2">
+                  <p className={cn(
+                    "text-xs font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-400"
+                  )}>
+                    Learning & Support
+                  </p>
+                </div>
+              )}
               {learningNavigation.map((item) => renderNavItem(item))}
               <Link
                 href="/resources"
@@ -1106,45 +1101,90 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
             </div>
           </nav>
 
+          {/* Toggle Sidebar Button */}
+          <div className={cn(
+            "flex-shrink-0 border-t p-2",
+            darkMode ? "border-gray-700" : "border-gray-200"
+          )}>
+            <button
+              onClick={toggleSidebar}
+              className={cn(
+                "w-full flex items-center justify-center p-2 rounded-lg transition-colors",
+                darkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"
+              )}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {sidebarCollapsed ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <span className="ml-2 text-sm">Collapse</span>
+                </>
+              )}
+            </button>
+          </div>
+
           {/* User Section */}
           <div className={cn(
             "flex-shrink-0 border-t p-4",
             darkMode ? "border-gray-700" : "border-gray-200"
           )}>
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center",
-                darkMode ? "bg-blue-900/30" : "bg-blue-100"
-              )}>
-                <span className={cn(
-                  "font-semibold text-sm",
-                  darkMode ? "text-blue-400" : "text-blue-600"
+            {sidebarCollapsed ? (
+              <div className="flex justify-center">
+                <div className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center",
+                  darkMode ? "bg-blue-900/30" : "bg-blue-100"
                 )}>
-                  {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
-                </span>
+                  <span className={cn(
+                    "font-semibold text-sm",
+                    darkMode ? "text-blue-400" : "text-blue-600"
+                  )}>
+                    {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                  </span>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className={cn(
-                  "text-sm font-medium truncate",
-                  darkMode ? "text-white" : "text-gray-900"
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center",
+                  darkMode ? "bg-blue-900/30" : "bg-blue-100"
                 )}>
-                  {user?.firstName && user?.lastName
-                    ? `${user.firstName} ${user.lastName}`
-                    : user?.email}
-                </p>
-                <form action="/auth/signout" method="post">
-                  <button
-                    type="submit"
-                    className={cn(
-                      "text-xs",
-                      darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
-                    )}
-                  >
-                    Sign out
-                  </button>
-                </form>
+                  <span className={cn(
+                    "font-semibold text-sm",
+                    darkMode ? "text-blue-400" : "text-blue-600"
+                  )}>
+                    {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-sm font-medium truncate",
+                    darkMode ? "text-white" : "text-gray-900"
+                  )}>
+                    {user?.firstName && user?.lastName
+                      ? `${user.firstName} ${user.lastName}`
+                      : user?.email}
+                  </p>
+                  <form action="/auth/signout" method="post">
+                    <button
+                      type="submit"
+                      className={cn(
+                        "text-xs",
+                        darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
+                      )}
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </aside>

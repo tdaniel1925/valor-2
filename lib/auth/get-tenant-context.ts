@@ -55,6 +55,11 @@ export function getTenantFromRequest(request: Request): TenantContext | null {
   const defaultTenantId = process.env.DEFAULT_TENANT_ID;
   if (defaultTenantId) {
     const defaultSlug = process.env.DEFAULT_TENANT_SLUG || 'valor';
+    console.log('[getTenantFromRequest] Using fallback DEFAULT_TENANT_ID:', {
+      defaultTenantId,
+      defaultSlug,
+      missingHeaders: { tenantId: !tenantId, tenantSlug: !tenantSlug, tenantName: !tenantName, subdomain: !subdomain },
+    });
     return {
       tenantId: defaultTenantId,
       tenantSlug: defaultSlug,
@@ -62,6 +67,11 @@ export function getTenantFromRequest(request: Request): TenantContext | null {
       subdomain: defaultSlug,
     };
   }
+
+  console.error('[getTenantFromRequest] No tenant context available:', {
+    headers: { tenantId, tenantSlug, tenantName, subdomain },
+    hasDefaultTenantId: !!defaultTenantId,
+  });
 
   return null;
 }
