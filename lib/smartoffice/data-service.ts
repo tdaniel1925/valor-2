@@ -378,7 +378,7 @@ export async function getLastSyncInfo(tenantId: string) {
       }),
       prisma.smartOfficeAgent.findFirst({
         where: { tenantId },
-        orderBy: { lastSyncDate: true },
+        orderBy: { lastSyncDate: 'desc' },
         select: { lastSyncDate: true, sourceFile: true },
       }),
     ]);
