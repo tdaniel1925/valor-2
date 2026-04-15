@@ -10,10 +10,10 @@ import { Search, Filter, X } from 'lucide-react';
 
 interface Policy {
   id: string;
-  policyNumber: string;
+  policyNumber: string | null;
   primaryAdvisor: string | null;
   productName: string | null;
-  carrier: string | null;
+  carrierName: string | null;
   primaryInsured: string | null;
   status: string | null;
   statusDate: string | null;
@@ -21,8 +21,11 @@ interface Policy {
   targetAmount: number | null;
   commAnnualizedPrem: number | null;
   weightedPremium: number | null;
-  excessPrem: number | null;
-  requirements: string | null;
+  additionalData?: any;
+  sourceFile: string | null;
+  lastSyncDate: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface PoliciesData {
@@ -183,7 +186,7 @@ export default function CasesPage() {
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Inforce</p>
               <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
-                {data.policies.filter((p) => p.status === 'INFORCE').length}
+                {data.policies.filter((p) => p.status && p.status.includes('INFORCE')).length}
               </p>
             </CardContent>
           </Card>
@@ -191,7 +194,7 @@ export default function CasesPage() {
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
               <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
-                {data.policies.filter((p) => p.status === 'PENDING').length}
+                {data.policies.filter((p) => p.status && p.status.includes('PENDING')).length}
               </p>
             </CardContent>
           </Card>
@@ -360,14 +363,14 @@ export default function CasesPage() {
                         href={`/cases/${policy.id}`}
                         className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
                       >
-                        {policy.policyNumber}
+                        {policy.policyNumber || `Policy #${policy.id.slice(0, 8)}`}
                       </Link>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {policy.primaryInsured}
+                        {policy.primaryInsured || '—'}
                       </p>
                     </div>
-                    <Badge variant={getStatusVariant(policy.status)} className="ml-2 flex-shrink-0">
-                      {policy.status}
+                    <Badge variant={policy.status ? getStatusVariant(policy.status) : 'default'} className="ml-2 flex-shrink-0">
+                      {policy.status || 'Unknown'}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -378,19 +381,19 @@ export default function CasesPage() {
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Agent</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {policy.primaryAdvisor}
+                        {policy.primaryAdvisor || '—'}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Product</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {policy.productName}
+                        {policy.productName || '—'}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Carrier</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {policy.carrier || '—'}
+                        {policy.carrierName || '—'}
                       </p>
                     </div>
                     <div>

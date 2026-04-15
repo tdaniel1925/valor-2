@@ -205,54 +205,52 @@ export default function IntellisheetsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar Navigation */}
-            <div className="lg:col-span-1">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide mb-4">
-                  Categories
-                </h2>
-                <div className="space-y-1">
-                  {Object.keys(SHEET_CATEGORIES).map((category) => (
-                    <div key={category}>
-                      <button
-                        onClick={() => {
-                          setSelectedCategory(category);
-                          setSelectedSheet(SHEET_CATEGORIES[category as keyof typeof SHEET_CATEGORIES][0]);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                          selectedCategory === category
-                            ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        }`}
-                      >
-                        {category}
-                      </button>
-                      {selectedCategory === category && (
-                        <div className="ml-4 mt-1 space-y-1">
-                          {SHEET_CATEGORIES[category as keyof typeof SHEET_CATEGORIES].map((sheet) => (
-                            <button
-                              key={sheet}
-                              onClick={() => setSelectedSheet(sheet)}
-                              className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors ${
-                                selectedSheet === sheet
-                                  ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400"
-                                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                              }`}
-                            >
-                              {sheet.trim()}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+          {/* Category Tabs */}
+          <div className="mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-x-auto">
+              <div className="flex border-b border-gray-200 dark:border-gray-700 min-w-max">
+                {Object.keys(SHEET_CATEGORIES).map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setSelectedSheet(SHEET_CATEGORIES[category as keyof typeof SHEET_CATEGORIES][0]);
+                    }}
+                    className={`px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                      selectedCategory === category
+                        ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                        : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
             </div>
+          </div>
 
-            {/* Main Content */}
-            <div className="lg:col-span-3">
+          {/* Sheet Selection Dropdown */}
+          <div className="mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Select Sheet
+              </label>
+              <select
+                value={selectedSheet}
+                onChange={(e) => setSelectedSheet(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              >
+                {SHEET_CATEGORIES[selectedCategory as keyof typeof SHEET_CATEGORIES].map((sheet) => (
+                  <option key={sheet} value={sheet}>
+                    {sheet.trim()}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 {/* Sheet Header & Search */}
                 <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -431,7 +429,6 @@ export default function IntellisheetsPage() {
                 )}
               </div>
             </div>
-          </div>
         </div>
       </div>
     </AppLayout>

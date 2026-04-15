@@ -30,8 +30,8 @@ const productIcons: Record<IPipelineProduct, React.ReactNode> = {
   igo: <FileText className="h-5 w-5 text-blue-600" />,
   lifepipe: <Calculator className="h-5 w-5 text-green-600" />,
   formspipe: <FileCheck className="h-5 w-5 text-purple-600" />,
-  xrae: <Shield className="h-5 w-5 text-orange-600" />,
   productinfo: <Info className="h-5 w-5 text-gray-600" />,
+  xrae: <Shield className="h-5 w-5 text-red-600" />,
 };
 
 export default function IPipelineIntegrationPage() {
@@ -59,7 +59,9 @@ export default function IPipelineIntegrationPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(Object.entries(IPIPELINE_PRODUCTS_INFO) as [IPipelineProduct, typeof IPIPELINE_PRODUCTS_INFO[IPipelineProduct]][]).map(([key, info]) => (
+              {(Object.entries(IPIPELINE_PRODUCTS_INFO) as [IPipelineProduct, typeof IPIPELINE_PRODUCTS_INFO[IPipelineProduct]][])
+                .filter(([key]) => key === 'lifepipe')
+                .map(([key, info]) => (
                 <div
                   key={key}
                   className="flex items-start gap-4 p-4 rounded-lg border bg-white dark:bg-gray-800 hover:shadow-md transition-shadow"

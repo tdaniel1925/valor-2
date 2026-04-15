@@ -93,9 +93,19 @@ export async function withTenantContext<T>(
 ): Promise<T> {
   return await prisma.$transaction(async (tx) => {
     // Validate tenantId is a valid UUID to prevent SQL injection
+    // Also allow the legacy "valor-default-tenant" ID for backward compatibility
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(tenantId)) {
-      throw new Error('Invalid tenant ID format');
+    const isLegacyTenantId = tenantId === 'valor-default-tenant';
+
+    if (!uuidRegex.test(tenantId) && !isLegacyTenantId) {
+      console.error('[withTenantContext] Invalid tenant ID format:', {
+        tenantId,
+        type: typeof tenantId,
+        length: tenantId?.length,
+        isNull: tenantId === null,
+        isUndefined: tenantId === undefined,
+      });
+      throw new Error(`Invalid tenant ID format: "${tenantId}"`);
     }
 
     // Set tenant context within transaction

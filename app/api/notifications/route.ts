@@ -9,11 +9,16 @@ export async function GET(request: NextRequest) {
     const tenantContext = getTenantFromRequest(request);
 
     if (!tenantContext) {
+      console.error('[notifications] Tenant context not found in request headers:', {
+        headers: Object.fromEntries(request.headers.entries()),
+      });
       return NextResponse.json(
         { error: "Tenant context not found" },
         { status: 400 }
       );
     }
+
+    console.log('[notifications] Tenant context:', tenantContext);
 
     // Require authentication
     const user = await requireAuth(request);

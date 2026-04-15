@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { requireAuth } from '@/lib/auth/server-auth';
-import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
+import { getAgents } from '@/lib/smartoffice/data-service';
 
 /**
  * GET /api/smartoffice/agents
@@ -30,54 +30,29 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Search
-    const search = searchParams.get('search') || '';
+    const search = searchParams.get('search') || undefined;
 
     // Filters
-    const supervisor = searchParams.get('supervisor');
-    const subSource = searchParams.get('subSource');
+    const supervisor = searchParams.get('supervisor') || undefined;
+    const subSource = searchParams.get('subSource') || undefined;
 
-    const result = await withTenantContext(tenantContext.tenantId, async (db) => {
-      // Build where clause
-      const where: any = {
-        tenantId: tenantContext.tenantId,
-      };
-
-      // Search across multiple fields
-      if (search) {
-        where.OR = [
-          { fullName: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-          { npn: { contains: search, mode: 'insensitive' } },
-          { supervisor: { contains: search, mode: 'insensitive' } },
-        ];
-      }
-
-      // Apply filters
-      if (supervisor) where.supervisor = { contains: supervisor, mode: 'insensitive' };
-      if (subSource) where.subSource = { contains: subSource, mode: 'insensitive' };
-
-      // Fetch data
-      const [agents, total] = await Promise.all([
-        db.smartOfficeAgent.findMany({
-          where,
-          orderBy: { fullName: 'asc' },
-          skip,
-          take: limit,
-        }),
-        db.smartOfficeAgent.count({ where }),
-      ]);
-
-      return { agents, total };
+    // Use unified data service - single source of truth from SmartOfficeAgent
+    const result = await getAgents(tenantContext.tenantId, {
+      page,
+      limit,
+      search,
+      supervisor,
+      subSource,
     });
 
     return NextResponse.json({
       success: true,
       data: result.agents,
       pagination: {
-        page,
-        limit,
+        page: result.page,
+        limit: result.limit,
         total: result.total,
-        totalPages: Math.ceil(result.total / limit),
+        totalPages: result.totalPages,
       },
     });
 

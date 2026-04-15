@@ -388,7 +388,7 @@ model Case {
   quote             Quote?       @relation(fields: [quoteId], references: [id])
 
   // Policy Information (from SmartOffice)
-  policyNumber      String       // Primary identifier
+  policyNumber      String?      // Primary identifier (nullable for drafts)
   primaryAdvisor    String?      // Agent/Advisor name
   primaryInsured    String?      // Client name
 
