@@ -4,9 +4,41 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
 import { IPipelineLauncher } from '@/components/integrations/IPipelineLauncher';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { Loader2 } from 'lucide-react';
 
 export default function ProductInfoLauncherPage() {
   const router = useRouter();
+  const { user, loading, error } = useCurrentUser();
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto p-6">
+          <div className="max-w-2xl mx-auto flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading...</span>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (error || !user) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto p-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+              <p className="text-red-600 dark:text-red-400">
+                {error || 'Failed to load user data. Please refresh the page.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -24,12 +56,7 @@ export default function ProductInfoLauncherPage() {
 
           {/* Auto-launch */}
           <IPipelineLauncher
-            user={{
-              id: 'auto',
-              email: 'auto',
-              firstName: 'auto',
-              lastName: 'auto',
-            }}
+            user={user}
             defaultProduct="productinfo"
             variant="default"
             size="lg"

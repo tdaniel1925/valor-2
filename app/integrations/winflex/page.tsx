@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { WinFlexLauncher } from '@/components/integrations/WinFlexLauncher';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { Loader2 } from 'lucide-react';
 import {
   ExternalLink,
   CheckCircle,
@@ -17,16 +19,6 @@ import {
   Shield,
 } from 'lucide-react';
 
-// Demo user - in production this would come from auth context
-const currentUser = {
-  id: 'demo-user-001',
-  firstName: 'Sarah',
-  lastName: 'Johnson',
-  email: 'sarah.johnson@valorfinancial.com',
-  companyName: 'Valor Financial Specialists',
-  phone: '(555) 123-4567',
-};
-
 interface WinFlexStatus {
   enabled: boolean;
   configured: boolean;
@@ -34,6 +26,7 @@ interface WinFlexStatus {
 }
 
 export default function WinFlexIntegrationPage() {
+  const { user: currentUser, loading: userLoading, error: userError } = useCurrentUser();
   const [status, setStatus] = useState<WinFlexStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,6 +42,35 @@ export default function WinFlexIntegrationPage() {
         setLoading(false);
       });
   }, []);
+
+  if (userLoading) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto p-6">
+          <div className="max-w-2xl mx-auto flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading...</span>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (userError || !currentUser) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto p-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+              <p className="text-red-600 dark:text-red-400">
+                {userError || 'Failed to load user data. Please refresh the page.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -101,7 +123,14 @@ export default function WinFlexIntegrationPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
                   <WinFlexLauncher
-                    user={currentUser}
+                    user={{
+                      id: currentUser.id,
+                      firstName: currentUser.firstName,
+                      lastName: currentUser.lastName,
+                      email: currentUser.email,
+                      phone: currentUser.phone,
+                      companyName: 'Valor Financial Specialists',
+                    }}
                     buttonText="Open WinFlex Web"
                     variant="default"
                     size="lg"
