@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth/supabase";
+import { createClient } from "@/lib/auth/supabase-server";
 import { prisma } from "@/lib/db/prisma";
 
 /**
@@ -8,14 +8,20 @@ import { prisma } from "@/lib/db/prisma";
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUser = await getCurrentUser();
+    const supabase = await createClient();
 
-    if (!supabaseUser) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401 }
       );
     }
+
+    const supabaseUser = session.user;
 
     // Get user from our database
     const user = await prisma.user.findUnique({
@@ -39,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: user,
+      user: user,
     });
   } catch (error: any) {
     console.error("Get current user error:", error);
