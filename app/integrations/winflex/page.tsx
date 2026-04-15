@@ -260,9 +260,11 @@ export default function WinFlexIntegrationPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {currentUser.email}
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {currentUser.companyName}
-                </p>
+                {currentUser.phone && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {currentUser.phone}
+                  </p>
+                )}
               </CardContent>
             </Card>
 
