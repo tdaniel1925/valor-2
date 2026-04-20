@@ -3,10 +3,16 @@
  *
  * Generates signed SAML assertions for SSO to iPipeline products
  * Based on Valor Insurance SAML2 Guide (GAID: 2717)
+ *
+ * Uses manual XML signing to avoid xml-crypto's DOM round-trip issue
+ * where re-serialization subtly alters XML structure, causing
+ * PingFederate signature verification to fail.
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { SignedXml } from 'xml-crypto';
+import * as crypto from 'crypto';
+// Note: xml-crypto is still a dependency — we use its canonicalization module
+// (xml-crypto/lib/exclusive-canonicalization) but NOT its SignedXml class.
 import {
   IPipelineSSORequest,
   IPipelineProduct,
@@ -22,51 +28,56 @@ const VALOR_CHANNEL_NAME = 'VAL';
 const VALOR_GROUPS = '02717-UsersGroup';
 
 /**
+ * Canonicalize an XML string using Exclusive XML Canonicalization (exc-c14n).
+ * Uses xml-crypto's canonicalization only — not its signing pipeline.
+ */
+function canonicalize(xmlStr: string): string {
+  // Dynamic require to avoid issues with ESM/CJS interop at top level
+  const { DOMParser } = require('@xmldom/xmldom');
+  const { ExclusiveCanonicalization } = require('xml-crypto/lib/exclusive-canonicalization');
+  const doc = new DOMParser().parseFromString(xmlStr, 'text/xml');
+  const c14n = new ExclusiveCanonicalization();
+  return c14n.process(doc.documentElement).toString();
+}
+
+/**
  * iPipeline SAML SSO Client
  */
 export class IPipelineSAMLClient {
   private privateKey: string;
   private certificate: string;
+  private certB64: string;
   private entityId: string;
   private environment: IPipelineEnvironment;
 
   constructor() {
     // Handle both actual newlines and escaped \n in environment variables
-    // Also handle single-line PEM format (reformat to proper PEM with newlines every 64 chars)
     this.privateKey = this.formatPEM(process.env.IPIPELINE_SAML_PRIVATE_KEY || '', 'PRIVATE KEY');
     this.certificate = this.formatPEM(process.env.IPIPELINE_SAML_CERTIFICATE || '', 'CERTIFICATE');
+    this.certB64 = this.cleanCertificate(this.certificate);
     this.entityId = process.env.IPIPELINE_ENTITY_ID || 'https://valorinsurance.com/saml/idp';
     this.environment = (process.env.IPIPELINE_ENVIRONMENT as IPipelineEnvironment) || 'uat';
   }
 
   /**
    * Format PEM string properly with newlines
-   * Handles: escaped \n, single-line format, or already-formatted PEM
    */
   private formatPEM(pem: string, type: string): string {
     if (!pem) return '';
 
-    // First, replace escaped \n with actual newlines
     let formatted = pem.replace(/\\n/g, '\n');
-
-    // Remove all existing whitespace
     formatted = formatted.replace(/\s/g, '');
 
-    // Create markers WITHOUT spaces (since we removed all whitespace above)
     const typeNoSpaces = type.replace(/\s/g, '');
     const beginMarker = `-----BEGIN${typeNoSpaces}-----`;
     const endMarker = `-----END${typeNoSpaces}-----`;
 
-    // Extract the base64 content (between BEGIN and END markers)
     let content = formatted;
     if (formatted.includes(beginMarker)) {
       content = formatted.split(beginMarker)[1]?.split(endMarker)[0] || '';
     }
 
-    // Add newlines every 64 characters (standard PEM format)
     const lines = content.match(/.{1,64}/g) || [];
-
-    // Reconstruct proper PEM format (WITH SPACE in markers)
     return `-----BEGIN ${type}-----\n${lines.join('\n')}\n-----END ${type}-----`;
   }
 
@@ -96,8 +107,8 @@ export class IPipelineSAMLClient {
    */
   async generateSAMLResponse(request: IPipelineSSORequest): Promise<SAMLResponseData> {
     const now = new Date();
-    const notBefore = new Date(now.getTime() - 5 * 60 * 1000); // 5 minutes ago
-    const notOnOrAfter = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes from now
+    const notBefore = new Date(now.getTime() - 5 * 60 * 1000);
+    const notOnOrAfter = new Date(now.getTime() + 5 * 60 * 1000);
 
     const responseId = `_${uuidv4()}`;
     const assertionId = `_${uuidv4()}`;
@@ -107,10 +118,8 @@ export class IPipelineSAMLClient {
     const relayState = this.getRelayState(request.product);
     const spEntityId = IPIPELINE_ENDPOINTS.spEntityId[this.environment];
 
-    // Build ApplicationData XML for user profile
     const applicationData = this.buildApplicationData(request);
 
-    // Build the SAML Response XML
     const samlXml = this.buildSAMLResponse({
       responseId,
       assertionId,
@@ -123,10 +132,7 @@ export class IPipelineSAMLClient {
       applicationData,
     });
 
-    // Sign the SAML Response
     const signedSaml = this.signSAMLResponse(samlXml, responseId);
-
-    // Base64 encode the signed SAML
     const samlResponse = Buffer.from(signedSaml).toString('base64');
 
     return {
@@ -137,7 +143,8 @@ export class IPipelineSAMLClient {
   }
 
   /**
-   * Build the ApplicationData XML for iGO user profile
+   * Build the ApplicationData XML for iGO user profile.
+   * Uses escaped XML (not CDATA) to avoid canonicalization mismatches.
    */
   private buildApplicationData(request: IPipelineSSORequest): string {
     const userData = [
@@ -158,11 +165,14 @@ export class IPipelineSAMLClient {
       request.brokerDealerNum ? `<Data Name="BrokerDealerNum">${this.escapeXml(request.brokerDealerNum)}</Data>` : '<Data Name="BrokerDealerNum"/>',
     ].join('');
 
-    return `<![CDATA[<iGoApplicationData><UserData>${userData}</UserData><ClientData/></iGoApplicationData>]]>`;
+    return this.escapeXml(
+      `<iGoApplicationData><UserData>${userData}</UserData><ClientData/></iGoApplicationData>`
+    );
   }
 
   /**
-   * Build the SAML Response XML
+   * Build the SAML Response XML (unsigned, with <!--SIGNATURE--> placeholder).
+   * Single-line format to avoid whitespace canonicalization issues.
    */
   private buildSAMLResponse(params: {
     responseId: string;
@@ -175,100 +185,104 @@ export class IPipelineSAMLClient {
     userId: string;
     applicationData: string;
   }): string {
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    ID="${params.responseId}"
-    Version="2.0"
-    IssueInstant="${params.issueInstant}"
-    Destination="${params.acsUrl}">
-  <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${this.entityId}</saml:Issuer>
-  <samlp:Status>
-    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
-  </samlp:Status>
-  <saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-      Version="2.0"
-      ID="${params.assertionId}"
-      IssueInstant="${params.issueInstant}">
-    <saml:Issuer>${this.entityId}</saml:Issuer>
-    <saml:Subject>
-      <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">${this.escapeXml(params.userId)}</saml:NameID>
-      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-        <saml:SubjectConfirmationData NotOnOrAfter="${params.notOnOrAfter}" Recipient="${params.acsUrl}"/>
-      </saml:SubjectConfirmation>
-    </saml:Subject>
-    <saml:Conditions NotBefore="${params.notBefore}" NotOnOrAfter="${params.notOnOrAfter}">
-      <saml:AudienceRestriction>
-        <saml:Audience>${params.spEntityId}</saml:Audience>
-      </saml:AudienceRestriction>
-    </saml:Conditions>
-    <saml:AuthnStatement AuthnInstant="${params.issueInstant}">
-      <saml:AuthnContext>
-        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef>
-      </saml:AuthnContext>
-    </saml:AuthnStatement>
-    <saml:AttributeStatement>
-      <saml:Attribute Name="CompanyIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue>${VALOR_COMPANY_IDENTIFIER}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="ChannelName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue>${VALOR_CHANNEL_NAME}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="Action" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue>CREATE</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="Groups" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue>${VALOR_GROUPS}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="TimeoutURL" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue/>
-      </saml:Attribute>
-      <saml:Attribute Name="ApplicationData" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue>${params.applicationData}</saml:AttributeValue>
-      </saml:Attribute>
-    </saml:AttributeStatement>
-  </saml:Assertion>
-</samlp:Response>`;
+    return (
+      `<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="${params.responseId}" Version="2.0" IssueInstant="${params.issueInstant}" Destination="${params.acsUrl}">` +
+      `<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${this.entityId}</saml:Issuer>` +
+      `<!--SIGNATURE-->` +
+      `<samlp:Status><samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></samlp:Status>` +
+      `<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Version="2.0" ID="${params.assertionId}" IssueInstant="${params.issueInstant}">` +
+        `<saml:Issuer>${this.entityId}</saml:Issuer>` +
+        `<saml:Subject>` +
+          `<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">${this.escapeXml(params.userId)}</saml:NameID>` +
+          `<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">` +
+            `<saml:SubjectConfirmationData NotOnOrAfter="${params.notOnOrAfter}" Recipient="${params.acsUrl}"/>` +
+          `</saml:SubjectConfirmation>` +
+        `</saml:Subject>` +
+        `<saml:Conditions NotBefore="${params.notBefore}" NotOnOrAfter="${params.notOnOrAfter}">` +
+          `<saml:AudienceRestriction>` +
+            `<saml:Audience>${params.spEntityId}</saml:Audience>` +
+          `</saml:AudienceRestriction>` +
+        `</saml:Conditions>` +
+        `<saml:AuthnStatement AuthnInstant="${params.issueInstant}">` +
+          `<saml:AuthnContext>` +
+            `<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef>` +
+          `</saml:AuthnContext>` +
+        `</saml:AuthnStatement>` +
+        `<saml:AttributeStatement>` +
+          `<saml:Attribute Name="CompanyIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"><saml:AttributeValue>${VALOR_COMPANY_IDENTIFIER}</saml:AttributeValue></saml:Attribute>` +
+          `<saml:Attribute Name="ChannelName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"><saml:AttributeValue>${VALOR_CHANNEL_NAME}</saml:AttributeValue></saml:Attribute>` +
+          `<saml:Attribute Name="Action" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"><saml:AttributeValue>CREATE</saml:AttributeValue></saml:Attribute>` +
+          `<saml:Attribute Name="Groups" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"><saml:AttributeValue>${VALOR_GROUPS}</saml:AttributeValue></saml:Attribute>` +
+          `<saml:Attribute Name="TimeoutURL" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"><saml:AttributeValue></saml:AttributeValue></saml:Attribute>` +
+          `<saml:Attribute Name="ApplicationData" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"><saml:AttributeValue>${params.applicationData}</saml:AttributeValue></saml:Attribute>` +
+        `</saml:AttributeStatement>` +
+      `</saml:Assertion>` +
+      `</samlp:Response>`
+    );
   }
 
   /**
-   * Sign the SAML Response using RSA-SHA256 via xml-crypto.
+   * Sign the SAML Response using manual XML signing.
    *
-   * xml-crypto handles proper XML canonicalization (exc-c14n) before hashing
-   * and signing — required for PingFederate (iPipeline) to verify correctly.
+   * This bypasses xml-crypto's computeSignature/getSignedXml pipeline which
+   * parses XML into a DOM then re-serializes it, subtly altering the structure
+   * and causing PingFederate to compute a different digest ("Invalid signature").
    *
-   * Element order enforced: Issuer → Signature → Status → Assertion
+   * Instead, we:
+   * 1. Canonicalize the unsigned XML (what the verifier sees after removing Signature)
+   * 2. SHA-256 hash it for the DigestValue
+   * 3. Build SignedInfo XML, canonicalize it, RSA-SHA256 sign it
+   * 4. Insert the Signature block as a string (no DOM round-trip)
    */
   private signSAMLResponse(xml: string, responseId: string): string {
     if (!this.privateKey || !this.certificate) {
       throw new Error('SAML signing keys not configured - cannot generate secure SSO response');
     }
 
-    const certB64 = this.cleanCertificate(this.certificate);
+    // The "clean" XML is what the verifier sees after the enveloped-signature
+    // transform removes <ds:Signature>. Since we haven't inserted it yet,
+    // just remove the placeholder.
+    const cleanXml = xml.replace('<!--SIGNATURE-->', '');
 
-    const sig = new SignedXml({
-      privateKey:                this.privateKey,
-      signatureAlgorithm:        'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
-      canonicalizationAlgorithm: 'http://www.w3.org/2001/10/xml-exc-c14n#',
-      getKeyInfoContent:         () =>
-        `<X509Data><X509Certificate>${certB64}</X509Certificate></X509Data>`,
-    });
+    // Canonicalize and compute digest
+    const canonicalResponse = canonicalize(cleanXml);
+    const digest = crypto.createHash('sha256').update(canonicalResponse).digest('base64');
 
-    sig.addReference({
-      xpath:           `//*[@ID='${responseId}']`,
-      transforms:      [
-        'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
-        'http://www.w3.org/2001/10/xml-exc-c14n#',
-      ],
-      digestAlgorithm: 'http://www.w3.org/2001/04/xmlenc#sha256',
-    });
+    // Build SignedInfo
+    const signedInfoXml =
+      `<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">` +
+      `<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>` +
+      `<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>` +
+      `<ds:Reference URI="#${responseId}">` +
+      `<ds:Transforms>` +
+      `<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>` +
+      `<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>` +
+      `</ds:Transforms>` +
+      `<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>` +
+      `<ds:DigestValue>${digest}</ds:DigestValue>` +
+      `</ds:Reference>` +
+      `</ds:SignedInfo>`;
 
-    // Place signature before <samlp:Status> so final order is:
-    // Issuer → Signature → Status → Assertion  (required by SAML 2.0 schema)
-    sig.computeSignature(xml, {
-      location: { reference: `//*[local-name()='Status']`, action: 'before' },
-    });
+    // Canonicalize and sign
+    const canonicalSignedInfo = canonicalize(signedInfoXml);
+    const signer = crypto.createSign('RSA-SHA256');
+    signer.update(canonicalSignedInfo);
+    const signatureValue = signer.sign(this.privateKey, 'base64');
 
-    return sig.getSignedXml();
+    // Build the complete Signature block
+    const signatureBlock =
+      `<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">` +
+      signedInfoXml.replace(` xmlns:ds="http://www.w3.org/2000/09/xmldsig#"`, '') +
+      `<ds:SignatureValue>${signatureValue}</ds:SignatureValue>` +
+      `<ds:KeyInfo>` +
+      `<ds:X509Data>` +
+      `<ds:X509Certificate>${this.certB64}</ds:X509Certificate>` +
+      `</ds:X509Data>` +
+      `</ds:KeyInfo>` +
+      `</ds:Signature>`;
+
+    // Insert into the original XML
+    return xml.replace('<!--SIGNATURE-->', signatureBlock);
   }
 
   /**
@@ -306,7 +320,7 @@ export class IPipelineSAMLClient {
     <md:KeyDescriptor use="signing">
       <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
         <ds:X509Data>
-          <ds:X509Certificate>${this.cleanCertificate(this.certificate)}</ds:X509Certificate>
+          <ds:X509Certificate>${this.certB64}</ds:X509Certificate>
         </ds:X509Data>
       </ds:KeyInfo>
     </md:KeyDescriptor>
