@@ -250,13 +250,18 @@ export class IPipelineSAMLClient {
       .replace(/\s/g, '');
   }
 
+  /**
+   * Escape XML text content per Exclusive C14N rules.
+   * Only &, <, > and \r need escaping in text nodes.
+   * Do NOT escape " or ' — C14N does not escape them in text content,
+   * and doing so changes the digest.
+   */
   private escapeXml(str: string): string {
     return str
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;');
+      .replace(/\r/g, '&#xD;');
   }
 
   generateIdPMetadata(): string {
