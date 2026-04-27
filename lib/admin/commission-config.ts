@@ -41,55 +41,54 @@ export async function updateMemberCommissionSplit(
     throw new Error("Organization member not found");
   }
 
-  // Validate that updating this split won't cause total to exceed 100%
-  const allMembers = await prisma.organizationMember.findMany({
-    where: {
-      organizationId,
-      isActive: true,
-    },
-  });
+  // Wrap the read→validate→write in a transaction so two simultaneous updates
+  // can't both pass the 100% check and together push the total over 100%.
+  const updatedMember = await prisma.$transaction(async (tx) => {
+    // Re-read all members inside the transaction for an accurate snapshot
+    const allMembers = await tx.organizationMember.findMany({
+      where: { organizationId, isActive: true },
+    });
 
-  // Calculate new total with this update
-  let newTotal = 0;
-  for (const m of allMembers) {
-    if (m.userId === userId) {
-      newTotal += split; // New split for this user
-    } else {
-      newTotal += (m.commissionSplit || 0) * 100; // Convert decimal to percentage
+    // Calculate new total (incoming split is percentage; stored values are decimal)
+    let newTotal = 0;
+    for (const m of allMembers) {
+      newTotal += m.userId === userId
+        ? split                            // new value, already in percentage
+        : (m.commissionSplit || 0) * 100;  // existing value, convert decimal → percentage
     }
-  }
 
-  // CRITICAL: Enforce hard limit - total must not exceed 100%
-  if (newTotal > 100) {
-    throw new Error(
-      `Cannot update commission split: total would be ${newTotal.toFixed(2)}% which exceeds 100%. ` +
-      `Current total is ${((newTotal - split + (member.commissionSplit || 0) * 100)).toFixed(2)}%. ` +
-      `Please adjust splits to ensure the total does not exceed 100%.`
-    );
-  }
+    if (newTotal > 100) {
+      const currentTotal = allMembers.reduce(
+        (sum, m) => sum + (m.commissionSplit || 0) * 100, 0
+      );
+      throw new Error(
+        `Cannot update commission split: total would be ${newTotal.toFixed(2)}% which exceeds 100%. ` +
+        `Current total is ${currentTotal.toFixed(2)}%. ` +
+        `Please adjust other splits first.`
+      );
+    }
 
-  // Update commission split (convert percentage to decimal)
-  const updatedMember = await prisma.organizationMember.update({
-    where: { id: member.id },
-    data: {
-      commissionSplit: split / 100,
-    },
-  });
+    const updated = await tx.organizationMember.update({
+      where: { id: member.id },
+      data: { commissionSplit: split / 100 },
+    });
 
-  // Create audit log
-  await prisma.auditLog.create({
-    data: {
-      tenantId: member.organization.tenantId,
-      userId: updatedBy,
-      action: "COMMISSION_SPLIT_UPDATE",
-      entityType: "ORGANIZATION",
-      entityId: organizationId,
-      changes: JSON.stringify({
-        userId,
-        oldSplit: member.commissionSplit,
-        newSplit: split,
-      }),
-    },
+    await tx.auditLog.create({
+      data: {
+        tenantId: member.organization.tenantId,
+        userId: updatedBy,
+        action: "COMMISSION_SPLIT_UPDATE",
+        entityType: "ORGANIZATION",
+        entityId: organizationId,
+        changes: JSON.stringify({
+          userId,
+          oldSplit: member.commissionSplit,
+          newSplit: split / 100,
+        }),
+      },
+    });
+
+    return updated;
   });
 
   return updatedMember;
@@ -210,11 +209,13 @@ export async function getOrganizationCommissionConfig(organizationId: string) {
     },
   });
 
-  // Calculate total split allocation
-  const totalSplit = members.reduce(
+  // Sum raw decimal values (0–1 each), then convert to percentage for display and validation
+  const totalSplitDecimal = members.reduce(
     (sum, member) => sum + (member.commissionSplit || 0),
     0
   );
+  // Round to 2 decimal places to avoid floating-point drift (e.g. 99.99999... instead of 100)
+  const totalSplit = Math.round(totalSplitDecimal * 10000) / 100;
 
   return {
     members: members.map((m) => ({
@@ -225,7 +226,7 @@ export async function getOrganizationCommissionConfig(organizationId: string) {
       commissionSplit: m.commissionSplit,
       joinedAt: m.joinedAt,
     })),
-    totalSplit,
+    totalSplit,           // percentage form (0–100)
     isValid: totalSplit <= 100,
   };
 }
@@ -296,8 +297,8 @@ export async function autoBalanceCommissionSplits(
     prisma.organizationMember.update({
       where: { id: member.id },
       data: {
-        // Give remainder to first member(s)
-        commissionSplit: evenSplit + (index < remainder ? 1 : 0),
+        // Store as decimal (0–1); give remainder percentage point to first member(s)
+        commissionSplit: (evenSplit + (index < remainder ? 1 : 0)) / 100,
       },
     })
   );

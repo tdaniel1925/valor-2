@@ -1,0 +1,170 @@
+{
+  "project": "FireLight Outbound SFTP Integration - Receiving Side",
+  "created": "2026-04-24",
+  "status": "CODE_COMPLETE",
+  "lastUpdated": "2026-04-24",
+  "overview": "Build the receiving side for FireLight (Hexure) outbound SFTP integration. FireLight sends NVP XML files (with base64-encoded PDFs) to our SFTP server when agents complete insurance applications. Valor needs to receive, parse, and create/update cases from this data.",
+
+  "architecture": {
+    "approach": "Cheap VPS with OpenSSH SFTP + file watcher + Valor API endpoint",
+    "flow": "FireLight -> SFTP (VPS, ~$5/mo) -> file watcher script -> POST to Valor API -> case created/updated",
+    "why_not_aws_transfer": "AWS Transfer Family costs ~$216/month, overkill for low-volume"
+  },
+
+  "xml_structure": {
+    "root_element": "DataFeedObject",
+    "key_fields": {
+      "TransactionID": "GUID - unique per submission",
+      "ApplicationID": "GUID - FireLight application ID",
+      "DTI": "Carrier tracking ID",
+      "TransactionDateTime": "ISO timestamp"
+    },
+    "data_items": {
+      "total_fields": 2591,
+      "format": "<DataItem><Name>field_name</Name><Value>value</Value></DataItem>",
+      "key_agent_fields": [
+        "Agent_FirstName", "Agent_LastName", "Agent_SSN", "Agent_CommissionSplit",
+        "BDAgent_IDNumber", "AdditionalAgent1_*", "AdditionalAgent2_*"
+      ],
+      "key_client_fields": [
+        "Client_DOB", "Client_EmailAddress", "Client_FirstName", "Client_LastName",
+        "Client_SSN", "Client_EmployerName", "Client_Employment_Status"
+      ],
+      "key_annuitant_fields": [
+        "Annuitant_FirstName", "Annuitant_LastName", "Annuitant_DOB",
+        "Annuitant_SSN", "Annuitant_EmailAddress", "Annuitant_Gender",
+        "Annuitant_MailingAddress_*", "Annuitant_ResidentialAddress_*"
+      ],
+      "key_product_fields": [
+        "AmountOfInvestment", "ProductName", "ProductType"
+      ],
+      "key_beneficiary_fields": [
+        "AdditionalBeneficiary1_*", "PrimaryBeneficiary_*"
+      ]
+    },
+    "pdf_structure": {
+      "location": "<PDFList><PDF><PDFData>base64_string</PDFData></PDF></PDFList>",
+      "forms": "<FormList><Form><FormName>form_name</FormName></Form></FormList>"
+    }
+  },
+
+  "sftp_requirements": {
+    "hexure_ips_to_whitelist": {
+      "test": "20.236.70.194",
+      "uat_staging": "20.225.104.94",
+      "production": "20.241.57.83"
+    },
+    "credentials_needed": "FQDN, port (default 22), username, password, directory path",
+    "recommended_folders": ["/Test", "/UAT", "/PROD"],
+    "pdf_delivery": "Embedded as base64 in NVP XML (bundled)"
+  },
+
+  "phases": [
+    {
+      "id": 1,
+      "name": "Prisma Schema Updates",
+      "status": "COMPLETE",
+      "description": "Add FireLight-specific models to track inbound submissions",
+      "tasks": [
+        "Add FireLightSubmission model (transactionId, applicationId, dti, rawXml, status, timestamps)",
+        "Add FireLightDocument model (submissionId, formName, pdfUrl, fileName)",
+        "Add firelightAgentId field to UserProfile for agent matching",
+        "Run prisma migrate"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "XML Parser Library",
+      "status": "COMPLETE",
+      "description": "Parse FireLight NVP XML into structured data",
+      "files": ["lib/firelight/xml-parser.ts"],
+      "tasks": [
+        "Parse DataFeedObject XML",
+        "Extract populated DataItems into key-value map",
+        "Extract PDFList base64 data",
+        "Extract FormList metadata",
+        "Map NVP field names to Valor case fields"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Inbound API Route",
+      "status": "COMPLETE",
+      "description": "API endpoint that receives parsed FireLight data from the file watcher",
+      "files": ["app/api/inbound/firelight/route.ts"],
+      "tasks": [
+        "POST endpoint with API key auth",
+        "Accept XML body or pre-parsed JSON",
+        "Call XML parser",
+        "Match agent via BDAgent_IDNumber or Agent_SSN to UserProfile",
+        "Create/update Case with application data",
+        "Decode and store PDF(s)",
+        "Create FireLightSubmission record",
+        "Return success/failure response"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "File Watcher Script",
+      "status": "COMPLETE",
+      "description": "Script that runs on VPS, watches SFTP directory, posts to Valor API",
+      "files": ["scripts/firelight-watcher.ts"],
+      "tasks": [
+        "Watch SFTP directory for new .xml files",
+        "Read file contents",
+        "POST to Valor inbound API",
+        "Move processed files to /processed folder",
+        "Move failed files to /failed folder",
+        "Log all activity"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "SFTP Server Setup Guide",
+      "status": "COMPLETE",
+      "description": "Documentation for VPS SFTP setup",
+      "files": ["firelight/SFTP-SETUP.md"],
+      "tasks": [
+        "VPS provisioning steps",
+        "OpenSSH SFTP config (chroot, dedicated user)",
+        "Firewall rules (whitelist Hexure IPs only)",
+        "Directory structure (/Test, /UAT, /PROD)",
+        "Systemd service for file watcher",
+        "Env vars needed"
+      ]
+    }
+  ],
+
+  "field_mapping": {
+    "case_fields": {
+      "policyNumber": "from filename or DTI",
+      "primaryInsured": "Client_FirstName + Client_LastName or Annuitant_FirstName + Annuitant_LastName",
+      "primaryAdvisor": "Agent_FirstName + Agent_LastName",
+      "carrier": "derived from DTI or product info",
+      "productType": "Annuity (based on field naming patterns)",
+      "targetAmount": "AmountOfInvestment"
+    },
+    "agent_matching": "BDAgent_IDNumber -> UserProfile.gaid OR Agent_SSN -> lookup"
+  },
+
+  "decisions_made": [
+    "Cheap VPS with OpenSSH SFTP instead of AWS Transfer Family (~$5/mo vs ~$216/mo)",
+    "PDFs bundled in XML (base64) - not separate files",
+    "File watcher posts to Valor API (decoupled - VPS doesn't need DB access)"
+  ],
+
+  "decisions_needed": [
+    "VPS provider (DigitalOcean, Hetzner, Linode?)",
+    "PDF storage (Supabase Storage? S3?)",
+    "Which NVP fields to extract beyond basics",
+    "How to handle duplicate submissions (idempotency on TransactionID)"
+  ],
+
+  "contacts": {
+    "hexure": [
+      "Nicole Eberhart-Blair - integration lead",
+      "Diane Irwin - Director, Client Delivery - diane@insurancetechnologies.com - +1 719.955.5112",
+      "Renee Phipps - team"
+    ]
+  }
+}

@@ -222,30 +222,36 @@ export async function calculateTeamMetrics(
   const now = new Date();
   const yearStart = new Date(now.getFullYear(), 0, 1);
 
-  // Calculate metrics for each member
-  const memberMetrics = await Promise.all(
-    members.map(async (member) => {
-      const cases = await prisma.case.findMany({
-        where: {
-          userId: member.userId,
-          status: "ISSUED",
-          issuedAt: { gte: yearStart },
-        },
-      });
+  // Batch fetch all relevant cases in one query instead of one per member (N+1 fix)
+  const userIds = members.map((m) => m.userId);
+  const allCases = await prisma.case.findMany({
+    where: {
+      userId: { in: userIds },
+      status: "ISSUED",
+      issuedAt: { gte: yearStart },
+    },
+    select: { userId: true, premium: true },
+  });
 
-      const production = cases.reduce((sum, c) => sum + (c.premium || 0), 0);
+  const casesByUser = new Map<string, typeof allCases>(userIds.map((id) => [id, []]));
+  for (const c of allCases) {
+    casesByUser.get(c.userId)?.push(c);
+  }
 
-      return {
-        userId: member.userId,
-        name: `${member.user.firstName} ${member.user.lastName}`,
-        production,
-        cases: cases.length,
-      };
-    })
-  );
+  // Calculate metrics for each member using the pre-fetched data
+  const memberMetrics = members.map((member) => {
+    const cases = casesByUser.get(member.userId) ?? [];
+    const production = cases.reduce((sum, c) => sum + (c.premium || 0), 0);
+
+    return {
+      userId: member.userId,
+      name: `${member.user.firstName} ${member.user.lastName}`,
+      production,
+      cases: cases.length,
+    };
+  });
 
   // Get total commissions for the team
-  const userIds = members.map((m) => m.userId);
   const commissions = await prisma.commission.findMany({
     where: {
       userId: { in: userIds },

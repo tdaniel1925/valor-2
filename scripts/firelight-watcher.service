@@ -1,0 +1,17 @@
+[Unit]
+Description=FireLight SFTP File Watcher
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/firelight-watcher
+EnvironmentFile=/opt/firelight-watcher/.env
+ExecStart=/usr/bin/node /opt/firelight-watcher/firelight-watcher.js
+Restart=always
+RestartSec=10
+User=root
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

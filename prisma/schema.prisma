@@ -88,6 +88,9 @@ model Tenant {
   // OAuth2 / SSO
   oauthClients    OAuthClient[] @relation("TenantOAuthClients")
 
+  // FireLight Integration
+  firelightSubmissions FireLightSubmission[]
+
   @@index([slug])
   @@index([status])
   @@map("tenants")
@@ -183,6 +186,7 @@ model UserProfile {
 
   // Professional Details
   gaid                String?   @unique // General Agent ID
+  firelightAgentId    String?   @unique // FireLight/Hexure agent identifier (BDAgent_IDNumber)
   agencyName          String?
   yearsOfExperience   Int?
   specializations     String[]
@@ -437,6 +441,7 @@ model Case {
   // Relations
   notes             CaseNote[]
   commissions       Commission[]
+  firelightSubmissions FireLightSubmission[]
 
   @@unique([tenantId, policyNumber])
   @@index([tenantId])
@@ -527,6 +532,8 @@ model Commission {
   @@index([caseId])
   @@index([policyNumber])
   @@index([primaryAdvisor])
+  @@index([paidAt])
+  @@index([createdAt])
   @@map("commissions")
 }
 
@@ -1732,5 +1739,87 @@ model OAuthToken {
   @@index([clientId])
   @@index([userId])
   @@map("oauth_tokens")
+}
+
+// ============================================
+// FIRELIGHT INTEGRATION
+// ============================================
+
+model FireLightSubmission {
+  id                String   @id @default(uuid())
+
+  // Tenant scoping
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // FireLight identifiers
+  transactionId     String   @unique // FireLight TransactionID (GUID)
+  applicationId     String   // FireLight ApplicationID (GUID)
+  dti               String?  // Carrier tracking ID
+
+  // Matched Valor records
+  caseId            String?  // Linked Case after processing
+  case              Case?    @relation(fields: [caseId], references: [id])
+  matchedUserId     String?  // Agent matched from NVP data
+
+  // Application data (extracted from NVP XML)
+  agentFirstName    String?
+  agentLastName     String?
+  agentSsn          String?
+  agentIdNumber     String?  // BDAgent_IDNumber
+  clientFirstName   String?
+  clientLastName    String?
+  clientDob         String?
+  clientEmail       String?
+  clientSsn         String?
+  productName       String?
+  productType       String?
+  investmentAmount  Float?
+
+  // Raw data storage
+  rawXml            String?  // Full NVP XML (stored for reprocessing)
+  extractedFields   Json?    // All populated DataItems as JSON
+
+  // Processing status
+  status            String   @default("RECEIVED") // RECEIVED | PROCESSING | COMPLETED | FAILED | DUPLICATE
+  errorMessage      String?
+  processedAt       DateTime?
+
+  // Source metadata
+  sourceEnvironment String?  // test | uat | prod
+  sourceFileName    String?  // Original filename on SFTP
+  receivedAt        DateTime @default(now())
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  documents         FireLightDocument[]
+
+  @@index([tenantId])
+  @@index([transactionId])
+  @@index([applicationId])
+  @@index([status])
+  @@index([caseId])
+  @@map("firelight_submissions")
+}
+
+model FireLightDocument {
+  id              String   @id @default(uuid())
+
+  // Parent submission
+  submissionId    String
+  submission      FireLightSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  // Document details
+  formName        String?  // From FormList
+  fileName        String   // e.g., "PolicyNumber.pdf" or "PolicyNumber_FormNumber.pdf"
+  pdfUrl          String?  // Storage URL after upload
+  sizeBytes       Int?
+
+  createdAt       DateTime @default(now())
+
+  @@index([submissionId])
+  @@map("firelight_documents")
 }
 

@@ -211,16 +211,16 @@ export async function GET(request: NextRequest) {
             userId: agent.id,
             agentName: `${agent.firstName} ${agent.lastName}`,
             email: agent.email,
-            organization: '', // TODO: Add org relationship if needed
+            organization: orgMembership?.organization?.name ?? '',
             totalPremium,
             policyCount,
             averageCase,
-            conversionRate: 0, // TODO: Calculate from quotes vs cases
-            quoteToAppRatio: 0, // TODO: Calculate
-            averageTimeToClose: 0, // TODO: Calculate from case dates
-            persistency: 0, // TODO: Calculate
+            conversionRate,
+            quoteToAppRatio,
+            averageTimeToClose: avgTimeToClose,
+            persistency,
             rank: 0, // Will be calculated after sorting
-            growth: 0, // TODO: Compare with previous period
+            growth,
             productMix,
             monthlyTrend,
           };

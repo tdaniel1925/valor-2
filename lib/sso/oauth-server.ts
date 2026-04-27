@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { prisma } from '@/lib/db/prisma';
 import {
   createAccessToken,
@@ -25,6 +26,20 @@ export interface TokenRequest {
   client_secret: string;
   refresh_token?: string;
   code_verifier?: string;
+}
+
+/**
+ * Verify RFC 7636 PKCE code_verifier against a stored code_challenge.
+ * S256: BASE64URL(SHA256(code_verifier)) must equal code_challenge.
+ * plain: code_verifier must equal code_challenge.
+ */
+function verifyPKCE(codeVerifier: string, codeChallenge: string, method: string | null): boolean {
+  if (method === 'S256') {
+    const hash = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
+    return hash === codeChallenge;
+  }
+  // plain (and unset, treated as plain)
+  return codeVerifier === codeChallenge;
 }
 
 /**
@@ -150,7 +165,15 @@ export async function exchangeAuthorizationCode(
     return { error: 'invalid_grant' };
   }
 
-  // TODO: Verify PKCE code_verifier if code_challenge was used
+  // Verify PKCE code_verifier if a code_challenge was stored (RFC 7636)
+  if (authCode.codeChallenge) {
+    if (!params.code_verifier) {
+      return { error: 'invalid_grant' };
+    }
+    if (!verifyPKCE(params.code_verifier, authCode.codeChallenge, authCode.codeChallengeMethod)) {
+      return { error: 'invalid_grant' };
+    }
+  }
 
   // Mark code as used
   await prisma.oAuthAuthorizationCode.update({

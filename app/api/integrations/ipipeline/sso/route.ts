@@ -41,10 +41,13 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate required fields
-    if (!body.userId || !body.firstName || !body.lastName || !body.email) {
+    // Validate required fields — use trim() so empty strings are caught the same as missing values
+    const missingFields = ['userId', 'firstName', 'lastName', 'email'].filter(
+      (f) => !body[f]?.toString().trim()
+    );
+    if (missingFields.length > 0) {
       return NextResponse.json(
-        { error: "Missing required fields: userId, firstName, lastName, email" },
+        { error: `Missing or empty required fields: ${missingFields.join(', ')}` },
         { status: 400 }
       );
     }
@@ -58,12 +61,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate SAML Response
+    // Generate SAML Response — trim all string fields so iPipeline never receives padded whitespace
     const samlData = await iPipelineSAMLClient.generateSAMLResponse({
-      userId: body.userId,
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
+      userId: body.userId.trim(),
+      firstName: body.firstName.trim(),
+      lastName: body.lastName.trim(),
+      email: body.email.trim(),
       middleName: body.middleName,
       phone: body.phone,
       phone2: body.phone2,

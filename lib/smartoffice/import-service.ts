@@ -53,26 +53,14 @@ async function importPolicies(
     recordsSkipped: 0,
     recordsFailed: 0,
     errors: [],
-    warnings: []
+    warnings: [] as string[]
   };
-
-  // REPLACE STRATEGY: Delete all existing policies before importing new ones
-  await withTenantContext(tenantId, async (db) => {
-    const deleteResult = await db.smartOfficePolicy.deleteMany({
-      where: { tenantId }
-    });
-    if (deleteResult.count > 0) {
-      result.warnings.push(`Deleted ${deleteResult.count} existing policies - new report will replace them`);
-    }
-  });
 
   for (const record of records) {
     try {
       result.recordsProcessed++;
 
-      // Create new policy (no upsert needed since we deleted all old ones)
       await withTenantContext(tenantId, async (db) => {
-        // Create searchText for full-text search
         const searchText = [
           record.policyNumber,
           record.primaryAdvisor,
@@ -101,13 +89,25 @@ async function importPolicies(
           sourceFile: fileName,
           rawData: record.rawData,
           searchText,
-          importId: importId || undefined // Link to import record
+          importId: importId || undefined
         };
 
-        await db.smartOfficePolicy.create({
-          data: policyData
+        // Upsert on (tenantId, policyNumber) — never delete existing data
+        const existing = await db.smartOfficePolicy.findFirst({
+          where: { tenantId, policyNumber: record.policyNumber },
+          select: { id: true }
         });
-        result.recordsCreated++;
+
+        if (existing) {
+          await db.smartOfficePolicy.update({
+            where: { id: existing.id },
+            data: policyData
+          });
+          result.recordsUpdated++;
+        } else {
+          await db.smartOfficePolicy.create({ data: policyData });
+          result.recordsCreated++;
+        }
       });
 
     } catch (error: any) {
@@ -138,25 +138,14 @@ async function importAgents(
     recordsSkipped: 0,
     recordsFailed: 0,
     errors: [],
-    warnings: []
+    warnings: [] as string[]
   };
-
-  // REPLACE STRATEGY: Delete all existing agents before importing new ones
-  await withTenantContext(tenantId, async (db) => {
-    const deleteResult = await db.smartOfficeAgent.deleteMany({
-      where: { tenantId }
-    });
-    if (deleteResult.count > 0) {
-      result.warnings.push(`Deleted ${deleteResult.count} existing agents - new report will replace them`);
-    }
-  });
 
   for (const record of records) {
     try {
       result.recordsProcessed++;
 
       await withTenantContext(tenantId, async (db) => {
-        // Create searchText for full-text search
         const searchText = [
           record.fullName,
           record.email,
@@ -182,14 +171,30 @@ async function importAgents(
           sourceFile: fileName,
           rawData: record.rawData,
           searchText,
-          importId: importId || undefined // Link to import record
+          importId: importId || undefined
         };
 
-        // Create new agent (no upsert needed since we deleted all old ones)
-        await db.smartOfficeAgent.create({
-          data: agentData
+        // Upsert: prefer email match, fall back to fullName — never delete existing data
+        const existing = await db.smartOfficeAgent.findFirst({
+          where: {
+            tenantId,
+            ...(record.email
+              ? { email: record.email }
+              : { fullName: record.fullName }),
+          },
+          select: { id: true }
         });
-        result.recordsCreated++;
+
+        if (existing) {
+          await db.smartOfficeAgent.update({
+            where: { id: existing.id },
+            data: agentData
+          });
+          result.recordsUpdated++;
+        } else {
+          await db.smartOfficeAgent.create({ data: agentData });
+          result.recordsCreated++;
+        }
       });
 
     } catch (error: any) {
@@ -264,7 +269,7 @@ export async function importSmartOfficeData(
           fileName: parseResult.metadata.fileName,
           source: triggeredBy.startsWith('manual:') ? 'manual' : triggeredBy === 'email' ? 'email' : 'api',
           status: 'PROCESSING',
-          importMode: 'REPLACE',
+          importMode: 'UPSERT',
           recordsTotal: parseResult.records.length,
           validationErrors: (validationResult?.errors || []) as any,
           validationWarnings: (validationResult?.warnings || []) as any,

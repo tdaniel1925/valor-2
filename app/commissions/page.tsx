@@ -9,42 +9,35 @@ import Link from "next/link";
 
 interface Commission {
   id: string;
-  type: string;
-  status: string;
-  carrier: string;
   policyNumber: string | null;
-  amount: number;
-  percentage: number | null;
-  splitAmount: number | null;
-  periodStart: string;
-  periodEnd: string;
-  paidAt: string | null;
-  createdAt: string;
-  // SmartOffice fields
+  checkDate: string | null;
+  actualAmountPaid: number | null;
+  receivable: number | null;
   primaryAdvisor: string | null;
   advisorName: string | null;
   subSource: string | null;
   supervisor: string | null;
+  statusDate: string | null;
+  planType: string | null;
+  carrierName: string | null;
   primaryInsured: string | null;
   commAnnualizedPrem: number | null;
   premiumMode: string | null;
-  checkDate: string | null;
-  statusDate: string | null;
-  receivable: number | null;
-  case: {
-    id: string;
-    clientName: string;
-    productType: string;
-  } | null;
+  importDate: string;
 }
 
 interface CommissionsData {
   commissions: Commission[];
-  totals: Array<{
-    status: string;
-    _count: number;
-    _sum: { amount: number | null };
-  }>;
+  filters: {
+    advisors: string[];
+    carriers: string[];
+  };
+  totals: {
+    paid: number;
+    receivable: number;
+  };
+  totalCommissions: number;
+  filteredCommissions: number;
 }
 
 export default function CommissionsPage() {
@@ -53,30 +46,17 @@ export default function CommissionsPage() {
   const [sortField, setSortField] = useState<keyof Commission>("policyNumber");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading, error } = useQuery<CommissionsData>({
-    queryKey: ["commissions"],
+  const { data, isLoading, error} = useQuery<CommissionsData>({
+    queryKey: ["smartoffice-commissions"],
     queryFn: async () => {
-      const res = await fetch("/api/commissions");
+      const res = await fetch("/api/smartoffice/agent-commissions");
       if (!res.ok) throw new Error("Failed to fetch commissions");
-      const json = await res.json(); return json.data;
+      return res.json();
     },
   });
 
-  // Get unique policies only (first occurrence) for table display
-  const uniqueCommissions = data?.commissions
-    ? (() => {
-        const seen = new Map<string, typeof data.commissions[0]>();
-        data.commissions.forEach(c => {
-          if (c.policyNumber && !seen.has(c.policyNumber)) {
-            seen.set(c.policyNumber, c);
-          }
-        });
-        return Array.from(seen.values());
-      })()
-    : [];
-
-  // Filter and sort unique commissions
-  const filteredAndSortedCommissions = uniqueCommissions
+  // Filter and sort commissions
+  const filteredAndSortedCommissions = (data?.commissions || [])
     .filter((commission) => {
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
@@ -84,10 +64,9 @@ export default function CommissionsPage() {
         commission.policyNumber?.toLowerCase().includes(query) ||
         commission.primaryInsured?.toLowerCase().includes(query) ||
         commission.primaryAdvisor?.toLowerCase().includes(query) ||
-        commission.carrier?.toLowerCase().includes(query) ||
+        commission.carrierName?.toLowerCase().includes(query) ||
         commission.advisorName?.toLowerCase().includes(query) ||
-        commission.supervisor?.toLowerCase().includes(query) ||
-        commission.case?.clientName?.toLowerCase().includes(query)
+        commission.supervisor?.toLowerCase().includes(query)
       );
     })
     .sort((a, b) => {
@@ -151,50 +130,49 @@ export default function CommissionsPage() {
     );
   }
 
-  // Calculate date ranges - using statusDate (Column H)
+  // Calculate date ranges - using checkDate (payment date)
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfQuarter = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
   const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-  // Get unique policies only and calculate premium totals by date
-  const seenPolicies = new Set<string>();
-  let totalPremiumVolume = 0;
-  let monthToDatePremium = 0;
-  let quarterToDatePremium = 0;
-  let yearToDatePremium = 0;
-  let uniquePolicyCount = 0;
+  // Calculate payment totals by date
+  let totalPaid = 0;
+  let monthToDatePaid = 0;
+  let quarterToDatePaid = 0;
+  let yearToDatePaid = 0;
 
-  data.commissions.forEach(c => {
-    if (c.policyNumber && c.commAnnualizedPrem && !seenPolicies.has(c.policyNumber)) {
-      seenPolicies.add(c.policyNumber);
-      totalPremiumVolume += c.commAnnualizedPrem;
-      uniquePolicyCount++;
+  (data?.commissions || []).forEach(c => {
+    const amount = c.actualAmountPaid || 0;
+    totalPaid += amount;
 
-      // Filter by statusDate for time-based totals
-      if (c.statusDate) {
-        const statusDate = new Date(c.statusDate);
+    // Filter by checkDate for time-based totals
+    if (c.checkDate) {
+      const checkDate = new Date(c.checkDate);
 
-        if (statusDate >= startOfMonth) {
-          monthToDatePremium += c.commAnnualizedPrem;
-        }
+      if (checkDate >= startOfMonth) {
+        monthToDatePaid += amount;
+      }
 
-        if (statusDate >= startOfQuarter) {
-          quarterToDatePremium += c.commAnnualizedPrem;
-        }
+      if (checkDate >= startOfQuarter) {
+        quarterToDatePaid += amount;
+      }
 
-        if (statusDate >= startOfYear) {
-          yearToDatePremium += c.commAnnualizedPrem;
-        }
+      if (checkDate >= startOfYear) {
+        yearToDatePaid += amount;
       }
     }
   });
 
-  // Set card values based on statusDate filtering
-  const monthToDate = monthToDatePremium;
-  const quarterToDate = quarterToDatePremium;
-  const yearToDate = yearToDatePremium;
-  const sinceInception = totalPremiumVolume;
+  // Calculate total premium volume
+  const totalPremiumVolume = (data?.commissions || []).reduce((sum, c) => sum + (c.commAnnualizedPrem || 0), 0);
+  const uniquePolicyCount = new Set((data?.commissions || []).map(c => c.policyNumber).filter(Boolean)).size;
+
+  // Set card values
+  const monthToDate = monthToDatePaid;
+  const quarterToDate = quarterToDatePaid;
+  const yearToDate = yearToDatePaid;
+  const sinceInception = totalPaid;
 
   return (
     <AppLayout>
@@ -209,10 +187,10 @@ export default function CommissionsPage() {
               </p>
             </div>
             <Link
-              href="/smartoffice"
+              href="/integrations/smartoffice"
               className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             >
-              View in SmartOffice
+              SmartOffice Integration
             </Link>
           </div>
         </div>
@@ -373,12 +351,12 @@ export default function CommissionsPage() {
                       Product Type
                     </th>
                     <th
-                      onClick={() => handleSort("carrier")}
+                      onClick={() => handleSort("carrierName")}
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Carrier
-                        {sortField === "carrier" && (
+                        {sortField === "carrierName" && (
                           <span className="text-blue-600 dark:text-blue-400">
                             {sortDirection === "asc" ? "↑" : "↓"}
                           </span>
@@ -399,17 +377,20 @@ export default function CommissionsPage() {
                       </div>
                     </th>
                     <th
-                      onClick={() => handleSort("status")}
+                      onClick={() => handleSort("checkDate")}
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <div className="flex items-center justify-center gap-1">
-                        Status
-                        {sortField === "status" && (
+                        Check Date
+                        {sortField === "checkDate" && (
                           <span className="text-blue-600 dark:text-blue-400">
                             {sortDirection === "asc" ? "↑" : "↓"}
                           </span>
                         )}
                       </div>
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                      Amount Paid
                     </th>
                   </tr>
                 </thead>
@@ -429,7 +410,7 @@ export default function CommissionsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-gray-100">
-                          {commission.primaryInsured || commission.case?.clientName || "—"}
+                          {commission.primaryInsured || "—"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -439,12 +420,12 @@ export default function CommissionsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          —
+                          {commission.planType || "—"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-gray-100 max-w-[200px] truncate">
-                          {commission.carrier}
+                          {commission.carrierName || "—"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -460,19 +441,16 @@ export default function CommissionsPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <Badge
-                          variant={
-                            commission.status === "PAID"
-                              ? "success"
-                              : commission.status === "PENDING"
-                              ? "warning"
-                              : commission.status === "DISPUTED"
-                              ? "danger"
-                              : "default"
-                          }
-                        >
-                          {commission.status}
-                        </Badge>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {commission.checkDate ? formatDate(commission.checkDate) : "—"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {commission.actualAmountPaid
+                            ? formatCurrency(commission.actualAmountPaid)
+                            : "—"}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -514,27 +492,31 @@ export default function CommissionsPage() {
           )}
         </Card>
 
-        {/* Commission Breakdown by Type */}
-        {data.commissions.length > 0 && (
+        {/* Commission Breakdown by Carrier */}
+        {data && data.commissions.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Commission Breakdown</CardTitle>
+              <CardTitle>Top Carriers by Payment Volume</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Object.entries(
                   data.commissions.reduce((acc, c) => {
-                    if (!acc[c.type]) {
-                      acc[c.type] = { count: 0, total: 0 };
+                    const carrier = c.carrierName || 'Unknown';
+                    if (!acc[carrier]) {
+                      acc[carrier] = { count: 0, total: 0 };
                     }
-                    acc[c.type].count++;
-                    acc[c.type].total += c.amount;
+                    acc[carrier].count++;
+                    acc[carrier].total += (c.actualAmountPaid || 0);
                     return acc;
                   }, {} as Record<string, { count: number; total: number }>)
-                ).map(([type, stats]) => (
-                  <div key={type} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {type.replace(/_/g, " ")}
+                )
+                .sort(([, a], [, b]) => b.total - a.total)
+                .slice(0, 6)
+                .map(([carrier, stats]) => (
+                  <div key={carrier} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {carrier}
                     </p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
                       {formatCurrency(stats.total)}
@@ -581,30 +563,17 @@ export default function CommissionsPage() {
 
               {/* Modal Content */}
               <div className="p-6">
-                {/* Status Badge */}
-                <div className="mb-6">
-                  <Badge
-                    variant={
-                      selectedCommission.status === "PAID"
-                        ? "success"
-                        : selectedCommission.status === "PENDING"
-                        ? "warning"
-                        : selectedCommission.status === "DISPUTED"
-                        ? "danger"
-                        : "default"
-                    }
-                    className="text-sm"
-                  >
-                    {selectedCommission.status}
-                  </Badge>
-                </div>
-
                 {/* Amount Highlight */}
                 <div className="mb-6 p-6 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Commission Amount</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Amount Paid</p>
                   <p className="text-4xl font-bold text-blue-900 dark:text-blue-300 mt-2">
-                    {formatCurrency(selectedCommission.amount)}
+                    {formatCurrency(selectedCommission.actualAmountPaid || 0)}
                   </p>
+                  {selectedCommission.receivable && selectedCommission.receivable > 0 && (
+                    <p className="text-sm text-blue-700 dark:text-blue-400 mt-2">
+                      Receivable: {formatCurrency(selectedCommission.receivable)}
+                    </p>
+                  )}
                 </div>
 
                 {/* Details Grid */}
@@ -622,7 +591,13 @@ export default function CommissionsPage() {
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Carrier</p>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {selectedCommission.carrier}
+                          {selectedCommission.carrierName || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Plan Type</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {selectedCommission.planType || "—"}
                         </p>
                       </div>
                       <div>
@@ -714,54 +689,10 @@ export default function CommissionsPage() {
                           </p>
                         </div>
                       )}
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Commission Period</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {formatDate(selectedCommission.periodStart)} - {formatDate(selectedCommission.periodEnd)}
-                        </p>
-                      </div>
-                      {selectedCommission.paidAt && (
-                        <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Paid At</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {formatDate(selectedCommission.paidAt)}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Additional Commission Details */}
-                {(selectedCommission.percentage || selectedCommission.splitAmount) && (
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Additional Details</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Commission Type</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {selectedCommission.type.replace(/_/g, " ")}
-                        </p>
-                      </div>
-                      {selectedCommission.percentage && (
-                        <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Percentage</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {(selectedCommission.percentage * 100).toFixed(1)}%
-                          </p>
-                        </div>
-                      )}
-                      {selectedCommission.splitAmount && (
-                        <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Split Amount</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {formatCurrency(selectedCommission.splitAmount)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Modal Footer */}

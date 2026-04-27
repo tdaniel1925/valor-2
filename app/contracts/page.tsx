@@ -8,19 +8,18 @@ import AppLayout from "@/components/layout/AppLayout";
 
 interface AgentContract {
   id: string;
-  agentId: string;
-  agentName: string;
-  agentEmail: string | null;
-  agentNpn: string | null;
-  contractText: string;
-  supervisor: string | null;
-  subSource: string | null;
-  // Parsed fields
+  advisorName: string;
+  advisorEmail: string | null;
+  advisorPhone: string | null;
   carrierName: string | null;
   contractType: string | null;
   contractNumber: string | null;
-  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
-  parseMethod: string;
+  commissionLevel: string | null;
+  effectiveDate: string | null;
+  expirationDate: string | null;
+  subSource: string | null;
+  supervisor: string | null;
+  importDate: string;
 }
 
 interface AgentContractsData {
@@ -33,7 +32,6 @@ interface AgentContractsData {
 }
 
 export default function ContractsPage() {
-  const [activeTab, setActiveTab] = useState<'parsed' | 'review'>('parsed');
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [agentFilter, setAgentFilter] = useState<string>("ALL");
@@ -61,9 +59,7 @@ export default function ContractsPage() {
     },
   });
 
-  // Split contracts by confidence
-  const parsedContracts = data?.contracts.filter(c => c.confidence === 'HIGH' || c.confidence === 'MEDIUM') || [];
-  const needsReview = data?.contracts.filter(c => c.confidence === 'LOW') || [];
+  const contracts = data?.contracts || [];
 
   if (isLoading) {
     return (
@@ -96,9 +92,6 @@ export default function ContractsPage() {
     );
   }
 
-  // Stats from filtered data
-  const contracts = activeTab === 'parsed' ? parsedContracts : needsReview;
-
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -112,48 +105,12 @@ export default function ContractsPage() {
               </p>
             </div>
             <Link
-              href="/smartoffice/agents"
+              href="/integrations/smartoffice"
               className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             >
-              View in SmartOffice
+              SmartOffice Integration
             </Link>
           </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('parsed')}
-              className={`${
-                activeTab === 'parsed'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-            >
-              Parsed Contracts
-              {data && (
-                <span className="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                  {parsedContracts.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('review')}
-              className={`${
-                activeTab === 'review'
-                  ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-            >
-              Needs Review
-              {data && (
-                <span className="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300">
-                  {needsReview.length}
-                </span>
-              )}
-            </button>
-          </nav>
         </div>
         {/* Search and Filters */}
         <Card className="mb-8">
@@ -284,40 +241,27 @@ export default function ContractsPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    {activeTab === 'parsed' ? (
-                      <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Agent
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Carrier
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Contract Type
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Contract Number
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          NPN
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Confidence
-                        </th>
-                      </>
-                    ) : (
-                      <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Agent
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Raw Contract Text
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Parse Method
-                        </th>
-                      </>
-                    )}
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Advisor
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Carrier
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Contract Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Contract Number
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Commission Level
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Effective Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Expiration
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -326,74 +270,56 @@ export default function ContractsPage() {
                       key={contract.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
-                      {activeTab === 'parsed' ? (
-                        <>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Link
-                              href={`/smartoffice/agents/${contract.agentId}`}
-                              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                              {contract.agentName}
-                            </Link>
-                            {contract.agentEmail && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {contract.agentEmail}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900 dark:text-gray-100">
-                              {contract.carrierName || '-'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900 dark:text-gray-100">
-                              {contract.contractType || '-'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm font-mono text-gray-900 dark:text-gray-100">
-                              {contract.contractNumber || '-'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {contract.agentNpn || '-'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge variant={contract.confidence === 'HIGH' ? 'success' : 'default'}>
-                              {contract.confidence}
-                            </Badge>
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Link
-                              href={`/smartoffice/agents/${contract.agentId}`}
-                              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                              {contract.agentName}
-                            </Link>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900 dark:text-gray-100 max-w-2xl">
-                              {contract.contractText}
-                            </div>
-                            {contract.carrierName && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                Attempted parse: {contract.carrierName} / {contract.contractType} / {contract.contractNumber}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {contract.parseMethod}
-                            </div>
-                          </td>
-                        </>
-                      )}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {contract.advisorName}
+                        </div>
+                        {contract.advisorEmail && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {contract.advisorEmail}
+                          </div>
+                        )}
+                        {contract.advisorPhone && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {contract.advisorPhone}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {contract.carrierName || '-'}
+                        </div>
+                        {contract.subSource && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {contract.subSource}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {contract.contractType || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-mono text-gray-900 dark:text-gray-100">
+                          {contract.contractNumber || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {contract.commissionLevel || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {contract.effectiveDate ? new Date(contract.effectiveDate).toLocaleDateString() : '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {contract.expirationDate ? new Date(contract.expirationDate).toLocaleDateString() : '-'}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
