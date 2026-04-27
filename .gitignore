@@ -56,3 +56,8 @@ next-env.d.ts
 # logs
 /logs
 *.log
+
+# firelight secrets
+firelight/certs/*.key
+firelight/certs/*.zip
+scripts/firelight-watcher.env
