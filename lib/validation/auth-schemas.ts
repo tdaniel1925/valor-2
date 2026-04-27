@@ -26,6 +26,16 @@ export type SignInInput = z.infer<typeof signInSchema>;
  * Sign up request schema
  */
 export const signUpSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(100, 'First name is too long')
+    .regex(/^[a-zA-Z\s\-']+$/, 'First name contains invalid characters'),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(100, 'Last name is too long')
+    .regex(/^[a-zA-Z\s\-']+$/, 'Last name contains invalid characters'),
   email: z
     .string()
     .min(1, 'Email is required')

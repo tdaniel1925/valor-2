@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withVerifiedTenant } from "@/lib/auth/require-tenant-access";
-import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
-import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
 import { z } from "zod";
 
 // Query parameter validation schema
@@ -47,105 +45,6 @@ const updateCommissionSchema = z.object({
  * List commissions with filters (tenant-scoped)
  */
 export async function GET(request: NextRequest) {
-  // DEVELOPMENT MODE: Bypass authentication for testing
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      const tenantContext = getTenantFromRequest(request);
-      if (!tenantContext) {
-        return NextResponse.json(
-          { error: 'Tenant context not found' },
-          { status: 400 }
-        );
-      }
-
-      const { searchParams } = new URL(request.url);
-      const queryParams = commissionsQuerySchema.parse({
-        caseId: searchParams.get("caseId") || undefined,
-        status: searchParams.get("status") || undefined,
-        type: searchParams.get("type") || undefined,
-        limit: searchParams.get("limit") || '100',
-        offset: searchParams.get("offset") || '0',
-      });
-
-      const { caseId, status, type, limit, offset } = queryParams;
-
-      return await withTenantContext(tenantContext.tenantId, async (prisma) => {
-        // Build where clause - show all commissions in dev mode
-        const where: any = {};
-
-        if (caseId) where.caseId = caseId;
-        if (status) where.status = status;
-        if (type) where.type = type;
-
-        const [commissions, total] = await Promise.all([
-          prisma.commission.findMany({
-            where,
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                },
-              },
-              case: {
-                select: {
-                  id: true,
-                  clientName: true,
-                  policyNumber: true,
-                  carrier: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: limit,
-            skip: offset,
-          }),
-          prisma.commission.count({ where }),
-        ]);
-
-        const totals = await prisma.commission.groupBy({
-          by: ["status"],
-          where,
-          _sum: {
-            amount: true,
-          },
-          _count: true,
-        });
-
-        return NextResponse.json({
-          success: true,
-          data: {
-            commissions,
-            totals,
-            pagination: {
-              total,
-              limit,
-              offset,
-              hasMore: offset + limit < total,
-            },
-          },
-        });
-      });
-    } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        return NextResponse.json(
-          { error: 'Invalid query parameters', details: error.issues },
-          { status: 400 }
-        );
-      }
-      console.error("List commissions error (dev mode):", error);
-      return NextResponse.json(
-        { error: error.message || "Failed to list commissions" },
-        { status: 500 }
-      );
-    }
-  }
-
-  // PRODUCTION MODE: Require authentication
   return await withVerifiedTenant(request, async ({ user, tenantId }, prisma) => {
     try {
       const { searchParams } = new URL(request.url);

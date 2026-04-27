@@ -3,12 +3,52 @@ import { parseSmartOfficeExcel } from '@/lib/smartoffice/excel-parser';
 import { importSmartOfficeData } from '@/lib/smartoffice/import-service';
 import { prisma } from '@/lib/db/prisma';
 import { Resend } from 'resend';
+import crypto from 'crypto';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * Verify Svix-compatible webhook signature (used by Resend).
+ * Returns true if the signature is valid or if no secret is configured (dev mode).
+ */
+function verifyWebhookSignature(rawBody: string, headers: Headers): boolean {
+  const secret = process.env.RESEND_WEBHOOK_SECRET;
+  if (!secret) return true; // dev: skip verification if secret not set
+
+  const msgId = headers.get('svix-id');
+  const msgTimestamp = headers.get('svix-timestamp');
+  const msgSignature = headers.get('svix-signature');
+
+  if (!msgId || !msgTimestamp || !msgSignature) return false;
+
+  // Reject requests older than 5 minutes to prevent replay attacks
+  const timestamp = parseInt(msgTimestamp, 10);
+  if (!Number.isFinite(timestamp) || Math.abs(Math.floor(Date.now() / 1000) - timestamp) > 300) {
+    return false;
+  }
+
+  const signedPayload = `${msgId}.${msgTimestamp}.${rawBody}`;
+  const secretBytes = Buffer.from(secret.replace(/^whsec_/, ''), 'base64');
+  const expectedSig = crypto
+    .createHmac('sha256', secretBytes)
+    .update(signedPayload)
+    .digest('base64');
+
+  // svix-signature header may contain multiple space-separated "v1,<sig>" entries
+  const providedSigs = msgSignature.split(' ').map((s) => s.split(',')[1]).filter(Boolean);
+  return providedSigs.some((sig) => sig === expectedSig);
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const payload = await request.json();
+    const rawBody = await request.text();
+
+    if (!verifyWebhookSignature(rawBody, request.headers)) {
+      console.warn('SmartOffice inbound webhook: signature verification failed');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+
+    const payload = JSON.parse(rawBody);
 
     // Extract recipient email (format: a7f3k2x9@shwunde745.resend.app)
     // Resend sends: { type: "email.received", data: { to: ["email@..."], ... } }

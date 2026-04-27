@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
 import { withTenantContext } from "@/lib/db/tenant-scoped-prisma";
+import { requireAuth } from "@/lib/auth/server-auth";
 
 // GET /api/organizations - Get all organizations (tenant-scoped)
 export async function GET(request: NextRequest) {
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Add admin/manager auth check
+    await requireAuth(request);
 
     const body = await request.json();
     const {
@@ -151,6 +152,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ organization });
   } catch (error: any) {
+    if (error.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     console.error("Error creating organization:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create organization" },
@@ -171,7 +173,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // TODO: Add admin/manager auth check
+    await requireAuth(request);
 
     const body = await request.json();
     const {
@@ -252,6 +254,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ organization });
   } catch (error: any) {
+    if (error.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     console.error("Error updating organization:", error);
     return NextResponse.json(
       { error: error.message || "Failed to update organization" },
@@ -272,7 +275,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // TODO: Add admin auth check
+    await requireAuth(request);
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -316,6 +319,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    if (error.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     console.error("Error deleting organization:", error);
     return NextResponse.json(
       { error: error.message || "Failed to delete organization" },

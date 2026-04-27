@@ -4,7 +4,7 @@ import {
   updateOrganization,
   deleteOrganization,
 } from "@/lib/admin/organization-management";
-import { getUserId } from "@/lib/auth/supabase";
+import { requireAdmin } from "@/lib/auth/server-auth";
 
 /**
  * GET /api/admin/organizations/:id
@@ -15,6 +15,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdmin(request);
+
     const { id: organizationId } = await params;
 
     const organization = await getOrganizationById(organizationId);
@@ -24,6 +26,9 @@ export async function GET(
       data: organization,
     });
   } catch (error: any) {
+    if (error.message === "Unauthorized" || error.message === "Insufficient permissions - admin access required") {
+      return NextResponse.json({ error: error.message }, { status: error.message === "Unauthorized" ? 401 : 403 });
+    }
     console.error("Get organization error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to get organization" },
@@ -41,17 +46,20 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await requireAdmin(request);
+
     const { id: organizationId } = await params;
     const body = await request.json();
 
-    const adminId = await getUserId();
-    const organization = await updateOrganization(organizationId, body, adminId);
+    const organization = await updateOrganization(organizationId, body, admin.id);
 
     return NextResponse.json({
       success: true,
       data: organization,
     });
   } catch (error: any) {
+    if (error.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (error.message === "Insufficient permissions - admin access required") return NextResponse.json({ error: error.message }, { status: 403 });
     console.error("Update organization error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to update organization" },
@@ -69,16 +77,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await requireAdmin(request);
+
     const { id: organizationId } = await params;
 
-    const adminId = await getUserId();
-    await deleteOrganization(organizationId, adminId);
+    await deleteOrganization(organizationId, admin.id);
 
     return NextResponse.json({
       success: true,
       message: "Organization deleted successfully",
     });
   } catch (error: any) {
+    if (error.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (error.message === "Insufficient permissions - admin access required") return NextResponse.json({ error: error.message }, { status: 403 });
     console.error("Delete organization error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to delete organization" },

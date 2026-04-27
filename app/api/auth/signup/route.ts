@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Validate input with Zod
     const validatedData = signUpSchema.parse(body);
-    const { email, password, agencyName, subdomain } = validatedData;
+    const { email, password, firstName, lastName, agencyName, subdomain } = validatedData;
 
     logger.info('Signup attempt', { email, subdomain, agencyName });
 
@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
           id: authData.user.id,
           tenantId: newTenant.id,
           email: email,
-          firstName: "",
-          lastName: "",
+          firstName,
+          lastName,
           role: "ADMINISTRATOR",
           status: "ACTIVE",
           emailVerified: false,

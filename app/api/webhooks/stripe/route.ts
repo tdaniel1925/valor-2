@@ -107,6 +107,19 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session, 
     plan: keyof typeof SUBSCRIPTION_PLANS;
   };
 
+  // Idempotency check — Stripe retries webhooks on failure; skip if already processed
+  const existingTenant = await prisma.tenant.findFirst({
+    where: { stripeCustomerId: session.customer as string },
+    select: { id: true, slug: true },
+  });
+  if (existingTenant) {
+    logger.info('Checkout already processed — skipping duplicate', {
+      stripeCustomerId: session.customer,
+      tenantSlug: existingTenant.slug,
+    });
+    return;
+  }
+
   const subscription = await stripe.subscriptions.retrieve(
     session.subscription as string
   );

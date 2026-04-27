@@ -9,6 +9,8 @@ import { Button, Card, CardContent } from "@/components/ui";
 import { isValidSlug } from "@/lib/tenants/slug-validator";
 
 const signupSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(100),
+  lastName: z.string().min(1, "Last name is required").max(100),
   email: z.string().email("Invalid email address"),
   password: z.string()
     .min(8, "Password must be at least 8 characters")
@@ -80,6 +82,8 @@ export default function SignupPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
           email: data.email,
           password: data.password,
           agencyName: data.agencyName,
@@ -121,6 +125,38 @@ export default function SignupPage() {
           )}
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">First Name</label>
+                <input
+                  type="text"
+                  {...form.register("firstName")}
+                  placeholder="John"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                {form.formState.errors.firstName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {form.formState.errors.firstName.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Last Name</label>
+                <input
+                  type="text"
+                  {...form.register("lastName")}
+                  placeholder="Smith"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                {form.formState.errors.lastName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {form.formState.errors.lastName.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             {/* Email Field */}
             <div>
               <label className="block text-sm font-medium mb-1">Email</label>
