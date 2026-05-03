@@ -43,8 +43,12 @@ function generateSSOXml(params: WinFlexSSORequest): string {
   // Build WinFlex node with Profile for user registration/auto-create
   // Per Zinnia documentation: AutoCreate="true" bypasses registration and auto-creates WinFlex user
   // AutoEmail="false" suppresses the email notification
+  const returnUrl = process.env.NEXT_PUBLIC_APP_URL || "https://valorfs.app";
+
   let winFlexXml = `
   <WinFlex>
+    <ReturnURL>${escapeXml(returnUrl)}</ReturnURL>
+    <Captive>False</Captive>
     <Profile AutoCreate="true" AutoEmail="false">
       <FirstName>${escapeXml(params.firstName)}</FirstName>
       <LastName>${escapeXml(params.lastName)}</LastName>

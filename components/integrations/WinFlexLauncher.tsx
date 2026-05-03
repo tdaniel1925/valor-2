@@ -89,33 +89,23 @@ export function WinFlexLauncher({
       if (data.xml && data.ssoUrl) {
         setStatus('success');
 
-        // Open new browser tab first (to avoid popup blocker)
-        const winFlexWindow = window.open('about:blank', '_blank');
+        // Create hidden form on current page and submit with target="_blank"
+        // This is the same approach used by the working Apex implementation
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.ssoUrl;
+        form.target = '_blank';
+        form.style.display = 'none';
 
-        if (!winFlexWindow) {
-          setError('Popup blocked. Please allow popups for this site and try again.');
-          setStatus('error');
-          setDialogOpen(true);
-          return;
-        }
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'llXML';
+        input.value = data.xml;
+        form.appendChild(input);
 
-        // Write form directly to the new window and submit
-        winFlexWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head><title>Connecting to WinFlex...</title></head>
-          <body>
-            <p style="font-family: sans-serif; text-align: center; margin-top: 50px;">
-              Connecting to WinFlex Web...
-            </p>
-            <form id="ssoForm" method="POST" action="${data.ssoUrl}">
-              <input type="hidden" name="llXML" value="${data.xml.replace(/"/g, '&quot;')}" />
-            </form>
-            <script>document.getElementById('ssoForm').submit();</script>
-          </body>
-          </html>
-        `);
-        winFlexWindow.document.close();
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
 
         // Success - close dialog after short delay
         setTimeout(() => {
