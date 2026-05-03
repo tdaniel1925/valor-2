@@ -585,7 +585,7 @@ export default function CommissionsPage() {
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Primary Insured</p>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {selectedCommission.primaryInsured || selectedCommission.case?.clientName || "—"}
+                          {selectedCommission.primaryInsured || "—"}
                         </p>
                       </div>
                       <div>
