@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -420,33 +420,6 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     admin: true,
   });
 
-  // Hover timeout refs for smooth dropdown behavior
-  const hoverTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
-
-  const handleMouseEnter = useCallback((sectionKey: string) => {
-    // Clear any pending close timeout
-    if (hoverTimeoutRef.current[sectionKey]) {
-      clearTimeout(hoverTimeoutRef.current[sectionKey]);
-      delete hoverTimeoutRef.current[sectionKey];
-    }
-    setExpandedSections((prev) => {
-      const newSections = { ...prev, [sectionKey]: true };
-      localStorage.setItem('expandedSections', JSON.stringify(newSections));
-      return newSections;
-    });
-  }, []);
-
-  const handleMouseLeave = useCallback((sectionKey: string) => {
-    // Delay closing to prevent flicker when moving between parent and children
-    hoverTimeoutRef.current[sectionKey] = setTimeout(() => {
-      setExpandedSections((prev) => {
-        const newSections = { ...prev, [sectionKey]: false };
-        localStorage.setItem('expandedSections', JSON.stringify(newSections));
-        return newSections;
-      });
-      delete hoverTimeoutRef.current[sectionKey];
-    }, 200);
-  }, []);
 
   // Load dark mode, sidebar state, zoom level, and expanded sections from localStorage
   useEffect(() => {
@@ -665,10 +638,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     return (
       <div key={item.name}>
         {hasChildren ? (
-          <div
-            onMouseEnter={() => handleMouseEnter(sectionKey)}
-            onMouseLeave={() => handleMouseLeave(sectionKey)}
-          >
+          <>
             <button
               onClick={() => toggleSection(sectionKey)}
               className={cn(
@@ -698,17 +668,12 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div
-              className="ml-6 grid transition-[grid-template-rows] duration-250 ease-in-out"
-              style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
-            >
-              <div className="overflow-hidden">
-                <div className="mt-1 space-y-1">
-                  {item.children?.map((child) => renderNavItem(child, true))}
-                </div>
+            {isExpanded && (
+              <div className="ml-6 mt-1 space-y-1">
+                {item.children?.map((child) => renderNavItem(child, true))}
               </div>
-            </div>
-          </div>
+            )}
+          </>
         ) : isLaunchLink && handleLaunchClick ? (
           <button
             onClick={handleLaunchClick}
