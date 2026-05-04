@@ -115,6 +115,7 @@ export class IPipelineSAMLClient {
       request.lastName ? `<Data Name="LastName">${this.escapeXml(request.lastName)}</Data>` : '<Data Name="LastName"></Data>',
       request.middleName ? `<Data Name="MiddleName">${this.escapeXml(request.middleName)}</Data>` : '<Data Name="MiddleName"></Data>',
       request.email ? `<Data Name="Email">${this.escapeXml(request.email)}</Data>` : '<Data Name="Email"></Data>',
+      request.email ? `<Data Name="AgentEmail">${this.escapeXml(request.email)}</Data>` : '<Data Name="AgentEmail"></Data>',
       request.phone ? `<Data Name="Phone">${this.escapeXml(request.phone)}</Data>` : '<Data Name="Phone"></Data>',
       request.phone2 ? `<Data Name="Phone2">${this.escapeXml(request.phone2)}</Data>` : '<Data Name="Phone2"></Data>',
       request.fax ? `<Data Name="Fax">${this.escapeXml(request.fax)}</Data>` : '<Data Name="Fax"></Data>',
