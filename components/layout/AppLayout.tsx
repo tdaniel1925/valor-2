@@ -14,7 +14,6 @@ interface NavItem {
   href: string;
   icon: React.ReactNode;
   children?: NavItem[];
-  onClick?: () => void;
 }
 
 interface NavSection {
@@ -150,8 +149,7 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "WinFlex",
-        href: "#",
-        onClick: launchWinFlex,
+        href: "#launch-winflex",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -180,8 +178,7 @@ const businessNavigation: NavItem[] = [
     children: [
       {
         name: "iGo - Life Insurance eApplications",
-        href: "#",
-        onClick: () => launchIPipeline('igo'),
+        href: "#launch-igo",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -190,8 +187,7 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "FormsPipe - Insurance Forms",
-        href: "#",
-        onClick: () => launchIPipeline('formspipe'),
+        href: "#launch-formspipe",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -575,6 +571,17 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedSections[item.name.toLowerCase().replace(/\s+/g, '')];
     const isExternalLink = item.href.startsWith('http://') || item.href.startsWith('https://');
+    const isLaunchLink = item.href.startsWith('#launch-');
+
+    // Map launch hrefs to SSO functions
+    const handleLaunchClick = isLaunchLink ? (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (item.href === '#launch-winflex') launchWinFlex();
+      else if (item.href === '#launch-igo') launchIPipeline('igo');
+      else if (item.href === '#launch-formspipe') launchIPipeline('formspipe');
+      else if (item.href === '#launch-xrae') launchIPipeline('xrae');
+      handleNavClick();
+    } : undefined;
 
     // For collapsed sidebar, don't render children and show only icon with tooltip
     if (sidebarCollapsed && !isChild) {
@@ -598,9 +605,9 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
         </span>
       );
 
-      if (item.onClick) {
+      if (isLaunchLink && handleLaunchClick) {
         return (
-          <button key={item.name} onClick={item.onClick} className={collapsedClasses} title={item.name}>
+          <button key={item.name} onClick={handleLaunchClick} className={collapsedClasses} title={item.name}>
             {item.icon}
             {tooltip}
           </button>
@@ -664,13 +671,9 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
               </div>
             )}
           </>
-        ) : item.onClick ? (
+        ) : isLaunchLink && handleLaunchClick ? (
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              item.onClick!();
-              handleNavClick();
-            }}
+            onClick={handleLaunchClick}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
               isChild && "text-sm",
