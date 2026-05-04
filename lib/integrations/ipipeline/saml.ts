@@ -128,8 +128,11 @@ export class IPipelineSAMLClient {
       request.brokerDealerNum ? `<Data Name="BrokerDealerNum">${this.escapeXml(request.brokerDealerNum)}</Data>` : '<Data Name="BrokerDealerNum"></Data>',
     ].join('');
 
+    // Use product-specific root element
+    const rootTag = request.product === 'xrae' ? 'xraeApplicationData' : 'iGoApplicationData';
+
     return this.escapeXml(
-      `<iGoApplicationData><UserData>${userData}</UserData><ClientData></ClientData></iGoApplicationData>`
+      `<${rootTag}><UserData>${userData}</UserData><ClientData></ClientData></${rootTag}>`
     );
   }
 
