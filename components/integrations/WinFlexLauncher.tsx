@@ -67,16 +67,12 @@ export function WinFlexLauncher({
       const response = await fetch('/api/integrations/winflex/sso/xml');
 
       const data = await response.json();
-      console.log('[WinFlex SSO] Response status:', response.status);
-      console.log('[WinFlex SSO] Response data:', JSON.stringify(data).substring(0, 200));
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to generate WinFlex SSO request');
       }
 
       if (data.xml && data.ssoUrl) {
-        console.log('[WinFlex SSO] XML length:', data.xml.length);
-        console.log('[WinFlex SSO] SSO URL:', data.ssoUrl);
         setStatus('success');
 
         // Create hidden form on current page and submit with target="_blank"
