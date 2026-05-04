@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Use default agent info if not provided
     const agentName = validatedData.agentName || 'Valor Insurance Specialist';
-    const agentEmail = validatedData.agentEmail || 'quotes@valorinsurance.com';
+    const agentEmail = validatedData.agentEmail || 'phil@valorfs.com';
 
     // Transform quotes data for PDF
     const pdfData: QuotePDFData = {
