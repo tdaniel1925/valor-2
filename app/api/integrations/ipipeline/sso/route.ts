@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { iPipelineSAMLClient } from "@/lib/integrations/ipipeline/saml";
 import { IPipelineProduct } from "@/lib/integrations/ipipeline/types";
 import { requireAuth } from "@/lib/auth/server-auth";
+import { createClient } from "@/lib/auth/supabase-server";
+import { prisma } from "@/lib/db/prisma";
 
 /**
  * POST /api/integrations/ipipeline/sso
@@ -94,5 +96,56 @@ export async function POST(request: NextRequest) {
       { error: message },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * GET /api/integrations/ipipeline/sso?product=igo
+ *
+ * Server-side user data version for sidebar direct launch.
+ * Pulls user data from DB, generates SAML, returns { samlResponse, relayState, acsUrl }
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (process.env.IPIPELINE_SSO_ENABLED !== "true") {
+      return NextResponse.json({ error: "iPipeline SSO integration is not enabled" }, { status: 400 });
+    }
+
+    const product = request.nextUrl.searchParams.get("product") as IPipelineProduct;
+    const validProducts: IPipelineProduct[] = ["igo", "lifepipe", "formspipe", "xrae", "productinfo"];
+    if (!product || !validProducts.includes(product)) {
+      return NextResponse.json({ error: "Invalid or missing product parameter" }, { status: 400 });
+    }
+
+    const valorUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { id: true, email: true, firstName: true, lastName: true, phone: true },
+    });
+
+    if (!valorUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const samlData = await iPipelineSAMLClient.generateSAMLResponse({
+      userId: valorUser.id,
+      firstName: valorUser.firstName || "",
+      lastName: valorUser.lastName || "",
+      email: valorUser.email,
+      phone: valorUser.phone || undefined,
+      product,
+    });
+
+    return NextResponse.json({ success: true, ...samlData });
+  } catch (error: unknown) {
+    console.error("iPipeline SSO GET error:", error);
+    const message = error instanceof Error ? error.message : "Failed to generate SAML response";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

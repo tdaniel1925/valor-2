@@ -14,6 +14,7 @@ interface NavItem {
   href: string;
   icon: React.ReactNode;
   children?: NavItem[];
+  onClick?: () => void;
 }
 
 interface NavSection {
@@ -149,7 +150,8 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "WinFlex",
-        href: "/integrations/winflex",
+        href: "#",
+        onClick: launchWinFlex,
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -178,7 +180,8 @@ const businessNavigation: NavItem[] = [
     children: [
       {
         name: "iGo - Life Insurance eApplications",
-        href: "/integrations/ipipeline/igo",
+        href: "#",
+        onClick: () => launchIPipeline('igo'),
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -187,7 +190,8 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "FormsPipe - Insurance Forms",
-        href: "/integrations/ipipeline/formspipe",
+        href: "#",
+        onClick: () => launchIPipeline('formspipe'),
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -503,6 +507,63 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     });
   };
 
+  // Launch WinFlex SSO directly
+  const launchWinFlex = async () => {
+    try {
+      const res = await fetch('/api/integrations/winflex/sso/xml');
+      const data = await res.json();
+      if (res.ok && data.xml && data.ssoUrl) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.ssoUrl;
+        form.target = '_blank';
+        form.style.display = 'none';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'llXML';
+        input.value = data.xml;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+      }
+    } catch (err) {
+      console.error('WinFlex launch error:', err);
+    }
+  };
+
+  // Launch iPipeline product SSO directly
+  const launchIPipeline = async (product: string) => {
+    try {
+      const res = await fetch(`/api/integrations/ipipeline/sso?product=${product}`);
+      const data = await res.json();
+      if (res.ok && data.samlResponse && data.acsUrl) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.acsUrl;
+        form.target = '_blank';
+        form.style.display = 'none';
+        const samlInput = document.createElement('input');
+        samlInput.type = 'hidden';
+        samlInput.name = 'SAMLResponse';
+        samlInput.value = data.samlResponse;
+        form.appendChild(samlInput);
+        if (data.relayState) {
+          const relayInput = document.createElement('input');
+          relayInput.type = 'hidden';
+          relayInput.name = 'RelayState';
+          relayInput.value = data.relayState;
+          form.appendChild(relayInput);
+        }
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+      }
+    } catch (err) {
+      console.error('iPipeline launch error:', err);
+    }
+  };
+
   // Close mobile menu when navigating
   const handleNavClick = () => {
     setMobileMenuOpen(false);
@@ -517,6 +578,35 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
 
     // For collapsed sidebar, don't render children and show only icon with tooltip
     if (sidebarCollapsed && !isChild) {
+      const collapsedClasses = cn(
+        "flex items-center justify-center p-3 rounded-lg transition-colors group relative",
+        isActive
+          ? darkMode
+            ? "bg-blue-900/30 text-blue-400"
+            : "bg-blue-50 text-blue-600"
+          : darkMode
+          ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+      );
+
+      const tooltip = (
+        <span className={cn(
+          "absolute left-full ml-2 px-2 py-1 rounded-md text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50",
+          darkMode ? "bg-gray-700 text-white" : "bg-gray-900 text-white"
+        )}>
+          {item.name}
+        </span>
+      );
+
+      if (item.onClick) {
+        return (
+          <button key={item.name} onClick={item.onClick} className={collapsedClasses} title={item.name}>
+            {item.icon}
+            {tooltip}
+          </button>
+        );
+      }
+
       const LinkComponent = isExternalLink ? 'a' : Link;
       const linkProps = isExternalLink
         ? { href: item.href, target: "_blank", rel: "noopener noreferrer" }
@@ -526,26 +616,11 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
         <LinkComponent
           key={item.name}
           {...linkProps}
-          className={cn(
-            "flex items-center justify-center p-3 rounded-lg transition-colors group relative",
-            isActive
-              ? darkMode
-                ? "bg-blue-900/30 text-blue-400"
-                : "bg-blue-50 text-blue-600"
-              : darkMode
-              ? "text-gray-300 hover:bg-gray-700 hover:text-white"
-              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-          )}
+          className={collapsedClasses}
           title={item.name}
         >
           {item.icon}
-          {/* Tooltip */}
-          <span className={cn(
-            "absolute left-full ml-2 px-2 py-1 rounded-md text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50",
-            darkMode ? "bg-gray-700 text-white" : "bg-gray-900 text-white"
-          )}>
-            {item.name}
-          </span>
+          {tooltip}
         </LinkComponent>
       );
     }
@@ -589,6 +664,24 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
               </div>
             )}
           </>
+        ) : item.onClick ? (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              item.onClick!();
+              handleNavClick();
+            }}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              isChild && "text-sm",
+              darkMode
+                ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+            )}
+          >
+            {item.icon}
+            <span>{item.name}</span>
+          </button>
         ) : isExternalLink ? (
           <a
             href={item.href}
