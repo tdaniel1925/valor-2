@@ -63,22 +63,8 @@ export function WinFlexLauncher({
     setError(null);
 
     try {
-      // Get the SSO XML from our API
-      const response = await fetch('/api/integrations/winflex/sso/xml', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          companyName: user.companyName || 'Valor Financial Specialists',
-          phone: user.phone,
-          autoCreate: true,
-        }),
-      });
+      // Get the SSO XML from our API (GET - server pulls user data)
+      const response = await fetch('/api/integrations/winflex/sso/xml');
 
       const data = await response.json();
 
