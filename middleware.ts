@@ -183,7 +183,7 @@ export async function middleware(request: NextRequest) {
     worker-src 'self' blob:;
     object-src 'none';
     base-uri 'self';
-    form-action 'self';
+    form-action 'self' https://www.winflexweb.com https://*.firelighteapp.com;
     frame-ancestors 'none';
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim();
