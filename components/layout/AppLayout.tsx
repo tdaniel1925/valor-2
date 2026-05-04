@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -262,7 +262,7 @@ const businessNavigation: NavItem[] = [
         ),
       },
       {
-        name: "Catalog",
+        name: "Impairment Questionnaires",
         href: "/catalog",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,6 +419,34 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     reports: true,
     admin: true,
   });
+
+  // Hover timeout refs for smooth dropdown behavior
+  const hoverTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  const handleMouseEnter = useCallback((sectionKey: string) => {
+    // Clear any pending close timeout
+    if (hoverTimeoutRef.current[sectionKey]) {
+      clearTimeout(hoverTimeoutRef.current[sectionKey]);
+      delete hoverTimeoutRef.current[sectionKey];
+    }
+    setExpandedSections((prev) => {
+      const newSections = { ...prev, [sectionKey]: true };
+      localStorage.setItem('expandedSections', JSON.stringify(newSections));
+      return newSections;
+    });
+  }, []);
+
+  const handleMouseLeave = useCallback((sectionKey: string) => {
+    // Delay closing to prevent flicker when moving between parent and children
+    hoverTimeoutRef.current[sectionKey] = setTimeout(() => {
+      setExpandedSections((prev) => {
+        const newSections = { ...prev, [sectionKey]: false };
+        localStorage.setItem('expandedSections', JSON.stringify(newSections));
+        return newSections;
+      });
+      delete hoverTimeoutRef.current[sectionKey];
+    }, 200);
+  }, []);
 
   // Load dark mode, sidebar state, zoom level, and expanded sections from localStorage
   useEffect(() => {
@@ -632,12 +660,17 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       );
     }
 
+    const sectionKey = item.name.toLowerCase().replace(/\s+/g, '');
+
     return (
       <div key={item.name}>
         {hasChildren ? (
-          <>
+          <div
+            onMouseEnter={() => handleMouseEnter(sectionKey)}
+            onMouseLeave={() => handleMouseLeave(sectionKey)}
+          >
             <button
-              onClick={() => toggleSection(item.name.toLowerCase().replace(/\s+/g, ''))}
+              onClick={() => toggleSection(sectionKey)}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 isActive
@@ -655,7 +688,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
               </div>
               <svg
                 className={cn(
-                  "w-4 h-4 transition-transform",
+                  "w-4 h-4 transition-transform duration-200",
                   isExpanded ? "transform rotate-180" : ""
                 )}
                 fill="none"
@@ -665,12 +698,15 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {isExpanded && (
-              <div className="ml-6 mt-1 space-y-1">
-                {item.children?.map((child) => renderNavItem(child, true))}
-              </div>
-            )}
-          </>
+            <div
+              className={cn(
+                "ml-6 space-y-1 overflow-hidden transition-all duration-200 ease-in-out",
+                isExpanded ? "max-h-[500px] opacity-100 mt-1" : "max-h-0 opacity-0"
+              )}
+            >
+              {item.children?.map((child) => renderNavItem(child, true))}
+            </div>
+          </div>
         ) : isLaunchLink && handleLaunchClick ? (
           <button
             onClick={handleLaunchClick}

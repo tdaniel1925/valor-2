@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     const pdfData: QuotePDFData = {
       clientName: body.clientName,
       agentName: body.agentName || 'Valor Insurance',
-      agentEmail: body.agentEmail || 'support@valorinsurance.com',
+      agentEmail: body.agentEmail || 'phil@valorfs.com',
       agentPhone: body.agentPhone,
       quotes: body.quotes.map((quote) => ({
         carrierName: quote.carrierName,
