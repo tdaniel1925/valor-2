@@ -175,15 +175,15 @@ export async function middleware(request: NextRequest) {
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://vercel.live;
-    style-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline' https://rsms.me https://fonts.googleapis.com;
     img-src 'self' blob: data: https:;
-    font-src 'self' data:;
+    font-src 'self' data: https://rsms.me https://fonts.gstatic.com;
     connect-src 'self' https://*.supabase.co https://api.stripe.com https://vercel.live wss://*.supabase.co;
     frame-src 'self' https://js.stripe.com https://vercel.live;
     worker-src 'self' blob:;
     object-src 'none';
     base-uri 'self';
-    form-action 'self' https://www.winflexweb.com https://*.firelighteapp.com;
+    form-action 'self' https://www.winflexweb.com https://*.firelighteapp.com https://federate.ipipeline.com https://*.ipipeline.com;
     frame-ancestors 'none';
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim();
