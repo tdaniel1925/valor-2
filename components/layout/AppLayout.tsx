@@ -698,21 +698,15 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div className="ml-6 mt-1 space-y-1">
-              {item.children?.map((child, i) => (
-                <div
-                  key={child.name}
-                  className={cn(
-                    "transition-all duration-300 ease-out",
-                    isExpanded
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-2 pointer-events-none h-0 overflow-hidden"
-                  )}
-                  style={{ transitionDelay: isExpanded ? `${i * 30}ms` : '0ms' }}
-                >
-                  {renderNavItem(child, true)}
+            <div
+              className="ml-6 grid transition-[grid-template-rows] duration-250 ease-in-out"
+              style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
+            >
+              <div className="overflow-hidden">
+                <div className="mt-1 space-y-1">
+                  {item.children?.map((child) => renderNavItem(child, true))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         ) : isLaunchLink && handleLaunchClick ? (
