@@ -67,8 +67,13 @@ Email the following to Nicole Eberhart-Blair / Diane Irwin / Renee Phipps:
    - Prod: `https://app.valorfs.com/sso/firelight`
 
 Ask them to confirm/provide:
-- ORGANIZATION_ID (their org code for Valor/PSA)
+- ORGANIZATION_ID (their org code for Valor/PSA) — STILL NEEDED
 - IDP Identifier (the exact Issuer string they want us to use)
 - CarrierCode
-- EXTERNAL_ROLE_CODE for agent role
+- ~~EXTERNAL_ROLE_CODE for agent role~~ ✅ FOUND: `VFS_Agent` (from FireLight Admin > Groups,
+  org "Valor Financial Specialists"; other role codes: VFS_Admin, VFS_Reviewer, InsTech, InsTechRO)
 - UAT SSO endpoint URL (confirm it matches above)
+
+> Note (2026-06-11): We have access to the FireLight Admin portal. Check there for
+> Organization Settings (ORGANIZATION_ID) and SSO Settings (cert upload + IDP Identifier)
+> before waiting on Hexure.
