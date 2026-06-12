@@ -46,6 +46,19 @@ A modern, multi-tenant SaaS insurance back office platform built for insurance a
 - **Enhanced tables**: Zebra striping, hover effects, sticky headers, improved readability
 - **Smooth animations**: Hover effects, transitions, and micro-interactions
 
+### 🎓 Learning Center (LMS)
+- **No-skip video player**: custom YouTube IFrame player (play/pause/rewind only) — forward seeking snaps back, watch progress is validated server-side via 5s heartbeats with growth clamping
+- **Courses & lessons**: admin Course Builder with auto YouTube duration probing, drag-free reordering, draft/publish workflow
+- **Access grants**: per course — everyone, by role, or by individual user; locked courses show greyed with a customizable unlock message (per-course override + tenant default)
+- **Sequential lessons**: lesson N locked until N−1 is completed; courses enroll on first touch
+- **Reports & CSV**: completion dashboard, per-course completion lists (done / in progress / not started), per-agent transcripts with lesson-level watch time, Excel-friendly CSV export
+
+**Entry points**: agents → `/learning` (sidebar "Learning Center"); admins → `/admin/learning` (Course Builder) and `/admin/learning/reports` (Reports).
+
+**Key files**: `lib/learning/{access,progress,reports,youtube}.ts`, `app/api/learning/**`, `app/learning/**`, `app/admin/learning/**`, `components/learning/{NoSkipPlayer.tsx,useYouTubeDuration.ts}`.
+
+> **Schema note**: LMS DDL lives in `scripts/lms-schema.sql` and must be run in the **Supabase SQL Editor** (the app's DB role lacks owner permissions — do not use `prisma migrate`/`db push`). The script is idempotent.
+
 ## 📋 Features
 
 ### Latest Release - Multi-Tenant SaaS ✅

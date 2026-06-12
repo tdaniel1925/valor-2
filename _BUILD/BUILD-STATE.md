@@ -1,82 +1,38 @@
 # BUILD STATE
 
-## Status: PHASE 1 + PHASE 2 COMPLETE ✅ + ALL DASHBOARD ISSUES FIXED ✅
+## Status: COMPLETE ✅
 
-## Current Stage: FULLY OPERATIONAL - DATABASE MIGRATED
+## Current Stage: DONE — all 7 features built (tsc + next build pass) AND runtime smoke test passed 33/33 (2026-06-12, scripts/lms-smoke-test.mjs vs live Supabase: full admin flow, agent lock states, no-skip heartbeat clamping, completion, reports, CSV, tenant isolation). RLS disabled on course_grants/training_settings via Supabase SQL Editor (lms-schema.sql §6).
 
-## Current Feature: Complete SmartOffice system with full CRUD capabilities
+## Current Feature: Valor Learning Center (LMS) — APP mode, 7 features
 
 ## Completed:
-✅ Fresh clone check passed
-✅ Project analysis complete
-✅ Playwright production tests run (90.3% pass rate)
-✅ Build documentation created
-✅ Phase 1 Backend Implementation:
-  ✅ F1.1: Header-Based Column Parsing (lib/smartoffice/column-matcher.ts - 343 lines)
-  ✅ F1.2: Permission Checks (ADMIN/MANAGER only)
-  ✅ F1.3: Import Validation (lib/smartoffice/validator.ts - 281 lines)
-  ✅ SmartOfficeImport audit trail model added
-  ✅ Excel parser converted to header-based parsing
-  ✅ Import service enhanced with validation + audit trail
-  ✅ Import API updated with enhanced responses
-  ✅ Backend committed and pushed (commit: 2f8e45a)
-✅ Phase 1 UI Implementation:
-  ✅ F1.4: Column Mapping Display (shows field matching)
-  ✅ Structured validation error display (row/field/value details)
-  ✅ Structured validation warning display
-  ✅ Enhanced error/warning scrolling and readability
-  ✅ Features info section added
-  ✅ Updated instructions and documentation
-  ✅ UI committed and pushed (commit: 1f0b245)
-✅ Production Build Fixes:
-  ✅ Fixed import-service.ts syntax error (duplicate try block)
-  ✅ Fixed help/videos API route (field name corrections)
-  ✅ Fixed vitest config (removed unsupported 'all' option)
-  ✅ Type casting for Prisma JSONB fields
-  ✅ Committed and pushed (commit: a0dc070)
-✅ Webhook Import Verified:
-  ✅ /api/smartoffice/webhook working 100% with Phase 1 enhancements
-  ✅ Automatic email/bucket processing operational
-✅ Database Migration:
-  ✅ SmartOfficeImport audit table created successfully
-  ✅ All foreign keys and indexes in place
-  ✅ System fully operational with audit trail
-✅ Phase 2 CRUD Detail Pages:
-  ✅ Policy detail page with full CRUD (/smartoffice/policies/[id])
-  ✅ Agent detail page with full CRUD (/smartoffice/agents/[id])
-  ✅ GET/PUT/DELETE API routes for policies
-  ✅ GET/PUT/DELETE API routes for agents
-  ✅ Permission checks (MANAGER+ for edit, ADMIN for delete)
-  ✅ Beautiful responsive UI with gradient cards
-  ✅ Edit mode with inline form validation
-  ✅ Delete with confirmation dialogs
-  ✅ Metadata display (source, sync dates)
-  ✅ Committed and pushed (commit: 71158e5)
+✅ Prior builds: SmartOffice system, FireLight SFTP receiving side (see git history / _BUILD archives)
+✅ LMS interview complete (2026-06-11)
+✅ LMS spec generated: `_BUILD/LMS/PROJECT-SPEC.md`
+✅ LMS master plan: `_BUILD/LMS/MASTER.md`
 
 ## Remaining:
-⬜ Phase 2.2: Import History Page (optional - view past imports)
-⬜ Phase 2.3: Smart Sync Status (optional - enhanced status with change summaries)
+✅ GO received; Feature 1 complete (schema extended, validated, client generated, tsc clean)
+⬜ USER ACTION: run `scripts/lms-schema.sql` in Supabase SQL Editor
+⬜ Feature 2: API Layer
+⬜ Feature 3: Admin Course Builder
+⬜ Feature 4: Agent Learning Center
+✅ Feature 5: No-Skip Player (NoSkipPlayer.tsx + lesson page; tsc + build pass 2026-06-11)
+✅ Feature 6: Reports + CSV (lib/learning/reports.ts + reports API/export + admin reports page; tsc + build pass 2026-06-11)
+✅ Feature 7: Sidebar + Polish (AppLayout nav swap, README finalized; tsc + build pass 2026-06-11)
+✅ Runtime smoke test PASSED 33/33 (2026-06-12). Found + fixed 2 RLS bugs along the way: (1) code — resolveLessonContext + findTenantLesson used `course:` relation joins outside withTenantContext (silently match nothing under RLS); (2) DB — course_grants/training_settings had RLS enabled with no policies; disabled via Supabase SQL Editor (lms-schema.sql §6). Test script kept at scripts/lms-smoke-test.mjs (self-cleaning, reusable as regression test).
 
 ## Decisions Made:
-- Use SmartOfficeImport model for audit trail (tracking imports, errors, warnings)
-- Header-based column parsing with fuzzy matching + position fallback
-- Validation blocks on errors, allows warnings
-- Column mapping templates saved per tenant
-- Import modes: REPLACE (current), MERGE, APPEND, UPDATE (future)
-- Permission check: ADMIN or MANAGER roles only
-- Detail pages will be full CRUD (view/edit/delete)
-- Import history shows full audit trail with re-run capability
+- YouTube unlisted videos; custom no-skip player (play/pause/rewind only, server-validated progress)
+- Sequential lessons; gating per ALL/role/user; locked = greyed + customizable unlock message (per-course override + global default)
+- Full reporting: dashboard, completion lists, per-agent transcripts, CSV
+- DDL via Supabase SQL Editor (valor_app_role lacks owner perms); RLS disabled on lms_* tables, tenant scoping in API layer (firelight_* precedent)
+- Phil Resch (admin) is sole content creator
 
 ## Blockers:
-✅ RESOLVED: Database migration completed successfully
-  - All audit trail tables created
-  - System fully operational
+- (Separate track) FireLight SSO: waiting on Hexure for ORGANIZATION_ID (External Map Code); EXTERNAL_ROLE_CODE found = VFS_Agent
 
-## Context Docs:
-- _BUILD/CONTEXT/README.md (reference doc placeholder)
-- _BUILD/MIGRATION.sql (database migration script)
-- Playwright test results from production (65/72 passing)
-- Existing SmartOffice system codebase analyzed
+## Context Docs: _BUILD/CONTEXT/ (none LMS-specific yet)
 
-## Last Updated:
-2026-03-24 - Phase 1 + Phase 2 COMPLETE + All Dashboard Issues Fixed (commits: 2f8e45a, 1f0b245, a0dc070, 71158e5) - FULLY OPERATIONAL
+## Last Updated: 2026-06-11

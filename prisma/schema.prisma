@@ -91,6 +91,9 @@ model Tenant {
   // FireLight Integration
   firelightSubmissions FireLightSubmission[]
 
+  // Learning Center
+  trainingSettings TrainingSettings?
+
   @@index([slug])
   @@index([status])
   @@map("tenants")
@@ -161,6 +164,7 @@ model User {
   savedFilters      SavedFilter[]
   dashboardLayouts  DashboardLayout[]
   videoWatchHistory VideoWatchHistory[] @relation("UserVideoWatchHistory")
+  courseGrants      CourseGrant[]      @relation("UserCourseGrants")
 
   // OAuth2 / SSO
   authorizationCodes OAuthAuthorizationCode[] @relation("UserAuthCodes")
@@ -687,6 +691,8 @@ model Course {
   tags            String[]
   duration        Int?          // In minutes
   requiredScore   Int           @default(70) // Percentage to pass
+  unlockMessage   String?       @db.Text // Shown on locked course cards (overrides tenant default)
+  sortOrder       Int           @default(0)
 
   instructorId    String
   instructor      User          @relation("InstructorCourses", fields: [instructorId], references: [id])
@@ -699,6 +705,7 @@ model Course {
   lessons         Lesson[]
   enrollments     Enrollment[]
   certifications  Certification[]
+  grants          CourseGrant[]
 
   @@index([tenantId])
   @@index([status])
@@ -725,6 +732,10 @@ model Lesson {
 
   // Quiz data (if type is QUIZ)
   quizData        Json?
+
+  // No-skip video tracking (Learning Center)
+  youtubeVideoId  String?
+  durationSeconds Int?
 
   isRequired      Boolean     @default(true)
   createdAt       DateTime    @default(now())
@@ -776,6 +787,8 @@ model LessonProgress {
   score           Int?        // For quizzes
   timeSpent       Int?        // In seconds
   attempts        Int         @default(0)
+  maxWatchedSeconds Int       @default(0) // Furthest second actually watched (no-skip enforcement)
+  updatedAt       DateTime    @default(now()) @updatedAt
 
   startedAt       DateTime    @default(now())
   completedAt     DateTime?
@@ -1823,3 +1836,37 @@ model FireLightDocument {
   @@map("firelight_documents")
 }
 
+
+// ============================================
+// LEARNING CENTER (LMS)
+// ============================================
+
+model CourseGrant {
+  id          String   @id @default(uuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Who gets access: ALL (everyone in tenant), ROLE (all users with role), USER (specific user)
+  granteeType String   // ALL | ROLE | USER (validated in API)
+  role        String?  // UserRole value when granteeType = ROLE
+  userId      String?
+  user        User?    @relation("UserCourseGrants", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@index([courseId])
+  @@index([userId])
+  @@map("course_grants")
+}
+
+model TrainingSettings {
+  id                   String   @id @default(uuid())
+  tenantId             String   @unique
+  tenant               Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  defaultUnlockMessage String   @db.Text @default("Complete the previous courses or contact your administrator to unlock this content.")
+
+  updatedAt            DateTime @updatedAt
+
+  @@map("training_settings")
+}
