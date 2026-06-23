@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { Button, Card, CardContent } from '@/components/ui';
 import { Send } from 'lucide-react';
 import AiToolShell from '@/components/ai/AiToolShell';
+import FormattedMessage from '@/components/ai/FormattedMessage';
 
 interface Msg {
   role: 'user' | 'assistant';
@@ -61,13 +62,13 @@ export default function AiChatPage() {
           {messages.map((m, i) => (
             <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
               <div
-                className={`inline-block max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap ${
+                className={`inline-block max-w-[85%] rounded-lg px-3 py-2 text-sm text-left ${
                   m.role === 'user'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-blue-600 text-white whitespace-pre-wrap'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                 }`}
               >
-                {m.content}
+                {m.role === 'assistant' ? <FormattedMessage content={m.content} /> : m.content}
               </div>
             </div>
           ))}

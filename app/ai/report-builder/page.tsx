@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui';
 import AiToolShell from '@/components/ai/AiToolShell';
 import AiInsightRunner from '@/components/ai/AiInsightRunner';
+import FormattedMessage from '@/components/ai/FormattedMessage';
 
 interface Result {
   request: string;
@@ -22,7 +23,7 @@ export default function ReportBuilderPage() {
         render={({ report }) => (
           <Card>
             <CardContent className="p-6">
-              <pre className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200 font-sans">{report}</pre>
+              <FormattedMessage content={report} className="text-sm text-gray-800 dark:text-gray-200" />
             </CardContent>
           </Card>
         )}
