@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency, formatCurrencyCompact, formatDate } from '@/lib/utils';
 import { Badge, Card, CardHeader, CardContent } from '@/components/ui';
 import AppLayout from '@/components/layout/AppLayout';
 import { Search, Filter, X } from 'lucide-react';
@@ -213,16 +213,22 @@ export default function CasesPage() {
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Annual Premium</p>
-              <p className="text-xl xl:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums tracking-tight break-words">
-                {formatCurrency(data.stats?.annualPremium ?? 0)}
+              <p
+                className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums whitespace-nowrap"
+                title={formatCurrency(data.stats?.annualPremium ?? 0)}
+              >
+                {formatCurrencyCompact(data.stats?.annualPremium ?? 0)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Commissionable Premium</p>
-              <p className="text-xl xl:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums tracking-tight break-words">
-                {formatCurrency(data.stats?.commissionablePremium ?? 0)}
+              <p
+                className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums whitespace-nowrap"
+                title={formatCurrency(data.stats?.commissionablePremium ?? 0)}
+              >
+                {formatCurrencyCompact(data.stats?.commissionablePremium ?? 0)}
               </p>
             </CardContent>
           </Card>

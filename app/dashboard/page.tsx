@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatCurrencyCompact, formatDate } from "@/lib/utils";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import AppLayout from "@/components/layout/AppLayout";
 import PerformanceCharts from "@/components/dashboard/PerformanceCharts";
@@ -141,7 +141,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div>
                 <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm">Commissions</p>
-                <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100">{formatCurrency(data.periodSummaries.mtd.commissions)}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.periodSummaries.mtd.commissions)}>{formatCurrencyCompact(data.periodSummaries.mtd.commissions)}</p>
                 <p className="text-blue-700 dark:text-blue-300 text-xs mt-1">{data.periodSummaries.mtd.commissionsCount} payments</p>
               </div>
               <div className="pt-3 border-t border-blue-300 dark:border-blue-700">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div>
                 <p className="text-purple-700 dark:text-purple-300 text-xs sm:text-sm">Commissions</p>
-                <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100">{formatCurrency(data.periodSummaries.qtd.commissions)}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.periodSummaries.qtd.commissions)}>{formatCurrencyCompact(data.periodSummaries.qtd.commissions)}</p>
                 <p className="text-purple-700 dark:text-purple-300 text-xs mt-1">{data.periodSummaries.qtd.commissionsCount} payments</p>
               </div>
               <div className="pt-3 border-t border-purple-300 dark:border-purple-700">
@@ -187,7 +187,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div>
                 <p className="text-green-700 dark:text-green-300 text-xs sm:text-sm">Commissions</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-900 dark:text-green-100">{formatCurrency(data.periodSummaries.ytd.commissions)}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-900 dark:text-green-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.periodSummaries.ytd.commissions)}>{formatCurrencyCompact(data.periodSummaries.ytd.commissions)}</p>
                 <p className="text-green-700 dark:text-green-300 text-xs mt-1">{data.periodSummaries.ytd.commissionsCount} payments</p>
               </div>
               <div className="pt-3 border-t border-green-300 dark:border-green-700">

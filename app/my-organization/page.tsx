@@ -9,7 +9,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/utils";
 import { Badge, Card, CardContent } from "@/components/ui";
 import AppLayout from "@/components/layout/AppLayout";
 
@@ -90,10 +90,10 @@ export default function MyOrganizationPage() {
           <>
             {/* Stat cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-              <Stat label="Agents" value={String(data.totals?.agents ?? 0)} />
-              <Stat label="Policies" value={String(data.totals?.policies ?? 0)} />
-              <Stat label="Annual Premium" value={formatCurrency(data.totals?.annualPremium ?? 0)} />
-              <Stat label="Commissionable Premium" value={formatCurrency(data.totals?.commissionablePremium ?? 0)} />
+              <Stat label="Agents" value={(data.totals?.agents ?? 0).toLocaleString()} />
+              <Stat label="Policies" value={(data.totals?.policies ?? 0).toLocaleString()} />
+              <Stat label="Annual Premium" value={formatCurrencyCompact(data.totals?.annualPremium ?? 0)} title={formatCurrency(data.totals?.annualPremium ?? 0)} />
+              <Stat label="Commissionable Premium" value={formatCurrencyCompact(data.totals?.commissionablePremium ?? 0)} title={formatCurrency(data.totals?.commissionablePremium ?? 0)} />
             </div>
 
             {/* Tabs + search */}
@@ -198,11 +198,11 @@ export default function MyOrganizationPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, title }: { label: string; value: string; title?: string }) {
   return (
     <Card><CardContent className="py-4">
       <div className="text-xs text-slate-500">{label}</div>
-      <div className="text-2xl font-bold text-slate-900 mt-1">{value}</div>
+      <div className="text-2xl font-bold text-slate-900 mt-1 tabular-nums whitespace-nowrap truncate" title={title ?? value}>{value}</div>
     </CardContent></Card>
   );
 }
