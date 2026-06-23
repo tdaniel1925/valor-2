@@ -6,6 +6,20 @@
 
 ---
 
+## DATA SOURCE (READ BEFORE TOUCHING AGENTS / POLICIES / DOWNLINE)
+
+The SmartOffice agent + policy data in this app is **synced from the Apex back-office
+project's SmartOffice (SuranceBay/Ebix) connection** — NOT from CSV/Excel imports.
+The Valor org (692 agents / 4,638 policies / ~$81.6M) lives in tenant
+`valor-default-tenant`, tagged `sourceFile = 'apex-smartoffice-sync'`.
+
+**Before working on agents, policies, hierarchy, downline, or "My Organization," read
+[`DATA-SOURCE-HANDOFF.md`](./DATA-SOURCE-HANDOFF.md).** Key facts: match users to agents
+by **email**; walk the org tree via `additionalData.supervisorId` (NOT the name string);
+the downline feature already exists in `lib/downline/service.ts`.
+
+---
+
 ## FRESH CLONE CHECK
 
 **Run this immediately after confirming PPBV Active, every session, before anything else.**
