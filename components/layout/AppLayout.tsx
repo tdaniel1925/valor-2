@@ -34,6 +34,15 @@ const mainNavigation: NavItem[] = [
     ),
   },
   {
+    name: "My Organization",
+    href: "/my-organization",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v4m0 0L8 12m4-4l4 4M4 16v4h4m8-4v4h4M8 12v4m8-4v4" />
+      </svg>
+    ),
+  },
+  {
     name: "Profile",
     href: "/profile",
     icon: (
