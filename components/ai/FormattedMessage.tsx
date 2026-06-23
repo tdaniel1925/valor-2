@@ -10,7 +10,7 @@ import { renderMarkdown } from '@/lib/ai/markdown';
 export default function FormattedMessage({ content, className }: { content: string; className?: string }) {
   return (
     <div
-      className={`space-y-1.5 [&_p]:leading-relaxed [&_strong]:font-semibold ${className ?? ''}`}
+      className={`space-y-1.5 break-words [&_p]:leading-relaxed [&_strong]:font-semibold [&_li]:leading-relaxed [&_li]:pl-1 ${className ?? ''}`}
       dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
     />
   );

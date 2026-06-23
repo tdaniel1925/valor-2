@@ -65,7 +65,7 @@ export function renderMarkdown(md: string): string {
     if (bullet) {
       if (listType !== 'ul') {
         closeList();
-        html.push('<ul class="list-disc ml-5 space-y-0.5">');
+        html.push('<ul class="list-disc list-inside space-y-0.5">');
         listType = 'ul';
       }
       html.push(`<li>${inline(bullet[1])}</li>`);
@@ -76,7 +76,7 @@ export function renderMarkdown(md: string): string {
     if (ordered) {
       if (listType !== 'ol') {
         closeList();
-        html.push('<ol class="list-decimal ml-5 space-y-0.5">');
+        html.push('<ol class="list-decimal list-inside space-y-0.5">');
         listType = 'ol';
       }
       html.push(`<li>${inline(ordered[1])}</li>`);

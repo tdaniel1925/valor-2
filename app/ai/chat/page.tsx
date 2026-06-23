@@ -208,7 +208,7 @@ export default function AiChatPage() {
               </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 && (
                 <div className="text-sm text-gray-400 dark:text-gray-500 space-y-1">
                   <p>Try:</p>
@@ -218,11 +218,11 @@ export default function AiChatPage() {
                 </div>
               )}
               {messages.map((m, i) => (
-                <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
+                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`inline-block max-w-[85%] rounded-lg px-3 py-2 text-sm text-left ${
+                    className={`max-w-[85%] min-w-0 rounded-lg px-3 py-2 text-sm text-left ${
                       m.role === 'user'
-                        ? 'bg-blue-600 text-white whitespace-pre-wrap'
+                        ? 'bg-blue-600 text-white whitespace-pre-wrap break-words'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                     }`}
                   >
@@ -235,7 +235,7 @@ export default function AiChatPage() {
               <div ref={endRef} />
             </div>
 
-            <div className="border-t border-gray-100 dark:border-gray-800 p-3 flex gap-2">
+            <div className="shrink-0 border-t border-gray-100 dark:border-gray-800 p-3 flex gap-2 bg-white dark:bg-gray-900 rounded-b-xl">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
