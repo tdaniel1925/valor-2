@@ -1,7 +1,20 @@
 # BUILD STATE
 
-## Status: COMPLETE ✅
+## Status: AI TOOLS — code COMPLETE ✅ (2 user actions to go live)
 
+## Current Build: SmartViews AI Tools → Valor "AI TOOLS" category (11 tools, APP mode)
+- Report/plan: _BUILD/SMARTVIEWS-AI-INTEGRATION-REPORT.md ; decisions in memory project-smartviews-ai-integration.
+- BUILT (tsc + next build pass 2026-06-23): Foundation [lib/ai/{claude,prompts,valor-data-adapter,tools,tool-executor,route-helpers}.ts], 4 new Prisma models (AiFinding/AiChatMemory/AiEmailDraft/AiCoachingPlan) + scripts/ai-tools-schema.sql, AI TOOLS sidebar (aiToolsNavigation, all users, desktop+mobile). Phase 1+2 = 11 routes app/api/ai/** + 11 pages app/ai/** + components/ai/{AiToolShell,AiInsightRunner}.tsx.
+- Data layer verified: scripts/ai-tools-smoke-test.mjs 7/7 (rollups/buckets/cross-sell vs live 4,638-policy book). All 283 advisors join to agents by name.
+- Live test confirmed full pipeline works (auth→tenant→adapter→Claude). Claude calls return 401 invalid x-api-key.
+- ✅ ANTHROPIC_API_KEY refreshed (new key works). ANTHROPIC_MODEL set to claude-sonnet-4-5 (claude-3-5-sonnet-20241022 was retired → 404). maxRetries:5 added to lib/ai/claude.ts for transient 5xx. (.env.local is gitignored — these stay local.)
+- ✅ Live-verified end-to-end with real data: Search (NL→filter), Benchmarking (283 advisors, real medians), Report Builder ($77.7M cited) all returned 200 with correct output. Data layer 7/7. Pipeline (auth→tenant→adapter→Claude) proven correct.
+- ⚠️ During testing the Anthropic API had recurring transient `api_error 500` waves (request-time dependent, NOT param/code related — confirmed by isolation: identical calls pass/fail by wall-clock window). maxRetries mitigates; not a build defect.
+- ⬜ USER ACTION: run scripts/ai-tools-schema.sql in Supabase SQL Editor (app DB role can't run DDL — confirmed 42501 permission denied even on DIRECT_URL). Enables persistence for Revenue Intelligence / Agent Coach / Meeting Prep / Smart Emails. The other 7 tools work without it.
+- NOTE: legacy app/api/smartoffice/chat/route.ts still has the eval() RCE pattern — superseded by /api/ai/chat; remove/redirect it in a follow-up.
+
+---
+## (Prior) LMS BUILD — Status: COMPLETE ✅
 ## Current Stage: DONE — all 7 features built (tsc + next build pass) AND runtime smoke test passed 33/33 (2026-06-12, scripts/lms-smoke-test.mjs vs live Supabase: full admin flow, agent lock states, no-skip heartbeat clamping, completion, reports, CSV, tenant isolation). RLS disabled on course_grants/training_settings via Supabase SQL Editor (lms-schema.sql §6).
 
 ## Current Feature: Valor Learning Center (LMS) — APP mode, 7 features

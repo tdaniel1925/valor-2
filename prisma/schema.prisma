@@ -1870,3 +1870,72 @@ model TrainingSettings {
 
   @@map("training_settings")
 }
+
+// ============================================================================
+// AI TOOLS — output persistence (tenant-scoped in the API layer; RLS disabled,
+// matching firelight_*/lms_* precedent). No tenant/user relations on purpose so
+// the Tenant/User models stay untouched. DDL: scripts/ai-tools-schema.sql.
+// ============================================================================
+
+model AiFinding {
+  id           String    @id @default(uuid())
+  tenantId     String
+
+  category     String    // stalled | missing_premium | concentration | cross_sell | decline_trend | opportunity
+  severity     String    // high | medium | low
+  title        String    @db.Text
+  description  String    @db.Text
+  dollarImpact Float     @default(0)
+  actionLabel  String?
+  advisor      String?   // related advisor name, when applicable
+  status       String    @default("open") // open | dismissed
+  dismissedAt  DateTime?
+  dismissedBy  String?
+  createdAt    DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("ai_findings")
+}
+
+model AiChatMemory {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  key       String
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, userId, key])
+  @@index([tenantId, userId])
+  @@map("ai_chat_memory")
+}
+
+model AiEmailDraft {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  recipient String?
+  subject   String   @db.Text
+  body      String   @db.Text
+  context   String?  @db.Text
+  status    String   @default("draft") // draft | sent | discarded
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, userId])
+  @@map("ai_email_drafts")
+}
+
+model AiCoachingPlan {
+  id          String   @id @default(uuid())
+  tenantId    String
+  advisor     String
+  plan        Json
+  createdBy    String?
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, advisor])
+  @@map("ai_coaching_plans")
+}
