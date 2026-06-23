@@ -94,7 +94,7 @@ in Supabase SQL Editor and verified.
 | # | Item | Owner | Why |
 |---|---|---|---|
 | 1 | **Pull Supabase API/edge logs** to determine if the anon REST endpoint was actually hit on the exposed tables before remediation. Dashboard → Logs → API/Edge → filter by `rest/v1`. | You (dashboard only) | Distinguishes "vulnerability fixed" from "data was accessed" — drives any breach-notification obligation (SOC 2, and GLBA given producer SSNs). Logs are NOT reachable from the DB or any app credential. |
-| 2 | **`oauth_tokens` plaintext tokens** | Eng | REST access is now closed, but access/refresh tokens are stored in plaintext. Encrypt at rest or shorten lifetime. |
+| 2 | ~~**`oauth_tokens` plaintext tokens**~~ ✅ DONE | Eng | OAuth access + refresh tokens are now stored as SHA-256 **hashes** at rest (lib/sso/token-hash.ts) — a DB leak yields nothing usable; lookups hash the presented token. Also fixed: the hardcoded fallback JWT signing secret in lib/sso/jwt.ts now fails closed (throws if JWT_SECRET unset/weak) instead of letting anyone forge tokens. NB: the table is currently empty (0 rows) — feature is built but unused — so no historical tokens needed migration. Auth codes left as-is (single-use, ~60s TTL). |
 | 3 | **Decide RLS-vs-revoke as the documented control** | Eng + SOC 2 | The revoke + default-privileges approach is the chosen control. Document it as intentional; the linter warnings ("RLS disabled in public") will persist and should be annotated as accepted-with-compensating-control, NOT "fixed" by clicking Enable RLS (which would break the app). |
 | 4 | ~~**Regression guard**~~ ✅ DONE | Eng | `scripts/security-check-rest-lockdown.mjs` (`npm run security:check`) asserts: no anon/authenticated table grants, no schema USAGE for REST roles, anon key blocked on sensitive tables, and no full SSNs stored. Exit 1 on any regression. Wire into CI and/or a scheduled run to alert if the control is ever reversed. |
 | 5 | **Rotate the anon key?** | Eng | Optional. The anon key itself isn't a secret (it's public by design); rotating it does not change exposure. Not required, but note it in the assessment. |
@@ -110,3 +110,10 @@ in Supabase SQL Editor and verified.
   a documented business purpose (agent identification absent NPN).
 - **Incident response (CC7.x):** this document is the incident record; item #1
   is the access-determination step.
+- **Credential protection (CC6.1):** OAuth tokens stored hashed at rest; JWT
+  signing secret required from env (fails closed).
+- **Continuous monitoring (CC7.1/CC7.2):** `npm run security:check` runs in CI
+  (on relevant pushes/PRs) and daily via GitHub Actions
+  (`.github/workflows/security-check.yml`), failing the build/alerting if any
+  control regresses. Requires repo secrets: `DIRECT_URL`, `DATABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.

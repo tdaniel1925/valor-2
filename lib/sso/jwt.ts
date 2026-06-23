@@ -1,8 +1,14 @@
 import * as jose from 'jose';
 import { v4 as uuidv4 } from 'uuid';
 
-// JWT signing secret (should be in .env)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
+// JWT signing secret — MUST come from the environment. A hardcoded fallback
+// would let anyone forge valid access tokens, so we fail closed instead.
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error(
+    'JWT_SECRET is missing or too short (need >=32 chars). Set a strong JWT_SECRET in the environment.'
+  );
+}
 
 // Convert secret to Uint8Array for jose
 const secretKey = new TextEncoder().encode(JWT_SECRET);

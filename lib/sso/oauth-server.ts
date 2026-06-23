@@ -7,6 +7,7 @@ import {
   verifyClientSecret,
   JWTPayload,
 } from './jwt';
+import { hashToken } from './token-hash';
 
 export interface AuthorizationRequest {
   response_type: string;
@@ -198,12 +199,12 @@ export async function exchangeAuthorizationCode(
   const refreshToken = generateRefreshToken();
   const refreshTokenExpiresAt = new Date(Date.now() + client.refreshTokenTTL * 1000);
 
-  // Store tokens
+  // Store only HASHES of the tokens; the plaintext goes to the client only.
   await prisma.oAuthToken.create({
     data: {
       id: crypto.randomUUID(),
-      accessToken,
-      refreshToken,
+      accessToken: hashToken(accessToken),
+      refreshToken: hashToken(refreshToken),
       tokenType: 'Bearer',
       clientId: params.client_id,
       userId: authCode.userId,
@@ -249,9 +250,9 @@ export async function refreshAccessToken(
     return { error: 'invalid_client' };
   }
 
-  // Get token
+  // Get token by its hash (tokens are stored hashed at rest).
   const tokenRecord = await prisma.oAuthToken.findUnique({
-    where: { refreshToken: params.refresh_token },
+    where: { refreshToken: hashToken(params.refresh_token) },
     include: { user: true },
   });
 
@@ -282,11 +283,11 @@ export async function refreshAccessToken(
     client.accessTokenTTL
   );
 
-  // Update token record
+  // Update token record (store the new access token's hash, not the plaintext).
   await prisma.oAuthToken.update({
     where: { id: tokenRecord.id },
     data: {
-      accessToken,
+      accessToken: hashToken(accessToken),
       accessTokenExpiresAt: new Date(Date.now() + client.accessTokenTTL * 1000),
     },
   });
@@ -304,7 +305,7 @@ export async function refreshAccessToken(
  */
 export async function getUserInfo(accessToken: string): Promise<any | null> {
   const tokenRecord = await prisma.oAuthToken.findUnique({
-    where: { accessToken },
+    where: { accessToken: hashToken(accessToken) },
     include: {
       user: {
         include: {
