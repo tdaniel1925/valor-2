@@ -52,10 +52,11 @@ When an agent completes an application in FireLight:
 | UAT certificate generated | ✅ | Send `uat-certificate.pem` to Hexure |
 | Prod certificate generated | ✅ | Send `prod-certificate.pem` to Hexure |
 | Private keys in .env | ⬜ | Move keys, add all env vars from `certs/README.md` |
-| ORGANIZATION_ID | ⬜ | Waiting on Hexure team |
-| IDP Identifier (Issuer) | ⬜ | Waiting on Hexure team |
-| CarrierCode | ⬜ | Waiting on Hexure team |
-| EXTERNAL_ROLE_CODE | ⬜ | Waiting on Hexure team |
+| ORGANIZATION_ID | ✅ | `3954` — goes in the `organizationid` SAML claim (see SSO-REQUIREMENTS.md); have Hexure confirm |
+| IDP Identifier (Issuer) | 🔶 | We propose it (sent w/ certs); Hexure must confirm it's registered against our certs |
+| CarrierCode | ⬜ | ONLY remaining data item from Hexure — for Tx1228 `<CarrierCode>` |
+| EXTERNAL_ROLE_CODE | ✅ | `VFS_Agent` (Admin=VFS_Admin, Reviewer=VFS_Reviewer) |
+| SSO spec researched | ✅ | Full claim URIs, endpoints, Tx1228 shape → `firelight/SSO-REQUIREMENTS.md` |
 | Agent CompanyProducerID mapping | ⬜ | Needs field on User model |
 | SSO integration code built | ⬜ | Ready to build once env vars confirmed |
 | SFTP server configured | ⬜ | Needs hosting decision (AWS Transfer vs self-hosted) |

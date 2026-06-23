@@ -67,7 +67,9 @@ Email the following to Nicole Eberhart-Blair / Diane Irwin / Renee Phipps:
    - Prod: `https://app.valorfs.com/sso/firelight`
 
 Ask them to confirm/provide:
-- ORGANIZATION_ID (their org code for Valor/PSA) — STILL NEEDED
+- ~~ORGANIZATION_ID (their org code for Valor/PSA)~~ ✅ FOUND: `3954` (FireLight Admin >
+  Groups page, "Org code" for org "Valor Financial Specialists", 2026-06-12). Ask Hexure to
+  confirm this is the value to send as ExternalMapCode/OrganizationId in the SAML assertion.
 - IDP Identifier (the exact Issuer string they want us to use)
 - CarrierCode
 - ~~EXTERNAL_ROLE_CODE for agent role~~ ✅ FOUND: `VFS_Agent` (from FireLight Admin > Groups,

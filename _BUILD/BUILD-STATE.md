@@ -31,7 +31,7 @@
 - Phil Resch (admin) is sole content creator
 
 ## Blockers:
-- (Separate track) FireLight SSO: waiting on Hexure for ORGANIZATION_ID (External Map Code); EXTERNAL_ROLE_CODE found = VFS_Agent
+- (Separate track) FireLight SSO: spec fully researched → firelight/SSO-REQUIREMENTS.md (SAML 2.0 IdP-initiated POST to uat/www.firelighteapp.com/egapp/idp-initiatedsso.aspx; all claim URIs known; ORGANIZATION_ID=3954, EXTERNAL_ROLE_CODE=VFS_Agent; certs sent). Remaining from Hexure: CarrierCode + Issuer-registration confirmation (+ USER_RIGHTS Full/Limited). Our side: CompanyProducerID field on User model. Then build per plan in that doc.
 
 ## Context Docs: _BUILD/CONTEXT/ (none LMS-specific yet)
 
