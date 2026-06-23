@@ -6,6 +6,7 @@
 // heads see their branch; individual agents see just themselves.
 // =============================================
 
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { formatCurrency } from "@/lib/utils";
@@ -24,7 +25,7 @@ interface Policy {
 interface OrgResponse {
   matched: boolean; isAdmin?: boolean; rootName?: string; message?: string;
   downline: DownlineAgent[]; policies: Policy[];
-  totals: { agents: number; policies: number; annualPremium: number } | null;
+  totals: { agents: number; policies: number; annualPremium: number; commissionablePremium: number } | null;
 }
 
 export default function MyOrganizationPage() {
@@ -39,6 +40,10 @@ export default function MyOrganizationPage() {
 
   const [tab, setTab] = useState<"agents" | "policies">("agents");
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  // reset to first page when the list, query, or page size changes
+  React.useEffect(() => { setPage(1); }, [tab, q, pageSize]);
 
   const agents = useMemo(() => {
     const list = data?.downline || [];
@@ -84,10 +89,11 @@ export default function MyOrganizationPage() {
         ) : (
           <>
             {/* Stat cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
               <Stat label="Agents" value={String(data.totals?.agents ?? 0)} />
               <Stat label="Policies" value={String(data.totals?.policies ?? 0)} />
               <Stat label="Annual Premium" value={formatCurrency(data.totals?.annualPremium ?? 0)} />
+              <Stat label="Commissionable Premium" value={formatCurrency(data.totals?.commissionablePremium ?? 0)} />
             </div>
 
             {/* Tabs + search */}
@@ -96,10 +102,15 @@ export default function MyOrganizationPage() {
                 <TabBtn active={tab === "agents"} onClick={() => setTab("agents")}>Agents ({data.downline.length})</TabBtn>
                 <TabBtn active={tab === "policies"} onClick={() => setTab("policies")}>Policies ({data.policies.length})</TabBtn>
               </div>
-              <input
-                value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…"
-                className="px-3 py-2 text-sm border border-slate-300 rounded-lg w-full max-w-xs"
-              />
+              <div className="flex items-center gap-2">
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…"
+                  className="px-3 py-2 text-sm border border-slate-300 rounded-lg w-48" />
+                <span className="text-xs text-slate-500">Per page:</span>
+                {[25, 50, 100].map((n) => (
+                  <button key={n} onClick={() => setPageSize(n)}
+                    className={`px-2 py-1 rounded border text-xs ${pageSize === n ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-300 text-slate-600 hover:bg-slate-50'}`}>{n}</button>
+                ))}
+              </div>
             </div>
 
             {tab === "agents" ? (
@@ -115,7 +126,7 @@ export default function MyOrganizationPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {agents.map((a) => (
+                    {agents.slice((page-1)*pageSize, page*pageSize).map((a) => (
                       <tr key={a.id} className="border-t border-slate-100 hover:bg-slate-50">
                         <td className="px-4 py-2 font-medium text-slate-900">{a.name}</td>
                         <td className="px-4 py-2 text-slate-500">{a.email || "—"}</td>
@@ -142,7 +153,7 @@ export default function MyOrganizationPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {policies.slice(0, 500).map((p) => (
+                    {policies.slice((page-1)*pageSize, page*pageSize).map((p) => (
                       <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50">
                         <td className="px-4 py-2 text-slate-700">{p.policyNumber || "—"}</td>
                         <td className="px-4 py-2 text-slate-700">{p.primaryAdvisor || "—"}</td>
@@ -155,11 +166,31 @@ export default function MyOrganizationPage() {
                     ))}
                   </tbody>
                 </table>
-                {policies.length > 500 && (
-                  <div className="px-4 py-2 text-xs text-slate-400">Showing first 500 of {policies.length}. Use search to narrow.</div>
-                )}
-              </CardContent></Card>
+                              </CardContent></Card>
             )}
+
+            {/* Pager */}
+            {(() => {
+              const total = tab === 'agents' ? agents.length : policies.length;
+              const totalPages = Math.max(1, Math.ceil(total / pageSize));
+              const safePage = Math.min(page, totalPages);
+              const start = total === 0 ? 0 : (safePage - 1) * pageSize + 1;
+              const end = Math.min(safePage * pageSize, total);
+              return (
+                <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
+                  <span>Showing {start}–{end} of {total}</span>
+                  {totalPages > 1 && (
+                    <div className="flex items-center gap-2">
+                      <button disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}
+                        className="px-3 py-1.5 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-50">Prev</button>
+                      <span>Page {safePage} of {totalPages}</span>
+                      <button disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}
+                        className="px-3 py-1.5 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-50">Next</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>

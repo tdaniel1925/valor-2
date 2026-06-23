@@ -337,7 +337,7 @@ export async function getPolicyStats(tenantId: string) {
       }),
       prisma.smartOfficePolicy.aggregate({
         where: { tenantId },
-        _sum: { commAnnualizedPrem: true },
+        _sum: { commAnnualizedPrem: true, targetAmount: true },
       }),
     ]);
 
@@ -345,7 +345,9 @@ export async function getPolicyStats(tenantId: string) {
       total: totalCount,
       inforce: inforceCount,
       pending: pendingCount,
-      totalPremium: totalPremium._sum.commAnnualizedPrem || 0,
+      totalPremium: totalPremium._sum.commAnnualizedPrem || 0,        // commissionable annualized premium
+      annualPremium: totalPremium._sum.targetAmount || 0,             // annual (target) premium
+      commissionablePremium: totalPremium._sum.commAnnualizedPrem || 0,
     };
   });
 }

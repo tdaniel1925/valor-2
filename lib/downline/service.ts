@@ -170,13 +170,14 @@ export async function getOrgForEmail(tenantId: string, email: string, opts: { is
     const cidsAll = downlineAll.map((d) => d.contactId).filter(Boolean) as string[];
     const policiesAll = await getDownlinePolicies(tenantId, cidsAll);
     const premAll = policiesAll.reduce((s: number, p: any) => s + (Number(p.targetAmount) || 0), 0);
+    const commAll = policiesAll.reduce((s: number, p: any) => s + (Number(p.commAnnualizedPrem) || 0), 0);
     return {
       matched: true as const,
       isAdmin: true,
       rootName: 'All Agents (Admin)',
       downline: downlineAll,
       policies: policiesAll,
-      totals: { agents: downlineAll.length, policies: policiesAll.length, annualPremium: premAll },
+      totals: { agents: downlineAll.length, policies: policiesAll.length, annualPremium: premAll, commissionablePremium: commAll },
     };
   }
 
@@ -188,11 +189,12 @@ export async function getOrgForEmail(tenantId: string, email: string, opts: { is
   const cids = downline.map((d) => d.contactId).filter(Boolean) as string[];
   const policies = await getDownlinePolicies(tenantId, cids);
   const totalPremium = policies.reduce((s: number, p: any) => s + (Number(p.targetAmount) || 0), 0);
+  const commPremium = policies.reduce((s: number, p: any) => s + (Number(p.commAnnualizedPrem) || 0), 0);
   return {
     matched: true as const,
     rootName: matched.find((a) => a.fullName)?.fullName ?? email,
     downline,
     policies,
-    totals: { agents: downline.length, policies: policies.length, annualPremium: totalPremium },
+    totals: { agents: downline.length, policies: policies.length, annualPremium: totalPremium, commissionablePremium: commPremium },
   };
 }

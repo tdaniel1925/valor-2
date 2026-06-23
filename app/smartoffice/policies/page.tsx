@@ -388,13 +388,20 @@ export default function SmartOfficePoliciesPage() {
             )}
 
             {/* Pagination */}
-            {data && data.pagination.totalPages > 1 && (
+            {data && data.pagination.total > 0 && (
               <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
-                    Showing page {data.pagination.page} of {data.pagination.totalPages}
-                    <span className="ml-2 text-gray-500 dark:text-gray-400">
-                      ({data.pagination.total} total policies)
+                  <div className="flex items-center gap-4 text-sm text-gray-700 dark:text-gray-300">
+                    <span>
+                      Showing page {data.pagination.page} of {data.pagination.totalPages}
+                      <span className="ml-2 text-gray-500 dark:text-gray-400">({data.pagination.total} total policies)</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="text-gray-500 dark:text-gray-400">Per page:</span>
+                      {[25, 50, 100].map((n) => (
+                        <button key={n} onClick={() => { setRowsPerPage(n); setCurrentPage(1); }}
+                          className={`px-2 py-0.5 rounded border text-xs ${rowsPerPage === n ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>{n}</button>
+                      ))}
                     </span>
                   </div>
                   <div className="flex gap-2">

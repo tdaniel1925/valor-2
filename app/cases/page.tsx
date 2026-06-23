@@ -48,6 +48,9 @@ export default function CasesPage() {
   const [selectedCarrier, setSelectedCarrier] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  useEffect(() => { setPage(1); }, [debouncedSearchTerm, selectedAgent, selectedAgency, selectedCarrier, selectedStatus, pageSize]);
 
   // Debounce search - only search after user stops typing for 300ms
   // AND only if they've typed at least 2 characters
@@ -173,7 +176,7 @@ export default function CasesPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Total Policies</p>
@@ -200,10 +203,20 @@ export default function CasesPage() {
           </Card>
           <Card>
             <CardContent className="p-6">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Premium</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Annual Premium</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {formatCurrency(
-                  data.policies.reduce((sum, p) => sum + (p.commAnnualizedPrem || 0), 0)
+                  data.policies.reduce((sum, p) => sum + (Number(p.targetAmount) || 0), 0)
+                )}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Commissionable Premium</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                {formatCurrency(
+                  data.policies.reduce((sum, p) => sum + (Number(p.commAnnualizedPrem) || 0), 0)
                 )}
               </p>
             </CardContent>
@@ -343,15 +356,33 @@ export default function CasesPage() {
           )}
         </div>
 
-        {/* Results Count */}
-        <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-          Showing {data.policies.length} {data.policies.length === 1 ? 'policy' : 'policies'}
-        </div>
+        {/* Results Count + page size */}
+        {(() => {
+          const total = data.policies.length;
+          const totalPages = Math.max(1, Math.ceil(total / pageSize));
+          const safePage = Math.min(page, totalPages);
+          const start = total === 0 ? 0 : (safePage - 1) * pageSize + 1;
+          const end = Math.min(safePage * pageSize, total);
+          return (
+            <div className="mb-4 flex items-center justify-between gap-3 flex-wrap text-sm text-gray-600 dark:text-gray-400">
+              <span>Showing {start}–{end} of {total} {total === 1 ? 'policy' : 'policies'}</span>
+              <div className="flex items-center gap-2">
+                <span>Per page:</span>
+                {[25, 50, 100].map((n) => (
+                  <button key={n} onClick={() => setPageSize(n)}
+                    className={`px-2.5 py-1 rounded border text-xs ${pageSize === n ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Policies List */}
-        {data.policies.length > 0 ? (
+        {data.policies.length > 0 ? (<>
           <div className="space-y-4">
-            {data.policies.map((policy) => (
+            {data.policies.slice((Math.min(page, Math.max(1, Math.ceil(data.policies.length / pageSize))) - 1) * pageSize, Math.min(page, Math.max(1, Math.ceil(data.policies.length / pageSize))) * pageSize).map((policy) => (
               <Card
                 key={policy.id}
                 className="hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow"
@@ -420,6 +451,22 @@ export default function CasesPage() {
               </Card>
             ))}
           </div>
+          {(() => {
+            const total = data.policies.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            const safePage = Math.min(page, totalPages);
+            if (totalPages <= 1) return null;
+            return (
+              <div className="mt-6 flex items-center justify-center gap-2">
+                <button disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}
+                  className="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800">Prev</button>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Page {safePage} of {totalPages}</span>
+                <button disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}
+                  className="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800">Next</button>
+              </div>
+            );
+          })()}
+          </>
         ) : (
           <Card className="text-center p-12">
             <CardContent className="p-6">
