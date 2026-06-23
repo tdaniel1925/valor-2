@@ -1131,9 +1131,9 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       )}
 
       {/* Desktop Sidebar - hide on mobile */}
-      <aside className="hidden lg:flex lg:flex-shrink-0">
+      <aside className="hidden lg:flex lg:flex-shrink-0 sticky top-0 h-screen">
         <div className={cn(
-          "flex flex-col border-r transition-all duration-300",
+          "flex flex-col border-r transition-all duration-300 h-full",
           sidebarCollapsed ? "w-16" : "w-64",
           darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         )}>

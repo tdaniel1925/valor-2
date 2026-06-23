@@ -67,8 +67,33 @@ CREATE TABLE IF NOT EXISTS ai_coaching_plans (
 CREATE INDEX IF NOT EXISTS "ai_coaching_plans_tenantId_idx" ON ai_coaching_plans("tenantId");
 CREATE INDEX IF NOT EXISTS "ai_coaching_plans_tenant_advisor_idx" ON ai_coaching_plans("tenantId", "advisor");
 
+-- 5b. AI conversations + messages (ChatGPT-style threads for the AI Assistant)
+CREATE TABLE IF NOT EXISTS ai_conversations (
+    "id"        TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "tenantId"  TEXT NOT NULL,
+    "userId"    TEXT NOT NULL,
+    "title"     TEXT NOT NULL DEFAULT 'New chat',
+    "pinned"    BOOLEAN NOT NULL DEFAULT false,
+    "archived"  BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS "ai_conversations_tenant_user_idx" ON ai_conversations("tenantId", "userId");
+CREATE INDEX IF NOT EXISTS "ai_conversations_tenant_user_pin_idx" ON ai_conversations("tenantId", "userId", "pinned", "updatedAt");
+
+CREATE TABLE IF NOT EXISTS ai_messages (
+    "id"             TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "conversationId" TEXT NOT NULL REFERENCES ai_conversations("id") ON DELETE CASCADE,
+    "role"           TEXT NOT NULL,
+    "content"        TEXT NOT NULL,
+    "createdAt"      TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS "ai_messages_conversation_idx" ON ai_messages("conversationId", "createdAt");
+
 -- 6. RLS must be OFF on these tables (tenant scoping is in the API layer).
 ALTER TABLE ai_findings       DISABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_chat_memory    DISABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_email_drafts   DISABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_coaching_plans DISABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_conversations  DISABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_messages       DISABLE ROW LEVEL SECURITY;

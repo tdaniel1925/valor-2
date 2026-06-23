@@ -1939,3 +1939,33 @@ model AiCoachingPlan {
   @@index([tenantId, advisor])
   @@map("ai_coaching_plans")
 }
+
+// ChatGPT-style conversation threads for the AI Assistant.
+// Tenant-scoped in the API layer; RLS disabled (see scripts/ai-tools-schema.sql).
+model AiConversation {
+  id         String      @id @default(uuid())
+  tenantId   String
+  userId     String
+  title      String      @default("New chat")
+  pinned     Boolean     @default(false)
+  archived   Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  messages   AiMessage[]
+
+  @@index([tenantId, userId])
+  @@index([tenantId, userId, pinned, updatedAt])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String         @id @default(uuid())
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String         // user | assistant
+  content        String         @db.Text
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}

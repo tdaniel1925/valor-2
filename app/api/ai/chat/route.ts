@@ -4,6 +4,15 @@ import { CHAT_SYSTEM_PROMPT } from '@/lib/ai/prompts';
 import { valorTools } from '@/lib/ai/tools';
 import { executeValorTool } from '@/lib/ai/tool-executor';
 import { resolveAiContext, aiErrorResponse } from '@/lib/ai/route-helpers';
+import {
+  createConversation,
+  getConversation,
+  appendMessage,
+  renameConversation,
+  generateTitle,
+  getMemoryBlock,
+  updateMemory,
+} from '@/lib/ai/conversations';
 import type Anthropic from '@anthropic-ai/sdk';
 
 export const maxDuration = 60;
@@ -11,9 +20,12 @@ export const maxDuration = 60;
 const MAX_TOOL_ROUNDS = 5;
 
 /**
- * POST /api/ai/chat — natural-language assistant over the book of business.
- * Uses Claude tool-use (safe typed executor) — replaces the eval()-based
- * /api/smartoffice/chat path. Body: { message: string, history?: {role,content}[] }
+ * POST /api/ai/chat — conversation-aware assistant over the book of business.
+ * Body: { message: string, conversationId?: string }
+ * - Creates a conversation if none given; loads prior turns from the DB.
+ * - Injects cross-chat memory; persists both messages; auto-titles first turn;
+ *   updates memory after the exchange.
+ * Returns: { response, conversationId, title? }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -22,66 +34,88 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const message = typeof body.message === 'string' ? body.message.trim() : '';
-    if (!message) {
-      return NextResponse.json({ error: 'message is required' }, { status: 400 });
+    if (!message) return NextResponse.json({ error: 'message is required' }, { status: 400 });
+
+    // Resolve (or create) the conversation and load its prior turns.
+    let conversationId = typeof body.conversationId === 'string' ? body.conversationId : '';
+    let priorMessages: { role: 'user' | 'assistant'; content: string }[] = [];
+    let isFirstTurn = false;
+
+    if (conversationId) {
+      const existing = await getConversation(ctx.tenantId, ctx.userId, conversationId);
+      if (!existing) return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+      priorMessages = existing.messages;
+      isFirstTurn = existing.messages.length === 0;
+    } else {
+      const created = await createConversation(ctx.tenantId, ctx.userId);
+      conversationId = created.id;
+      isFirstTurn = true;
     }
 
-    const history: Anthropic.MessageParam[] = Array.isArray(body.history)
-      ? body.history
-          .filter((m: unknown): m is { role: string; content: string } =>
-            Boolean(m && typeof (m as { content?: unknown }).content === 'string')
-          )
-          .slice(-10)
-          .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-      : [];
+    await appendMessage(conversationId, 'user', message);
 
-    const messages: Anthropic.MessageParam[] = [...history, { role: 'user', content: message }];
+    const memoryBlock = await getMemoryBlock(ctx.tenantId, ctx.userId);
+    const system = CHAT_SYSTEM_PROMPT + memoryBlock;
+
+    const messages: Anthropic.MessageParam[] = [
+      ...priorMessages.slice(-10).map((m) => ({ role: m.role, content: m.content })),
+      { role: 'user', content: message },
+    ];
 
     let finalText = '';
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const response = await anthropic.messages.create({
         model: AI_MODEL,
         max_tokens: 1500,
-        system: CHAT_SYSTEM_PROMPT,
+        system,
         tools: valorTools,
         messages,
       });
 
-      const toolUses = response.content.filter(
-        (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use'
-      );
+      const toolUses = response.content.filter((b): b is Anthropic.ToolUseBlock => b.type === 'tool_use');
 
       if (toolUses.length === 0 || response.stop_reason !== 'tool_use') {
         finalText = messageText(response);
         break;
       }
 
-      // Run each requested tool with the server-trusted tenantId.
       messages.push({ role: 'assistant', content: response.content });
       const toolResults: Anthropic.ToolResultBlockParam[] = [];
       for (const tu of toolUses) {
-        const result = await executeValorTool(
-          tu.name,
-          (tu.input ?? {}) as Record<string, unknown>,
-          ctx.tenantId
-        );
+        const result = await executeValorTool(tu.name, (tu.input ?? {}) as Record<string, unknown>, ctx.tenantId);
         toolResults.push({ type: 'tool_result', tool_use_id: tu.id, content: result });
       }
       messages.push({ role: 'user', content: toolResults });
 
       if (round === MAX_TOOL_ROUNDS - 1) {
-        // Final round: get a closing answer without more tools.
         const closing = await anthropic.messages.create({
           model: AI_MODEL,
           max_tokens: 1500,
-          system: CHAT_SYSTEM_PROMPT,
+          system,
           messages,
         });
         finalText = messageText(closing);
       }
     }
 
-    return NextResponse.json({ response: finalText || 'I could not produce an answer.' });
+    finalText = finalText || 'I could not produce an answer.';
+    await appendMessage(conversationId, 'assistant', finalText);
+
+    // Auto-title on the first turn.
+    let title: string | undefined;
+    if (isFirstTurn) {
+      title = await generateTitle(message);
+      await renameConversation(ctx.tenantId, ctx.userId, conversationId, title);
+    }
+
+    // Best-effort cross-chat memory update (does not block the response).
+    void updateMemory(ctx.tenantId, ctx.userId, [
+      ...priorMessages,
+      { role: 'user', content: message },
+      { role: 'assistant', content: finalText },
+    ]);
+
+    return NextResponse.json({ response: finalText, conversationId, title });
   } catch (error) {
     return aiErrorResponse(error, 'Chat request failed');
   }
