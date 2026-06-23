@@ -14,7 +14,7 @@ function VerifyEmailContent() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        // Supabase automatically handles the token from URL
+        // Supabase handles the token from the URL and establishes the session.
         const { data, error: authError } = await supabase.auth.getSession();
 
         if (authError || !data.session) {
@@ -23,37 +23,23 @@ function VerifyEmailContent() {
           return;
         }
 
-        // Update user's emailVerified status
-        const { error: updateError } = await supabase
-          .from("users")
-          .update({ emailVerified: true })
-          .eq("id", data.session.user.id);
+        // Mark verified + resolve tenant slug server-side (Prisma), so the
+        // browser never needs direct REST access to users/tenants.
+        const res = await fetch("/api/auth/verify-email", { method: "POST" });
+        const json = await res.json();
 
-        if (updateError) {
-          console.error("Failed to update email verification:", updateError);
+        if (!res.ok) {
+          setStatus("error");
+          setError(json.error || "Verification failed");
+          return;
         }
 
         setStatus("success");
 
-        // Get tenant slug and redirect
-        const { data: userData } = await supabase
-          .from("users")
-          .select("tenantId")
-          .eq("id", data.session.user.id)
-          .single();
-
-        if (userData?.tenantId) {
-          const { data: tenantData } = await supabase
-            .from("tenants")
-            .select("slug")
-            .eq("id", userData.tenantId)
-            .single();
-
-          if (tenantData?.slug) {
-            setTimeout(() => {
-              window.location.href = `https://${tenantData.slug}.valorfs.app/dashboard`;
-            }, 2000);
-          }
+        if (json.tenantSlug) {
+          setTimeout(() => {
+            window.location.href = `https://${json.tenantSlug}.valorfs.app/dashboard`;
+          }, 2000);
         }
       } catch (err: any) {
         console.error("Verification error:", err);

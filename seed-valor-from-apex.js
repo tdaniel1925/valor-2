@@ -14,6 +14,14 @@ const statusMap={'1':'Active','2':'Inactive','3':'Terminated','7':'Pending'};
 const ANN=new Set(['EIA','FPDA','SPDA','DIA','Single Premium','Fixed','Indexed','Flexible Premium']);
 const LIFE=new Set(['IUL','UL','WL','SUL','GUL','COL','Term','Traditional']);
 const polType = t => !t ? 'OTHER' : ANN.has(t)?'ANNUITY' : LIFE.has(t)?'LIFE' : 'OTHER';
+// SSN minimization: never seed a full SSN. Keep only last-4 (non-NPN fallback id),
+// and scrub the full TaxID out of the raw record too.
+const last4 = v => { const d = String(v||'').replace(/[^0-9]/g,''); return d.length>=4 ? d.slice(-4) : null; };
+const scrubRaw = raw => {
+  if (!raw || typeof raw!=='object' || !raw.Contact || typeof raw.Contact!=='object') return raw||{};
+  if (String(raw.Contact.TaxID||'').replace(/[^0-9]/g,'').length < 9) return raw;
+  return { ...raw, Contact: { ...raw.Contact, TaxID: last4(raw.Contact.TaxID) } };
+};
 
 (async () => {
   await supabase.from('smartoffice_agents').delete().eq('tenantId',TENANT).eq('sourceFile',SRC);
@@ -24,11 +32,11 @@ const polType = t => !t ? 'OTHER' : ANN.has(t)?'ANNUITY' : LIFE.has(t)?'LIFE' : 
     firstName: a.first_name||'', lastName: a.last_name||'',
     fullName: `${a.first_name||''} ${a.last_name||''}`.trim(),
     email: (a.email||'').toLowerCase()||null,
-    phones: a.phone?[a.phone]:[], ssn: a.tax_id||null, npn: null,
+    phones: a.phone?[a.phone]:[], ssn: last4(a.tax_id), npn: null,
     supervisor: a.raw_data?.Supervisor?.LastName || a.supervisor_name || null,
     subSource: a.sub_source||null, sourceFile: SRC,
     additionalData: { apexContactId:a.contact_id, apexSmartofficeId:a.smartoffice_id, source:a.source, subSource:a.sub_source, status:statusMap[a.status]||a.status, statusCode:a.status, clientType:a.client_type, supervisorName:a.supervisor_name, supervisorId:a.raw_data?.Supervisor?._id, apexAgentId:a.apex_agent_id, syncedAt:a.synced_at },
-    rawData: a.raw_data || {},
+    rawData: scrubRaw(a.raw_data),
     searchText: `${a.first_name||''} ${a.last_name||''} ${a.email||''}`.toLowerCase(),
     importDate: now, lastSyncDate: now, createdAt: now, updatedAt: now,
   }));

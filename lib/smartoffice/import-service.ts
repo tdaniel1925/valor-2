@@ -12,6 +12,27 @@ import { validatePolicies, validateAgents, type ValidationResult } from './valid
 import { mappingToDictionary } from './column-matcher';
 
 // ============================================================================
+// SSN minimization — never persist a full SSN. Keep only last-4 (a non-NPN
+// fallback identifier). Applies to the ssn field AND rawData.Contact.TaxID.
+// ============================================================================
+
+function ssnLast4(value: unknown): string | null {
+  const digits = String(value ?? '').replace(/[^0-9]/g, '');
+  return digits.length >= 4 ? digits.slice(-4) : null;
+}
+
+/** Return rawData with any full SSN in Contact.TaxID reduced to last-4. */
+function scrubRawDataSsn(rawData: unknown): unknown {
+  if (!rawData || typeof rawData !== 'object') return rawData;
+  const raw = rawData as Record<string, unknown>;
+  const contact = raw.Contact as Record<string, unknown> | undefined;
+  if (!contact || typeof contact !== 'object') return rawData;
+  const taxId = contact.TaxID;
+  if (String(taxId ?? '').replace(/[^0-9]/g, '').length < 9) return rawData;
+  return { ...raw, Contact: { ...contact, TaxID: ssnLast4(taxId) } };
+}
+
+// ============================================================================
 // Types
 // ============================================================================
 
@@ -165,11 +186,13 @@ async function importAgents(
           supervisor: record.supervisor,
           subSource: record.subSource,
           contractList: record.contractList,
-          ssn: record.ssn,
+          // Store only last-4 of SSN (kept as a non-NPN fallback identifier);
+          // the full value is never persisted. See scripts/scrub-ssn-to-last4.mjs.
+          ssn: ssnLast4(record.ssn),
           npn: record.npn,
           lastSyncDate: new Date(),
           sourceFile: fileName,
-          rawData: record.rawData,
+          rawData: scrubRawDataSsn(record.rawData) as typeof record.rawData,
           searchText,
           importId: importId || undefined
         };
