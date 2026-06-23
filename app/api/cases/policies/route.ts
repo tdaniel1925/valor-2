@@ -56,20 +56,24 @@ export async function GET(request: NextRequest) {
       const { agent, agency, carrier, status, search, sortBy, sortOrder } = queryParams;
 
       // Use unified data service - single source of truth from SmartOfficePolicy
-      const result = await getPolicies(tenantContext.tenantId, {
-        agent,
-        carrier,
-        status,
-        search,
-        sortBy,
-        sortOrder,
-      });
+      const [result, stats] = await Promise.all([
+        getPolicies(tenantContext.tenantId, {
+          agent,
+          carrier,
+          status,
+          search,
+          sortBy,
+          sortOrder,
+        }),
+        getPolicyStats(tenantContext.tenantId),
+      ]);
 
       return NextResponse.json({
         success: true,
         policies: result.policies,
         filters: result.filters,
         total: result.total,
+        stats,
       });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -104,20 +108,24 @@ export async function GET(request: NextRequest) {
       const { agent, agency, carrier, status, search, sortBy, sortOrder } = queryParams;
 
       // Use unified data service - single source of truth from SmartOfficePolicy
-      const result = await getPolicies(tenantId, {
-        agent,
-        carrier,
-        status,
-        search,
-        sortBy,
-        sortOrder,
-      });
+      const [result, stats] = await Promise.all([
+        getPolicies(tenantId, {
+          agent,
+          carrier,
+          status,
+          search,
+          sortBy,
+          sortOrder,
+        }),
+        getPolicyStats(tenantId),
+      ]);
 
       return NextResponse.json({
         success: true,
         policies: result.policies,
         filters: result.filters,
         total: result.total,
+        stats,
       });
 
     } catch (error: any) {

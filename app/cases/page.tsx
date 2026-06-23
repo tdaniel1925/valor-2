@@ -38,6 +38,14 @@ interface PoliciesData {
     statuses: string[];
   };
   total: number;
+  stats?: {
+    total: number;
+    inforce: number;
+    pending: number;
+    totalPremium: number;
+    annualPremium: number;
+    commissionablePremium: number;
+  };
 }
 
 export default function CasesPage() {
@@ -175,49 +183,46 @@ export default function CasesPage() {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid — counts/totals are tenant-wide from the API (data.stats),
+            not derived from the current page of policies. */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Total Policies</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {data.total}
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums">
+                {(data.stats?.total ?? data.total).toLocaleString()}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Inforce</p>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
-                {data.policies.filter((p) => p.status && p.status.includes('INFORCE')).length}
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1 tabular-nums">
+                {(data.stats?.inforce ?? 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
-              <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
-                {data.policies.filter((p) => p.status && p.status.includes('PENDING')).length}
+              <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1 tabular-nums">
+                {(data.stats?.pending ?? 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Annual Premium</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {formatCurrency(
-                  data.policies.reduce((sum, p) => sum + (Number(p.targetAmount) || 0), 0)
-                )}
+              <p className="text-xl xl:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums tracking-tight break-words">
+                {formatCurrency(data.stats?.annualPremium ?? 0)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
               <p className="text-xs text-gray-500 dark:text-gray-400">Commissionable Premium</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {formatCurrency(
-                  data.policies.reduce((sum, p) => sum + (Number(p.commAnnualizedPrem) || 0), 0)
-                )}
+              <p className="text-xl xl:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums tracking-tight break-words">
+                {formatCurrency(data.stats?.commissionablePremium ?? 0)}
               </p>
             </CardContent>
           </Card>
