@@ -1,8 +1,13 @@
 # BUILD STATE
 
-## Status: AI TOOLS — code COMPLETE ✅ (2 user actions to go live)
+## Status: AI TOOLS + ChatGPT-style Assistant — COMPLETE & VERIFIED ✅
 
-## Current Build: SmartViews AI Tools → Valor "AI TOOLS" category (11 tools, APP mode)
+## Latest: AI Assistant conversations (2026-06-23)
+- ChatGPT-style chat: threads, history rail (pinned + recent), new chat, rename, pin/unpin, delete; auto-titles; cross-chat memory (facts → ai_chat_memory, injected into future chats). Sidebar made sticky h-screen so page no longer shifts on scroll.
+- Tables: AiConversation + AiMessage (scripts/ai-tools-schema.sql, RLS off). SQL run + verified in Supabase.
+- Live test 11/11 PASS: create/title/answer, in-context follow-up, list, persist (4 msgs), pin-sorts-first, rename, 2nd convo, delete. Memory confirmed writing real facts. tsc + build pass. Committed fd91800.
+
+## (Prior) Current Build: SmartViews AI Tools → Valor "AI TOOLS" category (11 tools, APP mode)
 - Report/plan: _BUILD/SMARTVIEWS-AI-INTEGRATION-REPORT.md ; decisions in memory project-smartviews-ai-integration.
 - BUILT (tsc + next build pass 2026-06-23): Foundation [lib/ai/{claude,prompts,valor-data-adapter,tools,tool-executor,route-helpers}.ts], 4 new Prisma models (AiFinding/AiChatMemory/AiEmailDraft/AiCoachingPlan) + scripts/ai-tools-schema.sql, AI TOOLS sidebar (aiToolsNavigation, all users, desktop+mobile). Phase 1+2 = 11 routes app/api/ai/** + 11 pages app/ai/** + components/ai/{AiToolShell,AiInsightRunner}.tsx.
 - Data layer verified: scripts/ai-tools-smoke-test.mjs 7/7 (rollups/buckets/cross-sell vs live 4,638-policy book). All 283 advisors join to agents by name.
