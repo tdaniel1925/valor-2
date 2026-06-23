@@ -22,6 +22,7 @@ import {
   type PolicyWithMetadata,
   type AgentWithMetadata,
 } from '@/lib/smartoffice/data-service';
+import { findAgentsByEmail } from '@/lib/downline/service';
 
 // ---------------------------------------------------------------------------
 // Status mapping — SmartOffice string statuses → coarse buckets the AI reasons over.
@@ -207,6 +208,22 @@ export async function carrierRollups(tenantId: string): Promise<CarrierRollup[]>
       advisors: c.advisors.size,
     }))
     .sort((a, b) => b.commissionablePremium - a.commissionablePremium);
+}
+
+/**
+ * Resolve the logged-in user's own advisor identity from their email.
+ * Returns the advisor name(s) the user writes policies under (usually one;
+ * agency principals may have a person + entity row sharing the email).
+ * Empty when the user has no matching SmartOffice agent record.
+ */
+export async function resolveSelfAdvisor(
+  tenantId: string,
+  email: string
+): Promise<{ names: string[]; primaryName: string | null }> {
+  if (!email) return { names: [], primaryName: null };
+  const agents = await findAgentsByEmail(tenantId, email);
+  const names = [...new Set(agents.map((a) => (a.fullName || '').trim()).filter(Boolean))];
+  return { names, primaryName: names[0] ?? null };
 }
 
 /** Single advisor's full picture (for Agent Coach / Meeting Prep). */

@@ -4,6 +4,7 @@ import { CHAT_SYSTEM_PROMPT } from '@/lib/ai/prompts';
 import { valorTools } from '@/lib/ai/tools';
 import { executeValorTool } from '@/lib/ai/tool-executor';
 import { resolveAiContext, aiErrorResponse } from '@/lib/ai/route-helpers';
+import { resolveSelfAdvisor } from '@/lib/ai/valor-data-adapter';
 import {
   createConversation,
   getConversation,
@@ -54,8 +55,17 @@ export async function POST(request: NextRequest) {
 
     await appendMessage(conversationId, 'user', message);
 
+    // Identity: tell the model WHO is asking so "my/I/me" scopes to this user's
+    // own book of business without needing to ask for their name.
+    const self = await resolveSelfAdvisor(ctx.tenantId, ctx.email);
+    const identityBlock = self.primaryName
+      ? `\n\nWHO YOU ARE TALKING TO: the signed-in user is **${self.primaryName}**${
+          self.names.length > 1 ? ` (also: ${self.names.slice(1).join(', ')})` : ''
+        }. When they say "my", "I", "me", or "mine", they mean policies/production written under that advisor name. Use it directly — never ask them who they are.`
+      : `\n\nWHO YOU ARE TALKING TO: the signed-in user (${ctx.email || 'unknown email'}) has no matching writing-advisor record in the book, so they have no personal policies. If they ask about "my policies", explain they aren't listed as a writing advisor and offer agency-wide data instead — do not ask them to provide a name.`;
+
     const memoryBlock = await getMemoryBlock(ctx.tenantId, ctx.userId);
-    const system = CHAT_SYSTEM_PROMPT + memoryBlock;
+    const system = CHAT_SYSTEM_PROMPT + identityBlock + memoryBlock;
 
     const messages: Anthropic.MessageParam[] = [
       ...priorMessages.slice(-10).map((m) => ({ role: m.role, content: m.content })),
