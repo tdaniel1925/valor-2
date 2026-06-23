@@ -11,6 +11,7 @@
     "start": "next start -p 2050",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "security:check": "node scripts/security-check-rest-lockdown.mjs",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} prisma/seed.ts",
