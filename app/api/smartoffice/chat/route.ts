@@ -166,7 +166,7 @@ Respond ONLY with valid JSON. If the question is unclear or not about SmartOffic
 
     // Call Claude API
     const completion = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022',
+      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5',
       max_tokens: 1024,
       messages: [
         {

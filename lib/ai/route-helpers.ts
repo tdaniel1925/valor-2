@@ -32,8 +32,40 @@ export async function resolveAiContext(
 }
 
 export function aiErrorResponse(error: unknown, fallback = 'AI request failed'): NextResponse {
-  const message = error instanceof Error ? error.message : fallback;
-  const status = message === 'Unauthorized' ? 401 : 500;
-  console.error('[AI]', message);
-  return NextResponse.json({ error: message }, { status });
+  const raw = error instanceof Error ? error.message : String(error);
+  console.error('[AI]', raw); // full detail server-side only
+
+  if (raw === 'Unauthorized') {
+    return NextResponse.json({ error: 'Please sign in again.' }, { status: 401 });
+  }
+
+  // Anthropic SDK errors arrive as "<status> {json}" — translate to a clean,
+  // user-facing message instead of leaking the raw payload to the UI.
+  const status = (error as { status?: number })?.status;
+  if (status === 404 || /not_found_error|model:/.test(raw)) {
+    return NextResponse.json(
+      { error: 'The AI model is unavailable. Please contact your administrator.' },
+      { status: 502 }
+    );
+  }
+  if (status === 401 || /authentication_error|invalid x-api-key/.test(raw)) {
+    return NextResponse.json(
+      { error: 'AI is not configured correctly. Please contact your administrator.' },
+      { status: 502 }
+    );
+  }
+  if (status === 429 || /rate_limit|overloaded/.test(raw)) {
+    return NextResponse.json(
+      { error: 'The AI service is busy. Please try again in a moment.' },
+      { status: 503 }
+    );
+  }
+  if ((status && status >= 500) || /api_error|Internal server error/.test(raw)) {
+    return NextResponse.json(
+      { error: 'The AI service had a temporary error. Please try again.' },
+      { status: 503 }
+    );
+  }
+
+  return NextResponse.json({ error: fallback }, { status: 500 });
 }

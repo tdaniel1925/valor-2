@@ -15,7 +15,7 @@ export const anthropic = new Anthropic({
 });
 
 /** Central model id. Bump via the ANTHROPIC_MODEL env var, not in code. */
-export const AI_MODEL = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022';
+export const AI_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5';
 
 export function aiConfigured(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY);
