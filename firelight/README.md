@@ -53,8 +53,9 @@ When an agent completes an application in FireLight:
 | Prod certificate generated | ✅ | Send `prod-certificate.pem` to Hexure |
 | Private keys in .env | ⬜ | Move keys, add all env vars from `certs/README.md` |
 | ORGANIZATION_ID | ✅ | `3954` — goes in the `organizationid` SAML claim (see SSO-REQUIREMENTS.md); have Hexure confirm |
-| IDP Identifier (Issuer) | 🔶 | We propose it (sent w/ certs); Hexure must confirm it's registered against our certs |
-| CarrierCode | ⬜ | ONLY remaining data item from Hexure — for Tx1228 `<CarrierCode>` |
+| IDP Identifier (Issuer) | ✅ | `VFS_Identifier` — confirmed by Hexure (Chuck, 2026-06-23), same in UAT + prod. Goes in the SAML `<Issuer>` element. |
+| CarrierCode | ✅ | `VFS` — confirmed by Hexure (2026-06-24); Tx1228 `<CarrierCode>` |
+| USER_RIGHTS | ✅ | `Full` — confirmed by Hexure (2026-06-24) |
 | EXTERNAL_ROLE_CODE | ✅ | `VFS_Agent` (Admin=VFS_Admin, Reviewer=VFS_Reviewer) |
 | SSO spec researched | ✅ | Full claim URIs, endpoints, Tx1228 shape → `firelight/SSO-REQUIREMENTS.md` |
 | Agent CompanyProducerID mapping | ⬜ | Needs field on User model |

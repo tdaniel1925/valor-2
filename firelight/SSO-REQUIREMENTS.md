@@ -28,10 +28,10 @@ the landing page; `?appId=<id>` deep-links into an application (with
 
 | # | Item | Where / claim URI | Valor value |
 |---|---|---|---|
-| 1 | Issuer | `<Issuer>` element — "the certificate identifier" | Our proposed IdP URIs: UAT `https://app.valorfs.com/sso/firelight/uat`, Prod `https://app.valorfs.com/sso/firelight` — Hexure must register these against the certs we sent |
+| 1 | Issuer | `<Issuer>` element — "the certificate identifier" | **`VFS_Identifier`** — confirmed by Hexure (Chuck, 2026-06-23): VFS's identifier is set to `VFS_Identifier` in BOTH UAT and prod. Use this exact literal string in `<Issuer>`. (Supersedes our earlier proposed URIs.) |
 | 2 | NameID | `<Subject><NameID>` | User's name |
 | 3 | USER_ROLE | `http://schemas.microsoft.com/ws/2008/06/identity/claims/role` | `Agent` (options: Agent / OSJ / Client) |
-| 4 | USER_RIGHTS | `http://schemas.insurancetechnologies.com/2010/01/identity/claims/rights` | `Full` or `Limited` (confirm w/ Hexure; likely `Full` for agents) |
+| 4 | USER_RIGHTS | `http://schemas.insurancetechnologies.com/2010/01/identity/claims/rights` | **`Full`** — confirmed by Hexure (2026-06-24). Agents get full rights within their functional area. |
 | 5 | ORGANIZATION_ID | `http://schemas.insurancetechnologies.com/2010/01/identity/claims/organizationid` | **`3954`** (Org code from FireLight Admin > Groups, "Valor Financial Specialists") |
 | 6 | NAME_IDENTIFIER | `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/privatepersonalidentifier` | Our stable unique user key (Valor `users.id`). Optional **only** if SSO_SESSION_INFO is included |
 
@@ -63,7 +63,7 @@ Per Developer Guide sample (p. 228) — minimal agent shape:
         <Producer>
           <CarrierAppointment PartyID="Agent_Party">
             <CompanyProducerID>{our unique agent ID}</CompanyProducerID>
-            <CarrierCode>{CARRIER CODE — still needed from Hexure}</CarrierCode>
+            <CarrierCode>VFS</CarrierCode>
           </CarrierAppointment>
         </Producer>
       </Party>
@@ -95,13 +95,16 @@ the certificates we already sent (`uat-certificate.pem` ✅ sent,
 | ORGANIZATION_ID | ✅ `3954` — ask Hexure to confirm in writing |
 | EXTERNAL_ROLE_CODE | ✅ `VFS_Agent` |
 | All claim URIs / assertion structure | ✅ From Developer Guide |
-| Issuer registration | ⬜ Hexure must confirm our proposed Issuer URIs are configured against our certs (or tell us the string they registered) |
-| **CarrierCode** | ⬜ ONLY remaining data item — carrier-specific value(s) for the Tx1228 `<CarrierCode>`; ask Diane |
-| USER_RIGHTS value | ⬜ Confirm `Full` vs `Limited` for agents (one-line question) |
+| Issuer (`<Issuer>` value) | ✅ `VFS_Identifier` — confirmed by Hexure (Chuck, 2026-06-23), same in UAT + prod |
+| **CarrierCode** | ✅ `VFS` — confirmed by Hexure (2026-06-24). Goes in the Tx1228 `<CarrierAppointment><CarrierCode>`. |
+| USER_RIGHTS value | ✅ `Full` — confirmed by Hexure (2026-06-24) |
 | CompanyProducerID source | ⬜ Our side: add/choose stable agent identifier on User model |
 | Whitelisting FireLight IPs | ⬜ Our side, for SFTP (see IP Ranges doc) — flagged on the call |
 
-## Build plan (once CarrierCode + Issuer confirmation arrive)
+**ALL HEXURE-SIDE ITEMS RESOLVED.** Only our-side tasks remain (CompanyProducerID
+field + IP whitelisting). The SSO build is unblocked.
+
+## Build plan (all Hexure inputs received — ready to build)
 
 1. `lib/integrations/firelight/saml.ts` — build + sign SAMLResponse (claims
    above), base64 Tx1228 builder.
@@ -109,6 +112,9 @@ the certificates we already sent (`uat-certificate.pem` ✅ sent,
    FireLight endpoint with `SAMLResponse` (+ optional `RelayState`).
 3. Sidebar/launch link for agents (pattern exists: WinFlex/iPipeline launch
    links in `components/layout/AppLayout.tsx`).
-4. Env vars: `FIRELIGHT_SSO_URL_{UAT,PROD}`, `FIRELIGHT_ORGANIZATION_ID=3954`,
-   `FIRELIGHT_EXTERNAL_ROLE_CODE=VFS_Agent`, `FIRELIGHT_CARRIER_CODE`,
-   `FIRELIGHT_SAML_PRIVATE_KEY_{UAT,PROD}`, issuer URIs.
+4. Env vars (all values now known except the private keys):
+   `FIRELIGHT_SSO_URL_UAT=https://uat.firelighteapp.com/egapp/idp-initiatedsso.aspx`,
+   `FIRELIGHT_SSO_URL_PROD=https://www.firelighteapp.com/egapp/idp-initiatedsso.aspx`,
+   `FIRELIGHT_ORGANIZATION_ID=3954`, `FIRELIGHT_EXTERNAL_ROLE_CODE=VFS_Agent`,
+   `FIRELIGHT_ISSUER=VFS_Identifier`, `FIRELIGHT_CARRIER_CODE=VFS`,
+   `FIRELIGHT_USER_RIGHTS=Full`, `FIRELIGHT_SAML_PRIVATE_KEY_{UAT,PROD}`.
