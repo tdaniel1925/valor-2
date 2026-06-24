@@ -22,12 +22,15 @@ export default function OrganizationSwitcher() {
     typeof window !== "undefined" ? localStorage.getItem("currentOrganizationId") : null
   );
 
-  // Fetch user's organizations
+  // Fetch the authenticated user's organizations (resolve real user id first).
   const { data } = useQuery<{ organizations: OrganizationMember[] }>({
     queryKey: ["user-organizations"],
     queryFn: async () => {
-      // TODO: Replace with actual user ID from Supabase auth
-      const userId = "demo-user-id";
+      const meRes = await fetch("/api/auth/me");
+      if (!meRes.ok) return { organizations: [] };
+      const me = await meRes.json();
+      const userId = me?.user?.id ?? me?.id;
+      if (!userId) return { organizations: [] };
       const res = await fetch(`/api/users/${userId}/organizations`);
       if (!res.ok) return { organizations: [] };
       return res.json();

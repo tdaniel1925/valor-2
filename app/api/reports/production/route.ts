@@ -95,18 +95,23 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    let agentRankings: unknown[] = [];
-    if (teamView) {
-      const stats = policies.reduce((acc: Record<string, { user: { firstName: string; lastName: string; email: string }; cases: number; premium: number; commission: number; submitted: number; issued: number }>, p) => {
-        const name = p.primaryAdvisor || 'Unknown';
-        acc[name] = acc[name] || { user: { firstName: name, lastName: '', email: '' }, cases: 0, premium: 0, commission: 0, submitted: 0, issued: 0 };
-        acc[name].cases++; acc[name].premium += prem(p); acc[name].commission += comm(p);
-        if (isInforce(p) || isPending(p)) acc[name].submitted++;
-        if (isInforce(p)) acc[name].issued++;
-        return acc;
-      }, {});
-      agentRankings = Object.values(stats).sort((a, b) => b.premium - a.premium).slice(0, 10);
-    }
+    // Always compute rankings (the page renders them regardless of teamView).
+    const splitName = (full: string) => {
+      const parts = (full || 'Unknown').trim().split(/\s+/);
+      return { firstName: parts[0] || 'Unknown', lastName: parts.slice(1).join(' ') };
+    };
+    const rankStats = policies.reduce((acc: Record<string, { agent: { id: string; firstName: string; lastName: string; email: string }; cases: number; premium: number; commission: number; submitted: number; issued: number }>, p) => {
+      const name = p.primaryAdvisor || 'Unknown';
+      if (!acc[name]) {
+        const { firstName, lastName } = splitName(name);
+        acc[name] = { agent: { id: name, firstName, lastName, email: '' }, cases: 0, premium: 0, commission: 0, submitted: 0, issued: 0 };
+      }
+      acc[name].cases++; acc[name].premium += prem(p); acc[name].commission += comm(p);
+      if (isInforce(p) || isPending(p)) acc[name].submitted++;
+      if (isInforce(p)) acc[name].issued++;
+      return acc;
+    }, {});
+    const agentRankings = Object.values(rankStats).sort((a, b) => b.premium - a.premium).slice(0, 10);
 
     const topProducts = Object.entries(byProductType).map(([type, s]) => ({ type, ...s })).sort((a, b) => b.premium - a.premium).slice(0, 5);
     const topCarriers = Object.entries(byCarrier).map(([carrier, s]) => ({ carrier, ...s })).sort((a, b) => b.premium - a.premium).slice(0, 5);

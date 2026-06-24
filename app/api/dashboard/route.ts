@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
       // uses, scoped to this user (downline) so the totals match across pages.
       (async () => {
         const EMPTY = {
-          totals: { agents: 0, policies: 0, annualPremium: 0, commissionablePremium: 0 },
+          totals: { agents: 0, policies: 0, annualPremium: 0, commissionablePremium: 0, inforce: 0, pending: 0 },
           production: { mtd: 0, qtd: 0, ytd: 0, mtdPolicies: 0, qtdPolicies: 0, ytdPolicies: 0 },
         };
         if (!tenant) return null;
@@ -150,7 +150,15 @@ export async function GET(request: NextRequest) {
           const totals = org.totals ?? EMPTY.totals;
           // Period production from the SAME book policies, by statusDate.
           // "Production" = commissionable annualized premium (commAnnualizedPrem).
-          const policies = (org.policies ?? []) as Array<{ statusDate?: Date | string | null; commAnnualizedPrem?: number | null }>;
+          const policies = (org.policies ?? []) as Array<{ statusDate?: Date | string | null; commAnnualizedPrem?: number | null; status?: string | null }>;
+          const bucket = (s: string | null | undefined) => {
+            const v = (s || '').toLowerCase();
+            if (v.includes('inforce') || v.includes('issued') || v.includes('approved')) return 'INFORCE';
+            if (v.includes('pending') || v.includes('submitted') || v.includes('await') || v.includes('incomplete')) return 'PENDING';
+            return 'OTHER';
+          };
+          const inforceCount = policies.filter((p) => bucket(p.status) === 'INFORCE').length;
+          const pendingCount = policies.filter((p) => bucket(p.status) === 'PENDING').length;
           const inPeriod = (since: Date) =>
             policies.filter((p) => {
               const d = p.statusDate ? new Date(p.statusDate) : null;
@@ -161,7 +169,7 @@ export async function GET(request: NextRequest) {
           const qtdP = inPeriod(quarterStart);
           const ytdP = inPeriod(yearStart);
           return {
-            totals,
+            totals: { ...totals, inforce: inforceCount, pending: pendingCount },
             production: {
               mtd: sum(mtdP),
               qtd: sum(qtdP),
@@ -190,6 +198,8 @@ export async function GET(request: NextRequest) {
               policies: book.totals.policies ?? 0,
               annualPremium: book.totals.annualPremium ?? 0,
               commissionablePremium: book.totals.commissionablePremium ?? 0,
+              inforce: (book.totals as { inforce?: number }).inforce ?? 0,
+              pending: (book.totals as { pending?: number }).pending ?? 0,
               production: book.production,
             }
           : null,

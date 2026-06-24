@@ -64,9 +64,13 @@ export function ContractRequestForm({ isOpen, onClose }: ContractRequestFormProp
   const { data: orgsData } = useQuery<{ organizations: { organization: Organization }[] }>({
     queryKey: ["user-organizations"],
     queryFn: async () => {
-      // TODO: Replace with actual user ID from auth
-      const res = await fetch("/api/users/demo-user-id/organizations");
-      if (!res.ok) throw new Error("Failed to fetch organizations");
+      const meRes = await fetch("/api/auth/me");
+      if (!meRes.ok) return { organizations: [] };
+      const me = await meRes.json();
+      const userId = me?.user?.id ?? me?.id;
+      if (!userId) return { organizations: [] };
+      const res = await fetch(`/api/users/${userId}/organizations`);
+      if (!res.ok) return { organizations: [] };
       return res.json();
     },
     enabled: isOpen,
