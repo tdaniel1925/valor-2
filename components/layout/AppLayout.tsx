@@ -205,7 +205,7 @@ const businessNavigation: NavItem[] = [
       },
       {
         name: "Firelight",
-        href: "https://firelight.com",
+        href: "#launch-firelight",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -684,6 +684,39 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     }
   };
 
+  const launchFireLight = async () => {
+    try {
+      const res = await fetch('/api/integrations/firelight/sso');
+      const data = await res.json();
+      if (res.ok && data.samlResponse && data.endpoint) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.endpoint;
+        form.target = '_blank';
+        form.style.display = 'none';
+        const samlInput = document.createElement('input');
+        samlInput.type = 'hidden';
+        samlInput.name = 'SAMLResponse';
+        samlInput.value = data.samlResponse;
+        form.appendChild(samlInput);
+        if (data.relayState) {
+          const relayInput = document.createElement('input');
+          relayInput.type = 'hidden';
+          relayInput.name = 'RelayState';
+          relayInput.value = data.relayState;
+          form.appendChild(relayInput);
+        }
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+      } else {
+        console.error('FireLight SSO error:', data?.error || res.status);
+      }
+    } catch (err) {
+      console.error('FireLight launch error:', err);
+    }
+  };
+
   // Close mobile menu when navigating
   const handleNavClick = () => {
     setMobileMenuOpen(false);
@@ -704,6 +737,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       else if (item.href === '#launch-igo') launchIPipeline('igo');
       else if (item.href === '#launch-formspipe') launchIPipeline('formspipe');
       else if (item.href === '#launch-xrae') launchIPipeline('xrae');
+      else if (item.href === '#launch-firelight') launchFireLight();
       handleNavClick();
     } : undefined;
 

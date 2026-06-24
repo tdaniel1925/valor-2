@@ -104,6 +104,22 @@ the certificates we already sent (`uat-certificate.pem` ✅ sent,
 **ALL HEXURE-SIDE ITEMS RESOLVED.** Only our-side tasks remain (CompanyProducerID
 field + IP whitelisting). The SSO build is unblocked.
 
+## BUILD STATUS: ✅ BUILT (2026-06-24)
+- `lib/integrations/firelight/saml.ts` — FireLightSAMLClient: signed SAMLResponse
+  (Issuer VFS_Identifier + 6 claims) + base64 Tx1228 in SSO_SESSION_INFO. Signing
+  reuses the proven iPipeline exc-c14n + Node-crypto approach (RSA-SHA256).
+- `app/api/integrations/firelight/sso/route.ts` — GET: auth + resolve agent by
+  email → apexContactId as CompanyProducerID → signed SAMLResponse + endpoint.
+- `components/layout/AppLayout.tsx` — FireLight sidebar item → launchFireLight()
+  auto-POSTs SAMLResponse + RelayState to the endpoint (new tab).
+- `.env.example` — FIRELIGHT_SSO_* vars documented (env-specific key/cert pairs).
+- Verified 18/18: claims, Tx1228 (CarrierCode VFS), signature validates; build
+  succeeds with keys unset (lazy env).
+- REMAINING to go live: (1) load the SAML private key/cert into env
+  (FIRELIGHT_SAML_PRIVATE_KEY_UAT / _CERTIFICATE_UAT — the .pem keypair whose cert
+  was sent to Hexure); (2) confirm CompanyProducerID format with Hexure (currently
+  apexContactId — one line in the route to change); (3) UAT test the round-trip.
+
 ## Build plan (all Hexure inputs received — ready to build)
 
 1. `lib/integrations/firelight/saml.ts` — build + sign SAMLResponse (claims
