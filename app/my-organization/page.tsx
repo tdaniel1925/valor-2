@@ -66,7 +66,7 @@ export default function MyOrganizationPage() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-6 w-full">
         <div className="mb-5">
           <h1 className="text-2xl font-bold text-slate-900">My Organization</h1>
           <p className="text-sm text-slate-500 mt-1">

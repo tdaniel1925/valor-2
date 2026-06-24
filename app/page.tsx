@@ -25,7 +25,7 @@ export default function LandingPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Navigation */}
         <nav className="fixed top-0 w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 z-50">
-          <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="w-full px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -67,7 +67,7 @@ export default function LandingPage() {
 
         {/* Hero Section */}
         <section className="pt-32 pb-20 px-6">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-sm mb-6">
                 <Sparkles className="h-4 w-4" />
@@ -125,7 +125,7 @@ export default function LandingPage() {
 
         {/* Features Grid */}
         <section className="py-20 px-6 bg-white dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             <div className="grid grid-cols-3 gap-6">
               {/* Feature 1 */}
               <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition-shadow">
@@ -198,7 +198,7 @@ export default function LandingPage() {
 
         {/* Testimonials */}
         <section className="py-20 px-6">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 Trusted by insurance professionals
@@ -258,7 +258,7 @@ export default function LandingPage() {
 
         {/* Pricing */}
         <section className="py-20 px-6 bg-white dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 Simple, transparent pricing
@@ -397,7 +397,7 @@ export default function LandingPage() {
 
         {/* Footer */}
         <footer className="py-12 px-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             <div className="grid grid-cols-4 gap-8 mb-8">
               <div>
                 <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Product</div>

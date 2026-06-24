@@ -62,7 +62,7 @@ export default async function SmartOfficeDashboardPage() {
 function DashboardLoadingFallback() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full">
         {/* Header Skeleton */}
         <div className="mb-6 md:mb-8">
           <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>

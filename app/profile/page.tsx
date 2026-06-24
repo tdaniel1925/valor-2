@@ -65,7 +65,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
             <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
@@ -78,7 +78,7 @@ export default function ProfilePage() {
   if (error || !user) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
             <Card className="max-w-md mx-auto">
               <CardContent className="p-6 text-center">
@@ -96,7 +96,7 @@ export default function ProfilePage() {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Profile</h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">

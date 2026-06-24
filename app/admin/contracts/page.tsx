@@ -134,7 +134,7 @@ export default function AdminContractsPage() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-screen">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600 dark:text-gray-400">Loading contracts...</p>
@@ -147,7 +147,7 @@ export default function AdminContractsPage() {
   if (error || !data) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
           <Card className="max-w-md mx-auto">
             <CardContent className="p-6 text-center">
               <p className="text-red-600 dark:text-red-400">Failed to load contracts</p>
@@ -172,7 +172,7 @@ export default function AdminContractsPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Contract Approvals</h1>

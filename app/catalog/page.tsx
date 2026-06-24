@@ -113,7 +113,7 @@ export default function CatalogPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="p-6 w-full">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
@@ -127,7 +127,7 @@ export default function CatalogPage() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-6 w-full">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

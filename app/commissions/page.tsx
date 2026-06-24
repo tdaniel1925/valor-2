@@ -102,7 +102,7 @@ export default function CommissionsPage() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
             <p className="mt-4 text-gray-600 dark:text-gray-400">Loading commissions...</p>
@@ -115,7 +115,7 @@ export default function CommissionsPage() {
   if (error || !data) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
             <p className="text-red-600 dark:text-red-400">Failed to load commissions</p>
             <Button
@@ -176,7 +176,7 @@ export default function CommissionsPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
