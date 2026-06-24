@@ -1,177 +1,165 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { requireAuth } from '@/lib/auth/server-auth';
-import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
+import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+
+/**
+ * GET /api/reports/forecast — commission forecast from the SmartOffice book
+ * (single source of truth). Projections are based on the recent-period
+ * commissionable-premium run-rate (commAnnualizedPrem) by statusDate.
+ * Response shape is preserved for the page.
+ */
+const comm = (p: PolicyWithMetadata) => Number(p.commAnnualizedPrem) || 0;
+const prem = (p: PolicyWithMetadata) => Number(p.targetAmount) || 0;
 
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantFromRequest(request);
-    if (!tenantContext) {
-      return NextResponse.json(
-        { error: 'Tenant context not found' },
-        { status: 400 }
-      );
+    const tenant = getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
     }
 
     await requireAuth(request);
 
-    const searchParams = request.nextUrl.searchParams;
-    const timeframe = searchParams.get('timeframe') || '12month';
+    const timeframe = request.nextUrl.searchParams.get('timeframe') || '12month';
     const monthCount = timeframe === '3month' ? 3 : timeframe === '6month' ? 6 : 12;
 
-    const data = await withTenantContext(tenantContext.tenantId, async (db) => {
-      const now = new Date();
+    const now = new Date();
+    const sixMonthsAgo = new Date(now);
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-      // Get historical commissions for the last 6 months to calculate trends
-      const sixMonthsAgo = new Date(now);
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const { policies: allPolicies } = await getPolicies(tenant.tenantId, {});
 
-      const historicalCommissions = await db.commission.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          createdAt: { gte: sixMonthsAgo },
-        },
-        select: {
-          amount: true,
-          createdAt: true,
-          userId: true,
-        },
-      });
-
-      // Calculate monthly historical averages
-      const monthlyTotals: { [key: string]: number } = {};
-      historicalCommissions.forEach((comm) => {
-        const monthKey = `${comm.createdAt.getFullYear()}-${comm.createdAt.getMonth()}`;
-        monthlyTotals[monthKey] = (monthlyTotals[monthKey] || 0) + comm.amount;
-      });
-
-      const historicalMonthlyAverage =
-        Object.values(monthlyTotals).reduce((sum, val) => sum + val, 0) /
-        (Object.keys(monthlyTotals).length || 1);
-
-      // Calculate growth trend
-      const sortedMonths = Object.entries(monthlyTotals).sort((a, b) => a[0].localeCompare(b[0]));
-      let growthRate = 0;
-      if (sortedMonths.length >= 2) {
-        const firstMonth = sortedMonths[0][1];
-        const lastMonth = sortedMonths[sortedMonths.length - 1][1];
-        growthRate = firstMonth > 0 ? (lastMonth - firstMonth) / firstMonth : 0;
-      }
-
-      // Generate monthly forecasts
-      const monthlyForecast = [];
-      for (let i = 0; i < monthCount; i++) {
-        const date = new Date(now);
-        date.setMonth(date.getMonth() + i);
-        const month = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-
-        // Apply growth rate to projection
-        const baseProjected = historicalMonthlyAverage * (1 + growthRate * i);
-        const variance = baseProjected * 0.15;
-
-        monthlyForecast.push({
-          month,
-          conservative: Math.floor(baseProjected - variance),
-          projected: Math.floor(baseProjected),
-          optimistic: Math.floor(baseProjected + variance),
-          actual: undefined, // Could fill with actual data for past months
-        });
-      }
-
-      // Forecast by agent (using recent performance)
-      const users = await db.user.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          role: { in: ['AGENT', 'MANAGER'] },
-          status: 'ACTIVE',
-        },
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-        },
-      });
-
-      const byAgent = await Promise.all(
-        users.slice(0, 10).map(async (user) => {
-          const userCommissions = historicalCommissions.filter((c) => c.userId === user.id);
-          const avgMonthly =
-            userCommissions.reduce((sum, c) => sum + c.amount, 0) /
-            (Object.keys(monthlyTotals).length || 1);
-
-          // Simple confidence based on consistency
-          const variance =
-            userCommissions.length > 0
-              ? Math.sqrt(
-                  userCommissions.reduce((sum, c) => sum + Math.pow(c.amount - avgMonthly, 2), 0) /
-                    userCommissions.length
-                )
-              : 0;
-          const confidence = Math.min(95, Math.max(50, 100 - (variance / avgMonthly) * 100));
-
-          return {
-            agentName: `${user.firstName} ${user.lastName}`,
-            projected: Math.floor(avgMonthly * (1 + growthRate)),
-            confidence: Math.floor(confidence),
-          };
-        })
-      );
-
-      // Sort by projected amount
-      byAgent.sort((a, b) => b.projected - a.projected);
-
-      // Forecast by carrier (from recent quotes)
-      const recentQuotes = await db.quote.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          createdAt: { gte: sixMonthsAgo },
-          carrier: { not: null },
-        },
-        select: {
-          carrier: true,
-          premium: true,
-        },
-      });
-
-      const carrierTotals: { [key: string]: number } = {};
-      recentQuotes.forEach((quote) => {
-        if (quote.carrier) {
-          carrierTotals[quote.carrier] = (carrierTotals[quote.carrier] || 0) + (quote.premium || 0);
-        }
-      });
-
-      const totalCarrierPremium = Object.values(carrierTotals).reduce((sum, val) => sum + val, 0);
-      const byCarrier = Object.entries(carrierTotals)
-        .map(([carrierName, total]) => ({
-          carrierName,
-          projected: Math.floor(total / 6), // Monthly average
-          percentage: totalCarrierPremium > 0 ? (total / totalCarrierPremium) * 100 : 0,
-        }))
-        .sort((a, b) => b.projected - a.projected)
-        .slice(0, 10);
-
-      // Calculate summary
-      const nextMonth = monthlyForecast[0]?.projected || 0;
-      const nextQuarter = monthlyForecast.slice(0, 3).reduce((sum, m) => sum + m.projected, 0);
-      const nextYear = monthlyForecast.reduce((sum, m) => sum + m.projected, 0);
-
-      return {
-        summary: {
-          nextMonth,
-          nextQuarter,
-          nextYear,
-          confidence: 75, // TODO: Calculate based on data consistency
-          trend: growthRate > 0 ? 'UP' : growthRate < 0 ? 'DOWN' : 'STABLE',
-          growthRate: Math.round(growthRate * 100),
-        },
-        monthlyForecast,
-        byAgent: byAgent.filter((a) => a.projected > 0),
-        byCarrier,
-        timeframe,
-      };
+    // Historical book: policies with a statusDate in the last 6 months.
+    const historical = allPolicies.filter((p) => {
+      const d = p.statusDate ? new Date(p.statusDate) : null;
+      return !!d && d >= sixMonthsAgo && d <= now;
     });
 
-    return NextResponse.json(data);
+    // Monthly commissionable totals (run-rate basis).
+    const monthlyTotals: Record<string, number> = {};
+    historical.forEach((p) => {
+      const d = new Date(p.statusDate as Date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      monthlyTotals[key] = (monthlyTotals[key] || 0) + comm(p);
+    });
+
+    const monthsObserved = Object.keys(monthlyTotals).length || 1;
+    const historicalMonthlyAverage =
+      Object.values(monthlyTotals).reduce((s, v) => s + v, 0) / monthsObserved;
+
+    // Growth trend: average month-over-month change across observed months,
+    // CLAMPED to a sane band so lumpy book data can't produce runaway forecasts.
+    const sortedMonths = Object.entries(monthlyTotals).sort((a, b) => a[0].localeCompare(b[0]));
+    let growthRate = 0;
+    if (sortedMonths.length >= 2) {
+      const deltas: number[] = [];
+      for (let m = 1; m < sortedMonths.length; m++) {
+        const prev = sortedMonths[m - 1][1];
+        const curr = sortedMonths[m][1];
+        if (prev > 0) deltas.push((curr - prev) / prev);
+      }
+      const avgDelta = deltas.length ? deltas.reduce((s, v) => s + v, 0) / deltas.length : 0;
+      // Clamp monthly growth to ±10% so a 12-month projection stays realistic.
+      growthRate = Math.max(-0.1, Math.min(0.1, avgDelta));
+    }
+
+    // Monthly forecast with conservative/projected/optimistic bands.
+    const monthlyForecast = [];
+    for (let i = 0; i < monthCount; i++) {
+      const date = new Date(now);
+      date.setMonth(date.getMonth() + i);
+      const month = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+      // Compound the clamped monthly growth rate (stable, not linear blow-up).
+      const baseProjected = historicalMonthlyAverage * Math.pow(1 + growthRate, i);
+      const variance = baseProjected * 0.15;
+
+      monthlyForecast.push({
+        month,
+        conservative: Math.floor(baseProjected - variance),
+        projected: Math.floor(baseProjected),
+        optimistic: Math.floor(baseProjected + variance),
+        actual: undefined as number | undefined,
+      });
+    }
+
+    // Forecast by agent (recent-performance run-rate per advisor).
+    const agentTotals: Record<string, number[]> = {};
+    historical.forEach((p) => {
+      const name = p.primaryAdvisor || 'Unknown';
+      if (!agentTotals[name]) agentTotals[name] = [];
+      agentTotals[name].push(comm(p));
+    });
+
+    const byAgent = Object.entries(agentTotals)
+      .map(([agentName, amounts]) => {
+        const avgMonthly = amounts.reduce((s, v) => s + v, 0) / monthsObserved;
+        const mean = amounts.length ? amounts.reduce((s, v) => s + v, 0) / amounts.length : 0;
+        const variance =
+          amounts.length > 0
+            ? Math.sqrt(amounts.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / amounts.length)
+            : 0;
+        const confidence =
+          mean > 0 ? Math.min(95, Math.max(50, 100 - (variance / mean) * 100)) : 50;
+        return {
+          agentName,
+          projected: Math.floor(avgMonthly * (1 + growthRate)),
+          confidence: Math.floor(confidence),
+        };
+      })
+      .filter((a) => a.projected > 0)
+      .sort((a, b) => b.projected - a.projected)
+      .slice(0, 10);
+
+    // Forecast by carrier (recent-period premium run-rate).
+    const carrierTotals: Record<string, number> = {};
+    historical.forEach((p) => {
+      const name = p.carrierName || 'Unknown';
+      carrierTotals[name] = (carrierTotals[name] || 0) + prem(p);
+    });
+    const totalCarrierPremium = Object.values(carrierTotals).reduce((s, v) => s + v, 0);
+    const byCarrier = Object.entries(carrierTotals)
+      .map(([carrierName, total]) => ({
+        carrierName,
+        projected: Math.floor(total / 6), // monthly average over the 6-month window
+        percentage: totalCarrierPremium > 0 ? (total / totalCarrierPremium) * 100 : 0,
+      }))
+      .sort((a, b) => b.projected - a.projected)
+      .slice(0, 10);
+
+    const nextMonth = monthlyForecast[0]?.projected || 0;
+    const nextQuarter = monthlyForecast.slice(0, 3).reduce((s, m) => s + m.projected, 0);
+    const nextYear = monthlyForecast.reduce((s, m) => s + m.projected, 0);
+
+    // Confidence: agent-level average where available, else a neutral default.
+    const confidenceLevel = byAgent.length
+      ? Math.round(byAgent.reduce((s, a) => s + a.confidence, 0) / byAgent.length)
+      : 75;
+
+    // Assumptions block (page reads these three fields).
+    const totalCommissionable = historical.reduce((s, p) => s + comm(p), 0);
+    const totalAnnualPremium = historical.reduce((s, p) => s + prem(p), 0);
+    const averageCommissionRate =
+      totalAnnualPremium > 0 ? (totalCommissionable / totalAnnualPremium) * 100 : 0;
+
+    return NextResponse.json({
+      summary: {
+        nextMonth,
+        nextQuarter,
+        nextYear,
+        confidenceLevel,
+      },
+      monthlyForecast,
+      byAgent,
+      byCarrier,
+      assumptions: {
+        averageCommissionRate: Math.round(averageCommissionRate * 10) / 10,
+        expectedGrowthRate: Math.round(growthRate * 1000) / 10,
+        historicalAccuracy: confidenceLevel,
+      },
+      timeframe,
+    });
   } catch (error: any) {
     if (error?.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

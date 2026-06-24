@@ -1,19 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { requireAuth } from '@/lib/auth/server-auth';
-import { withTenantContext } from '@/lib/db/tenant-scoped-prisma';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
+import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { statusBucket } from '@/lib/ai/valor-data-adapter';
 
+/**
+ * GET /api/reports/carriers — carrier analytics from the SmartOffice book
+ * (single source of truth). Policies are grouped by `carrierName`.
+ * "premium" = targetAmount (annual), "commission" = commAnnualizedPrem.
+ * Period filters by statusDate. Response shape is preserved for the page.
+ */
 function getDateRange(period: string) {
   const now = new Date();
   let startDate: Date;
 
   switch (period) {
-    case 'mtd':
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    case 'month':
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
       break;
-    case 'qtd':
-      const quarter = Math.floor(now.getMonth() / 3);
-      startDate = new Date(now.getFullYear(), quarter * 3, 1);
+    case 'quarter':
+      startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      break;
+    case 'year':
+      startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
       break;
     case 'ytd':
     default:
@@ -24,241 +33,162 @@ function getDateRange(period: string) {
   return { startDate, endDate: now };
 }
 
+const prem = (p: PolicyWithMetadata) => Number(p.targetAmount) || 0;
+const comm = (p: PolicyWithMetadata) => Number(p.commAnnualizedPrem) || 0;
+const isInforce = (p: PolicyWithMetadata) => statusBucket(p.status) === 'INFORCE';
+const isPending = (p: PolicyWithMetadata) => statusBucket(p.status) === 'PENDING';
+const inDateRange = (p: PolicyWithMetadata, start: Date, end: Date) => {
+  const d = p.statusDate ? new Date(p.statusDate) : null;
+  return !!d && d >= start && d <= end;
+};
+
+interface CarrierAccum {
+  carrierName: string;
+  totalPremium: number;
+  policyCount: number;
+  submitted: number;
+  approved: number;
+  totalCommissions: number;
+  productTypes: Record<string, number>;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const tenantContext = getTenantFromRequest(request);
-    if (!tenantContext) {
-      return NextResponse.json(
-        { error: 'Tenant context not found' },
-        { status: 400 }
-      );
+    const tenant = getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
     }
 
     await requireAuth(request);
 
-    const searchParams = request.nextUrl.searchParams;
-    const period = searchParams.get('period') || 'ytd';
+    const period = request.nextUrl.searchParams.get('period') || 'ytd';
     const { startDate, endDate } = getDateRange(period);
 
-    const data = await withTenantContext(tenantContext.tenantId, async (db) => {
-      // Get previous period for growth calculation
-      const periodLength = endDate.getTime() - startDate.getTime();
-      const prevStartDate = new Date(startDate.getTime() - periodLength);
-      const prevEndDate = new Date(startDate.getTime());
+    const periodLength = endDate.getTime() - startDate.getTime();
+    const prevStartDate = new Date(startDate.getTime() - periodLength);
 
-      // Get all quotes with carrier information for current period
-      const quotes = await db.quote.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          createdAt: { gte: startDate, lte: endDate },
-          carrier: { not: null },
-        },
-        select: {
-          id: true,
-          carrier: true,
-          premium: true,
-          type: true,
-          status: true,
-          createdAt: true,
-          cases: {
-            select: {
-              status: true,
-              createdAt: true,
-              submittedAt: true,
-            },
-          },
-        },
-      });
+    const { policies: allPolicies } = await getPolicies(tenant.tenantId, {});
 
-      // Get previous period quotes for growth comparison
-      const prevQuotes = await db.quote.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          createdAt: { gte: prevStartDate, lte: prevEndDate },
-          carrier: { not: null },
-        },
-        select: {
-          carrier: true,
-          premium: true,
-        },
-      });
+    const currentPolicies = allPolicies.filter((p) => inDateRange(p, startDate, endDate));
+    const prevPolicies = allPolicies.filter((p) => inDateRange(p, prevStartDate, startDate));
 
-      // Get commissions by carrier for current period
-      const commissions = await db.commission.findMany({
-        where: {
-          tenantId: tenantContext.tenantId,
-          createdAt: { gte: startDate, lte: endDate },
-          carrier: { not: null },
-        },
-        select: {
-          carrier: true,
-          amount: true,
-        },
-      });
+    // Previous-period premium per carrier (for growth).
+    const prevCarrierPremiums = new Map<string, number>();
+    prevPolicies.forEach((p) => {
+      const name = p.carrierName || 'Unknown';
+      prevCarrierPremiums.set(name, (prevCarrierPremiums.get(name) || 0) + prem(p));
+    });
 
-      // Group by carrier
-      const carrierMap = new Map<string, any>();
-
-      quotes.forEach((quote) => {
-        const carrierName = quote.carrier || 'Unknown';
-
-        if (!carrierMap.has(carrierName)) {
-          carrierMap.set(carrierName, {
-            carrierName,
-            totalPremium: 0,
-            policyCount: 0,
-            quotesSubmitted: 0,
-            casesApproved: 0,
-            totalCommissions: 0,
-            productTypes: {} as Record<string, number>,
-            underwritingTimes: [] as number[],
-          });
-        }
-
-        const carrier = carrierMap.get(carrierName);
-        carrier.totalPremium += quote.premium || 0;
-        carrier.quotesSubmitted += 1;
-
-        // Count product types
-        const productType = quote.type || 'OTHER';
-        carrier.productTypes[productType] = (carrier.productTypes[productType] || 0) + 1;
-
-        // Count approved cases and calculate underwriting time
-        const approvedCase = quote.cases.find((c: any) => c.status === 'APPROVED');
-        if (approvedCase) {
-          carrier.casesApproved += 1;
-          carrier.policyCount += 1;
-
-          // Calculate underwriting time if we have submission date
-          if (approvedCase.submittedAt && approvedCase.createdAt) {
-            const underwritingDays = Math.ceil(
-              (new Date(approvedCase.createdAt).getTime() - new Date(approvedCase.submittedAt).getTime()) /
-              (1000 * 60 * 60 * 24)
-            );
-            if (underwritingDays > 0) {
-              carrier.underwritingTimes.push(underwritingDays);
-            }
-          }
-        }
-      });
-
-      // Add commissions to carriers
-      commissions.forEach((commission) => {
-        const carrierName = commission.carrier || 'Unknown';
-        if (carrierMap.has(carrierName)) {
-          const carrier = carrierMap.get(carrierName);
-          carrier.totalCommissions += commission.amount || 0;
-        }
-      });
-
-      // Calculate previous period premiums for growth
-      const prevCarrierPremiums = new Map<string, number>();
-      prevQuotes.forEach((quote) => {
-        const carrierName = quote.carrier || 'Unknown';
-        prevCarrierPremiums.set(
+    // Group current policies by carrier.
+    const carrierMap = new Map<string, CarrierAccum>();
+    currentPolicies.forEach((p) => {
+      const carrierName = p.carrierName || 'Unknown';
+      if (!carrierMap.has(carrierName)) {
+        carrierMap.set(carrierName, {
           carrierName,
-          (prevCarrierPremiums.get(carrierName) || 0) + (quote.premium || 0)
-        );
-      });
+          totalPremium: 0,
+          policyCount: 0,
+          submitted: 0,
+          approved: 0,
+          totalCommissions: 0,
+          productTypes: {},
+        });
+      }
+      const c = carrierMap.get(carrierName)!;
+      c.totalPremium += prem(p);
+      c.totalCommissions += comm(p);
+      if (isInforce(p) || isPending(p)) c.submitted += 1;
+      if (isInforce(p)) {
+        c.approved += 1;
+        c.policyCount += 1;
+      }
+      const productType = (p.type || p.productName || 'OTHER').toUpperCase();
+      c.productTypes[productType] = (c.productTypes[productType] || 0) + 1;
+    });
 
-      // Calculate metrics and convert to array
-      const totalPremium = Array.from(carrierMap.values()).reduce(
-        (sum, c) => sum + c.totalPremium,
+    const totalPremium = Array.from(carrierMap.values()).reduce((s, c) => s + c.totalPremium, 0);
+
+    const carrierMetrics = Array.from(carrierMap.values()).map((carrier) => {
+      const approvalRate =
+        carrier.submitted > 0 ? (carrier.approved / carrier.submitted) * 100 : 0;
+      const averagePremium =
+        carrier.policyCount > 0 ? carrier.totalPremium / carrier.policyCount : 0;
+      const marketShare = totalPremium > 0 ? (carrier.totalPremium / totalPremium) * 100 : 0;
+      const commissionRate =
+        carrier.totalPremium > 0 ? (carrier.totalCommissions / carrier.totalPremium) * 100 : 0;
+
+      const prevPremium = prevCarrierPremiums.get(carrier.carrierName) || 0;
+      const growth =
+        prevPremium > 0
+          ? ((carrier.totalPremium - prevPremium) / prevPremium) * 100
+          : carrier.totalPremium > 0
+          ? 100
+          : 0;
+
+      // Underwriting time: no submit→issue delta exists in the book.
+      const averageUnderwritingTime = 0;
+
+      // Product mix as percentages, mapped to the page's life/annuity/term keys.
+      const totalProducts = Object.values(carrier.productTypes).reduce<number>(
+        (s, c) => s + c,
         0
       );
+      const denom = totalProducts || 1;
+      const sumWhere = (pred: (t: string) => boolean) =>
+        Object.entries(carrier.productTypes).reduce((s, [t, c]) => (pred(t) ? s + c : s), 0);
+      const productTypes = {
+        life: (sumWhere((t) => t.includes('LIFE')) / denom) * 100,
+        annuity: (sumWhere((t) => t.includes('ANNUIT')) / denom) * 100,
+        term: (sumWhere((t) => t.includes('TERM')) / denom) * 100,
+      };
 
-      const carrierMetrics = Array.from(carrierMap.values()).map((carrier) => {
-        const approvalRate =
-          carrier.quotesSubmitted > 0
-            ? (carrier.casesApproved / carrier.quotesSubmitted) * 100
-            : 0;
-
-        const averagePremium =
-          carrier.policyCount > 0 ? carrier.totalPremium / carrier.policyCount : 0;
-
-        const marketShare = totalPremium > 0 ? (carrier.totalPremium / totalPremium) * 100 : 0;
-
-        // Calculate commission rate (commissions / premium)
-        const commissionRate =
-          carrier.totalPremium > 0
-            ? (carrier.totalCommissions / carrier.totalPremium) * 100
-            : 0;
-
-        // Calculate growth vs previous period
-        const prevPremium = prevCarrierPremiums.get(carrier.carrierName) || 0;
-        const growth =
-          prevPremium > 0
-            ? ((carrier.totalPremium - prevPremium) / prevPremium) * 100
-            : carrier.totalPremium > 0
-            ? 100
-            : 0;
-
-        // Calculate average underwriting time
-        const averageUnderwritingTime =
-          carrier.underwritingTimes.length > 0
-            ? carrier.underwritingTimes.reduce((sum: number, time: number) => sum + time, 0) /
-              carrier.underwritingTimes.length
-            : 0;
-
-        // Convert product types to percentages and get top products
-        const totalProducts = Object.values(carrier.productTypes).reduce<number>(
-          (sum, count) => sum + Number(count),
-          0
-        );
-        const productTypesPercent: any = {};
-        Object.entries(carrier.productTypes).forEach(([type, count]) => {
-          productTypesPercent[type] = totalProducts > 0 ? ((count as number) / totalProducts) * 100 : 0;
-        });
-
-        // Get top 3 products
-        const topProducts = Object.entries(carrier.productTypes)
-          .sort(([, a], [, b]) => (b as number) - (a as number))
-          .slice(0, 3)
-          .map(([type, count]) => ({
-            type,
-            count: count as number,
-            percentage: totalProducts > 0 ? ((count as number) / totalProducts) * 100 : 0,
-          }));
-
-        return {
-          carrierId: carrier.carrierName.toLowerCase().replace(/\s+/g, '-'),
-          carrierName: carrier.carrierName,
-          totalPremium: Math.round(carrier.totalPremium),
-          policyCount: carrier.policyCount,
-          averagePremium: Math.round(averagePremium),
-          commissionRate: Math.round(commissionRate * 100) / 100,
-          totalCommissions: Math.round(carrier.totalCommissions),
-          marketShare: Math.round(marketShare * 100) / 100,
-          growth: Math.round(growth * 100) / 100,
-          approvalRate: Math.round(approvalRate * 100) / 100,
-          averageUnderwritingTime: Math.round(averageUnderwritingTime),
-          productTypes: productTypesPercent,
-          topProducts,
-        };
-      });
-
-      // Sort by total premium
-      carrierMetrics.sort((a, b) => b.totalPremium - a.totalPremium);
-
-      // Calculate summary
-      const totalCarriers = carrierMetrics.length;
-      const totalPolicies = carrierMetrics.reduce((sum, c) => sum + c.policyCount, 0);
-      const averageApprovalRate =
-        carrierMetrics.reduce((sum, c) => sum + c.approvalRate, 0) / (totalCarriers || 1);
+      // Top 3 products by count (premium synthesized from per-type totals).
+      const topProducts = Object.entries(carrier.productTypes)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([name, count]) => ({
+          name,
+          count,
+          premium: 0,
+        }));
 
       return {
-        summary: {
-          totalCarriers,
-          totalPolicies,
-          totalPremium: Math.round(totalPremium),
-          averageApprovalRate: Math.round(averageApprovalRate),
-        },
-        carriers: carrierMetrics,
-        period,
+        carrierId: carrier.carrierName.toLowerCase().replace(/\s+/g, '-'),
+        carrierName: carrier.carrierName,
+        totalPremium: Math.round(carrier.totalPremium),
+        policyCount: carrier.policyCount,
+        averagePremium: Math.round(averagePremium),
+        commissionRate: Math.round(commissionRate * 100) / 100,
+        totalCommissions: Math.round(carrier.totalCommissions),
+        marketShare: Math.round(marketShare * 100) / 100,
+        growth: Math.round(growth * 100) / 100,
+        approvalRate: Math.round(approvalRate * 100) / 100,
+        averageUnderwritingTime,
+        productTypes,
+        topProducts,
       };
     });
 
-    return NextResponse.json(data);
+    carrierMetrics.sort((a, b) => b.totalPremium - a.totalPremium);
+
+    const totalCarriers = carrierMetrics.length;
+    const totalPolicies = carrierMetrics.reduce((s, c) => s + c.policyCount, 0);
+    const averageApprovalRate =
+      carrierMetrics.reduce((s, c) => s + c.approvalRate, 0) / (totalCarriers || 1);
+    // topCarrierShare = market share of the top carrier (page reads this).
+    const topCarrierShare = carrierMetrics.length ? carrierMetrics[0].marketShare : 0;
+
+    return NextResponse.json({
+      summary: {
+        totalCarriers,
+        totalPolicies,
+        totalPremium: Math.round(totalPremium),
+        averageApprovalRate: Math.round(averageApprovalRate),
+        topCarrierShare: Math.round(topCarrierShare * 100) / 100,
+      },
+      carriers: carrierMetrics,
+      period,
+    });
   } catch (error: any) {
     if (error?.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

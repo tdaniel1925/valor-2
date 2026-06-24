@@ -13,18 +13,18 @@
 | Page | API | Reads | Verdict |
 |---|---|---|---|
 | Dashboard — book cards | /api/dashboard | getOrgForEmail | ✅ fixed (92d410b) |
-| Dashboard — MTD/QTD/YTD + progress meter | /api/dashboard | `commission` (internal) + hardcoded $90k goal | ⚠️ **FIX** |
+| Dashboard — MTD/QTD/YTD + progress meter | /api/dashboard | now: book production by statusDate | ✅ fixed |
 | My Organization | /api/downline | getOrgForEmail | ✅ |
 | Cases | /api/cases/policies | getPolicies/getPolicyStats | ✅ |
 | Commissions | /api/smartoffice/agent-commissions | smartOfficeCommission | ✅ (book-adjacent) |
 | Contracts | /api/smartoffice/agent-contracts | (smartoffice) | ✅ |
 | Reports: goal-tracking | /api/reports/goal-tracking | smartOfficePolicy | ✅ |
-| Reports: production | /api/reports/production | `case` | ⚠️ **FIX** |
-| Reports: commissions | /api/reports/commissions | `commission` | ⚠️ **FIX** |
-| Reports: executive | /api/reports/executive | `case`, `user` | ⚠️ **FIX** |
-| Reports: agents | /api/reports/agents | `case`,`commission`,`quote`,`user` | ⚠️ **FIX** |
-| Reports: carriers | /api/reports/carriers | `commission`,`quote` | ⚠️ **FIX** |
-| Reports: forecast | /api/reports/forecast | `commission`,`quote`,`user` | ⚠️ **FIX** |
+| Reports: production | /api/reports/production | `case` | ✅ fixed (SmartOffice) |
+| Reports: commissions | /api/reports/commissions | `commission` | ✅ fixed (SmartOffice) |
+| Reports: executive | /api/reports/executive | `case`, `user` | ✅ fixed (SmartOffice) |
+| Reports: agents | /api/reports/agents | `case`,`commission`,`quote`,`user` | ✅ fixed (SmartOffice) |
+| Reports: carriers | /api/reports/carriers | `commission`,`quote` | ✅ fixed (SmartOffice) |
+| Reports: forecast | /api/reports/forecast | `commission`,`quote`,`user` | ✅ fixed (SmartOffice) |
 
 ## Fix order (impact)
 1. Dashboard progress meter + period summaries → YTD book production (statusDate this year).

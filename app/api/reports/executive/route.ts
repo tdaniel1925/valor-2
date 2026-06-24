@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/db/prisma';
+import { requireAuth } from '@/lib/auth/server-auth';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
+import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { statusBucket } from '@/lib/ai/valor-data-adapter';
 
+/**
+ * GET /api/reports/executive — executive dashboard from the SmartOffice book
+ * (single source of truth). Policies are the unit of production; "premium" =
+ * targetAmount (annual), "commission" = commAnnualizedPrem (commissionable).
+ * Periods are derived by filtering on statusDate. Response shape is preserved
+ * so the consuming page (app/reports/executive/page.tsx) keeps rendering.
+ */
 export async function GET(request: NextRequest) {
   try {
-    // Calculate date ranges
+    const tenant = getTenantFromRequest(request);
+    if (!tenant) return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
+    await requireAuth(request);
+
     const now = new Date();
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -12,59 +25,30 @@ export async function GET(request: NextRequest) {
     const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
     const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
 
-    // Fetch all cases for YTD
-    const ytdCases = await prisma.case.findMany({
-      where: {
-        createdAt: {
-          gte: ytdStart,
-        },
-      },
-      include: {
-        commissions: true,
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-    });
+    const { policies: allPolicies } = await getPolicies(tenant.tenantId, {});
 
-    // Fetch last year cases for comparison
-    const lastYearCases = await prisma.case.findMany({
-      where: {
-        createdAt: {
-          gte: lastYearStart,
-          lte: lastYearEnd,
-        },
-      },
-      include: {
-        commissions: true,
-      },
-    });
+    const inRange = (p: PolicyWithMetadata, start: Date, end: Date) => {
+      const d = p.statusDate ? new Date(p.statusDate) : null;
+      return !!d && d >= start && d <= end;
+    };
 
-    // This month vs last month
-    const thisMonthCases = ytdCases.filter((c) => new Date(c.createdAt) >= thisMonthStart);
-    const lastMonthCases = ytdCases.filter(
-      (c) =>
-        new Date(c.createdAt) >= lastMonthStart && new Date(c.createdAt) <= lastMonthEnd
-    );
+    const ytdCases = allPolicies.filter((p) => inRange(p, ytdStart, now));
+    const lastYearCases = allPolicies.filter((p) => inRange(p, lastYearStart, lastYearEnd));
+    const thisMonthCases = allPolicies.filter((p) => inRange(p, thisMonthStart, now));
+    const lastMonthCases = allPolicies.filter((p) => inRange(p, lastMonthStart, lastMonthEnd));
 
-    // Calculate KPIs
-    const calculateMetrics = (cases: any[]) => {
+    const prem = (p: PolicyWithMetadata) => Number(p.targetAmount) || 0;
+    const comm = (p: PolicyWithMetadata) => Number(p.commAnnualizedPrem) || 0;
+    const isInforce = (p: PolicyWithMetadata) => statusBucket(p.status) === 'INFORCE';
+    const isPending = (p: PolicyWithMetadata) => statusBucket(p.status) === 'PENDING';
+
+    const calculateMetrics = (cases: PolicyWithMetadata[]) => {
       const totalCases = cases.length;
-      const totalPremium = cases.reduce((sum, c) => sum + (c.premium || 0), 0);
-      const totalCommission = cases.reduce(
-        (sum, c) => sum + c.commissions.reduce((cs: number, comm: any) => cs + (comm.amount || 0), 0),
-        0
-      );
-      const submittedCases = cases.filter((c) =>
-        ['SUBMITTED', 'ISSUED', 'INFORCE'].includes(c.status)
-      ).length;
-      const issuedCases = cases.filter((c) =>
-        ['ISSUED', 'INFORCE'].includes(c.status)
-      ).length;
+      const totalPremium = cases.reduce((sum, c) => sum + prem(c), 0);
+      const totalCommission = cases.reduce((sum, c) => sum + comm(c), 0);
+      // INFORCE or PENDING == submitted; INFORCE == issued.
+      const submittedCases = cases.filter((c) => isInforce(c) || isPending(c)).length;
+      const issuedCases = cases.filter(isInforce).length;
 
       return {
         totalCases,
@@ -83,7 +67,6 @@ export async function GET(request: NextRequest) {
     const thisMonthMetrics = calculateMetrics(thisMonthCases);
     const lastMonthMetrics = calculateMetrics(lastMonthCases);
 
-    // Calculate growth percentages
     const growthVsLastYear = {
       cases:
         lastYearMetrics.totalCases > 0
@@ -91,134 +74,107 @@ export async function GET(request: NextRequest) {
           : 0,
       premium:
         lastYearMetrics.totalPremium > 0
-          ? ((ytdMetrics.totalPremium - lastYearMetrics.totalPremium) / lastYearMetrics.totalPremium) *
-            100
+          ? ((ytdMetrics.totalPremium - lastYearMetrics.totalPremium) / lastYearMetrics.totalPremium) * 100
           : 0,
       commission:
         lastYearMetrics.totalCommission > 0
-          ? ((ytdMetrics.totalCommission - lastYearMetrics.totalCommission) /
-              lastYearMetrics.totalCommission) *
-            100
+          ? ((ytdMetrics.totalCommission - lastYearMetrics.totalCommission) / lastYearMetrics.totalCommission) * 100
           : 0,
     };
 
     const growthVsLastMonth = {
       cases:
         lastMonthMetrics.totalCases > 0
-          ? ((thisMonthMetrics.totalCases - lastMonthMetrics.totalCases) /
-              lastMonthMetrics.totalCases) *
-            100
+          ? ((thisMonthMetrics.totalCases - lastMonthMetrics.totalCases) / lastMonthMetrics.totalCases) * 100
           : 0,
       premium:
         lastMonthMetrics.totalPremium > 0
-          ? ((thisMonthMetrics.totalPremium - lastMonthMetrics.totalPremium) /
-              lastMonthMetrics.totalPremium) *
-            100
+          ? ((thisMonthMetrics.totalPremium - lastMonthMetrics.totalPremium) / lastMonthMetrics.totalPremium) * 100
           : 0,
     };
 
-    // Monthly trend for the year
+    // Monthly trend across the current year (Jan..Dec).
     const monthlyTrend = [];
     for (let i = 0; i < 12; i++) {
       const monthStart = new Date(now.getFullYear(), i, 1);
       const monthEnd = new Date(now.getFullYear(), i + 1, 0);
-
-      const monthCases = ytdCases.filter(
-        (c) =>
-          new Date(c.createdAt) >= monthStart && new Date(c.createdAt) <= monthEnd
-      );
+      const monthCases = ytdCases.filter((c) => inRange(c, monthStart, monthEnd));
 
       monthlyTrend.push({
         month: monthStart.toLocaleDateString('en-US', { month: 'short' }),
         cases: monthCases.length,
-        premium: monthCases.reduce((sum, c) => sum + (c.premium || 0), 0),
-        commission: monthCases.reduce(
-          (sum, c) => sum + c.commissions.reduce((cs: number, comm: any) => cs + (comm.amount || 0), 0),
-          0
-        ),
-        submitted: monthCases.filter((c) =>
-          ['SUBMITTED', 'ISSUED', 'INFORCE'].includes(c.status)
-        ).length,
-        issued: monthCases.filter((c) => ['ISSUED', 'INFORCE'].includes(c.status))
-          .length,
+        premium: monthCases.reduce((sum, c) => sum + prem(c), 0),
+        commission: monthCases.reduce((sum, c) => sum + comm(c), 0),
+        submitted: monthCases.filter((c) => isInforce(c) || isPending(c)).length,
+        issued: monthCases.filter(isInforce).length,
       });
     }
 
-    // Product mix
-    const productMix = ytdCases.reduce((acc: any, c) => {
-      const type = c.productType || 'Unknown';
-      if (!acc[type]) {
-        acc[type] = { count: 0, premium: 0, percentage: 0 };
-      }
-      acc[type].count++;
-      acc[type].premium += c.premium || 0;
-      return acc;
-    }, {});
-
-    // Calculate percentages
+    // Product mix (by premium) with percentage.
+    const productMix = ytdCases.reduce(
+      (acc: Record<string, { count: number; premium: number; percentage: number }>, c) => {
+        const type = c.type || c.productName || 'Unknown';
+        if (!acc[type]) acc[type] = { count: 0, premium: 0, percentage: 0 };
+        acc[type].count++;
+        acc[type].premium += prem(c);
+        return acc;
+      },
+      {}
+    );
     Object.keys(productMix).forEach((key) => {
       productMix[key].percentage =
-        ytdMetrics.totalPremium > 0
-          ? (productMix[key].premium / ytdMetrics.totalPremium) * 100
-          : 0;
+        ytdMetrics.totalPremium > 0 ? (productMix[key].premium / ytdMetrics.totalPremium) * 100 : 0;
     });
 
-    // Agent activity
-    const agentCount = await prisma.user.count({
-      where: {
-        role: 'AGENT',
-      },
-    });
+    // Agents are derived by grouping policies on primaryAdvisor (the book links
+    // policies to agents by name). "Total" agents = distinct advisors in the book;
+    // "active" = advisors with at least one YTD policy.
+    const allAdvisors = new Set(
+      allPolicies.map((p) => p.primaryAdvisor).filter((n): n is string => !!n)
+    );
+    const activeAdvisors = new Set(
+      ytdCases.map((p) => p.primaryAdvisor).filter((n): n is string => !!n)
+    );
+    const agentCount = allAdvisors.size;
+    const activeAgents = activeAdvisors.size;
 
-    const activeAgents = new Set(ytdCases.map((c) => c.userId)).size;
-
-    // Pipeline analysis
-    const pipelineByStatus = ytdCases.reduce((acc: any, c) => {
-      const status = c.status;
-      if (!acc[status]) {
-        acc[status] = { count: 0, premium: 0 };
-      }
+    // Pipeline by raw status string.
+    const pipelineByStatus = ytdCases.reduce((acc: Record<string, { count: number; premium: number }>, c) => {
+      const status = c.status || 'Unknown';
+      if (!acc[status]) acc[status] = { count: 0, premium: 0 };
       acc[status].count++;
-      acc[status].premium += c.premium || 0;
+      acc[status].premium += prem(c);
       return acc;
     }, {});
 
-    // Top performers
-    const agentPerformance = ytdCases.reduce((acc: any, c) => {
-      if (!c.user) return acc;
-
-      const userId = c.user.id;
-      if (!acc[userId]) {
-        acc[userId] = {
-          user: c.user,
-          cases: 0,
-          premium: 0,
-          commission: 0,
-        };
-      }
-
-      acc[userId].cases++;
-      acc[userId].premium += c.premium || 0;
-      acc[userId].commission += c.commissions.reduce(
-        (sum: number, comm: any) => sum + (comm.amount || 0),
-        0
-      );
-
-      return acc;
-    }, {});
-
+    // Top performers grouped by advisor name. Page reads `agent.{id,firstName,lastName}`,
+    // so we synthesize an `agent` object keyed on the advisor name (no user table).
+    const agentPerformance = ytdCases.reduce(
+      (
+        acc: Record<string, { agent: { id: string; firstName: string; lastName: string }; cases: number; premium: number; commission: number }>,
+        c
+      ) => {
+        const name = c.primaryAdvisor || 'Unknown';
+        if (!acc[name]) {
+          acc[name] = { agent: { id: name, firstName: name, lastName: '' }, cases: 0, premium: 0, commission: 0 };
+        }
+        acc[name].cases++;
+        acc[name].premium += prem(c);
+        acc[name].commission += comm(c);
+        return acc;
+      },
+      {}
+    );
     const topAgents = Object.values(agentPerformance)
-      .sort((a: any, b: any) => b.premium - a.premium)
+      .sort((a, b) => b.premium - a.premium)
       .slice(0, 5);
 
-    // Carrier distribution
-    const carrierDistribution = ytdCases.reduce((acc: any, c) => {
-      const carrier = c.carrier || 'Unknown';
-      if (!acc[carrier]) {
-        acc[carrier] = { count: 0, premium: 0 };
-      }
+    // Carrier distribution.
+    const carrierDistribution = ytdCases.reduce((acc: Record<string, { count: number; premium: number }>, c) => {
+      const carrier = c.carrierName || 'Unknown';
+      if (!acc[carrier]) acc[carrier] = { count: 0, premium: 0 };
       acc[carrier].count++;
-      acc[carrier].premium += c.premium || 0;
+      acc[carrier].premium += prem(c);
       return acc;
     }, {});
 

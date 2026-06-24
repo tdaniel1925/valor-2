@@ -1,233 +1,121 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db/prisma';
-import { generateProductionReport, exportToCSV } from '@/lib/reports/generator';
-import { getUserId } from '@/lib/auth/supabase';
 import { z } from 'zod';
+import { requireAuth } from '@/lib/auth/server-auth';
+import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
+import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { statusBucket } from '@/lib/ai/valor-data-adapter';
 
-// Query parameter validation schema
-const productionReportQuerySchema = z.object({
+/**
+ * GET /api/reports/production — production report from the SmartOffice book
+ * (single source of truth). Policies are the unit of production; "premium" =
+ * targetAmount (annual), "commission" = commAnnualizedPrem (commissionable).
+ * Period filters by statusDate. Response shape is preserved for the page.
+ */
+const querySchema = z.object({
   period: z.enum(['month', 'quarter', 'year', 'ytd']).default('month'),
-  userId: z.string().uuid('Invalid user ID').optional(),
-  teamView: z
-    .string()
-    .optional()
-    .default('false')
-    .pipe(
-      z.string().transform((val) => val === 'true')
-    ),
+  advisor: z.string().optional(),
+  teamView: z.string().optional().default('false').pipe(z.string().transform((v) => v === 'true')),
 });
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const tenant = getTenantFromRequest(request);
+    if (!tenant) return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
+    await requireAuth(request);
 
-    // Validate query parameters
-    const queryParams = productionReportQuerySchema.parse({
-      period: searchParams.get('period') || 'month',
-      userId: searchParams.get('userId') || undefined,
-      teamView: searchParams.get('teamView') || 'false',
+    const sp = request.nextUrl.searchParams;
+    const { period, advisor, teamView } = querySchema.parse({
+      period: sp.get('period') || 'month',
+      advisor: sp.get('advisor') || undefined,
+      teamView: sp.get('teamView') || 'false',
     });
 
-    const { period, userId, teamView } = queryParams;
-
-    // Calculate date range
     const now = new Date();
     let startDate = new Date();
-
     switch (period) {
-      case 'month':
-        startDate.setMonth(now.getMonth() - 1);
-        break;
-      case 'quarter':
-        startDate.setMonth(now.getMonth() - 3);
-        break;
-      case 'year':
-        startDate.setFullYear(now.getFullYear() - 1);
-        break;
-      case 'ytd':
-        startDate = new Date(now.getFullYear(), 0, 1);
-        break;
+      case 'month': startDate.setMonth(now.getMonth() - 1); break;
+      case 'quarter': startDate.setMonth(now.getMonth() - 3); break;
+      case 'year': startDate.setFullYear(now.getFullYear() - 1); break;
+      case 'ytd': startDate = new Date(now.getFullYear(), 0, 1); break;
     }
 
-    // Build where clause
-    const where: any = {
-      createdAt: {
-        gte: startDate,
-        lte: now,
-      },
-    };
-
-    if (userId && !teamView) {
-      where.userId = userId;
-    }
-
-    // Fetch cases
-    const cases = await prisma.case.findMany({
-      where,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        commissions: {
-          select: {
-            amount: true,
-            status: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    const { policies: allPolicies } = await getPolicies(tenant.tenantId, advisor ? { agent: advisor } : {});
+    const policies = allPolicies.filter((p) => {
+      const d = p.statusDate ? new Date(p.statusDate) : null;
+      return d && d >= startDate && d <= now;
     });
 
-    // Calculate summary statistics
-    const totalCases = cases.length;
-    const totalPremium = cases.reduce((sum, c) => sum + (c.premium || 0), 0);
-    const totalCommission = cases.reduce(
-      (sum, c) => sum + c.commissions.reduce((cs, comm) => cs + (comm.amount || 0), 0),
-      0
-    );
+    const prem = (p: PolicyWithMetadata) => Number(p.targetAmount) || 0;
+    const comm = (p: PolicyWithMetadata) => Number(p.commAnnualizedPrem) || 0;
+    const isInforce = (p: PolicyWithMetadata) => statusBucket(p.status) === 'INFORCE';
+    const isPending = (p: PolicyWithMetadata) => statusBucket(p.status) === 'PENDING';
 
-    // Count by status
-    const byStatus = cases.reduce((acc: any, c) => {
-      const status = c.status;
-      if (!acc[status]) {
-        acc[status] = { count: 0, premium: 0 };
-      }
-      acc[status].count++;
-      acc[status].premium += c.premium || 0;
+    const totalCases = policies.length;
+    const totalPremium = policies.reduce((s, p) => s + prem(p), 0);
+    const totalCommission = policies.reduce((s, p) => s + comm(p), 0);
+
+    const byStatus = policies.reduce((acc: Record<string, { count: number; premium: number }>, p) => {
+      const s = p.status || 'Unknown';
+      acc[s] = acc[s] || { count: 0, premium: 0 };
+      acc[s].count++; acc[s].premium += prem(p);
       return acc;
     }, {});
 
-    // Calculate conversion rates
-    const submittedCases = cases.filter((c) =>
-      ['SUBMITTED', 'ISSUED', 'INFORCE'].includes(c.status)
-    ).length;
-    const issuedCases = cases.filter((c) =>
-      ['ISSUED', 'INFORCE'].includes(c.status)
-    ).length;
+    const submittedCases = policies.filter((p) => isInforce(p) || isPending(p)).length;
+    const issuedCases = policies.filter(isInforce).length;
     const conversionRate = totalCases > 0 ? (submittedCases / totalCases) * 100 : 0;
     const issueRate = submittedCases > 0 ? (issuedCases / submittedCases) * 100 : 0;
 
-    // Group by product type
-    const byProductType = cases.reduce((acc: any, c) => {
-      const type = c.productType || 'Unknown';
-      if (!acc[type]) {
-        acc[type] = { count: 0, premium: 0, commission: 0 };
-      }
-      acc[type].count++;
-      acc[type].premium += c.premium || 0;
-      acc[type].commission += c.commissions.reduce((sum, comm) => sum + (comm.amount || 0), 0);
-      return acc;
-    }, {});
-
-    // Group by carrier
-    const byCarrier = cases.reduce((acc: any, c) => {
-      const carrier = c.carrier || 'Unknown';
-      if (!acc[carrier]) {
-        acc[carrier] = { count: 0, premium: 0, commission: 0 };
-      }
-      acc[carrier].count++;
-      acc[carrier].premium += c.premium || 0;
-      acc[carrier].commission += c.commissions.reduce((sum, comm) => sum + (comm.amount || 0), 0);
-      return acc;
-    }, {});
-
-    // Monthly trend (last 6 months)
-    const monthlyTrend = [];
-    for (let i = 5; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-
-      const monthCases = cases.filter(
-        (c) => new Date(c.createdAt) >= monthStart && new Date(c.createdAt) <= monthEnd
-      );
-
-      monthlyTrend.push({
-        month: monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        cases: monthCases.length,
-        premium: monthCases.reduce((sum, c) => sum + (c.premium || 0), 0),
-        commission: monthCases.reduce(
-          (sum, c) => sum + c.commissions.reduce((cs, comm) => cs + (comm.amount || 0), 0),
-          0
-        ),
-        submitted: monthCases.filter((c) =>
-          ['SUBMITTED', 'ISSUED', 'INFORCE'].includes(c.status)
-        ).length,
-        issued: monthCases.filter((c) =>
-          ['ISSUED', 'INFORCE'].includes(c.status)
-        ).length,
-      });
-    }
-
-    // Team rankings (if team view)
-    let agentRankings: any[] = [];
-    if (teamView) {
-      const agentStats = cases.reduce((acc: any, c) => {
-        if (!c.user) return acc;
-
-        const userId = c.user.id;
-        if (!acc[userId]) {
-          acc[userId] = {
-            user: c.user,
-            cases: 0,
-            premium: 0,
-            commission: 0,
-            submitted: 0,
-            issued: 0,
-          };
-        }
-
-        acc[userId].cases++;
-        acc[userId].premium += c.premium || 0;
-        acc[userId].commission += c.commissions.reduce((sum, comm) => sum + (comm.amount || 0), 0);
-
-        if (['SUBMITTED', 'ISSUED', 'INFORCE'].includes(c.status)) {
-          acc[userId].submitted++;
-        }
-        if (['ISSUED', 'INFORCE'].includes(c.status)) {
-          acc[userId].issued++;
-        }
-
+    const groupBy = (key: (p: PolicyWithMetadata) => string) =>
+      policies.reduce((acc: Record<string, { count: number; premium: number; commission: number }>, p) => {
+        const k = key(p) || 'Unknown';
+        acc[k] = acc[k] || { count: 0, premium: 0, commission: 0 };
+        acc[k].count++; acc[k].premium += prem(p); acc[k].commission += comm(p);
         return acc;
       }, {});
 
-      agentRankings = Object.values(agentStats)
-        .sort((a: any, b: any) => b.premium - a.premium)
-        .slice(0, 10);
+    const byProductType = groupBy((p) => p.type || p.productName || 'Unknown');
+    const byCarrier = groupBy((p) => p.carrierName || 'Unknown');
+
+    const monthlyTrend = [];
+    for (let i = 5; i >= 0; i--) {
+      const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+      const mp = allPolicies.filter((p) => {
+        const d = p.statusDate ? new Date(p.statusDate) : null;
+        return d && d >= ms && d <= me;
+      });
+      monthlyTrend.push({
+        month: ms.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        cases: mp.length,
+        premium: mp.reduce((s, p) => s + prem(p), 0),
+        commission: mp.reduce((s, p) => s + comm(p), 0),
+        submitted: mp.filter((p) => isInforce(p) || isPending(p)).length,
+        issued: mp.filter(isInforce).length,
+      });
     }
 
-    // Top performing products
-    const topProducts = Object.entries(byProductType)
-      .map(([type, stats]: [string, any]) => ({
-        type,
-        ...stats,
-      }))
-      .sort((a, b) => b.premium - a.premium)
-      .slice(0, 5);
+    let agentRankings: unknown[] = [];
+    if (teamView) {
+      const stats = policies.reduce((acc: Record<string, { user: { firstName: string; lastName: string; email: string }; cases: number; premium: number; commission: number; submitted: number; issued: number }>, p) => {
+        const name = p.primaryAdvisor || 'Unknown';
+        acc[name] = acc[name] || { user: { firstName: name, lastName: '', email: '' }, cases: 0, premium: 0, commission: 0, submitted: 0, issued: 0 };
+        acc[name].cases++; acc[name].premium += prem(p); acc[name].commission += comm(p);
+        if (isInforce(p) || isPending(p)) acc[name].submitted++;
+        if (isInforce(p)) acc[name].issued++;
+        return acc;
+      }, {});
+      agentRankings = Object.values(stats).sort((a, b) => b.premium - a.premium).slice(0, 10);
+    }
 
-    // Top performing carriers
-    const topCarriers = Object.entries(byCarrier)
-      .map(([carrier, stats]: [string, any]) => ({
-        carrier,
-        ...stats,
-      }))
-      .sort((a, b) => b.premium - a.premium)
-      .slice(0, 5);
+    const topProducts = Object.entries(byProductType).map(([type, s]) => ({ type, ...s })).sort((a, b) => b.premium - a.premium).slice(0, 5);
+    const topCarriers = Object.entries(byCarrier).map(([carrier, s]) => ({ carrier, ...s })).sort((a, b) => b.premium - a.premium).slice(0, 5);
 
     return NextResponse.json({
       success: true,
       period,
       teamView,
-      dateRange: {
-        start: startDate.toISOString(),
-        end: now.toISOString(),
-      },
+      dateRange: { start: startDate.toISOString(), end: now.toISOString() },
       summary: {
         totalCases,
         totalPremium,
@@ -246,21 +134,15 @@ export async function GET(request: NextRequest) {
       agentRankings,
       topProducts,
       topCarriers,
-      recentCases: cases.slice(0, 10),
+      recentCases: policies.slice(0, 10),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid query parameters', details: error.issues },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid query parameters', details: error.issues }, { status: 400 });
     }
     console.error('[PRODUCTION_REPORT_API] Error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch production data',
-      },
+      { success: false, error: error instanceof Error ? error.message : 'Failed to fetch production data' },
       { status: 500 }
     );
   }
