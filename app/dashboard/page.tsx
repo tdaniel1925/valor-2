@@ -16,6 +16,12 @@ interface DashboardData {
     firstName: string;
     lastName: string;
   };
+  book: {
+    agents: number;
+    policies: number;
+    annualPremium: number;
+    commissionablePremium: number;
+  } | null;
   stats: {
     casesTotal: number;
     commissionsTotal: number;
@@ -125,6 +131,33 @@ export default function DashboardPage() {
             Here's what's happening with your insurance business today.
           </p>
         </div>
+
+        {/* Book of Business — SmartOffice live data (single source of truth;
+            matches My Organization + Cases). */}
+        {data.book && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
+            {[
+              { label: "Agents", value: data.book.agents.toLocaleString(), href: "/my-organization" },
+              { label: "Policies", value: data.book.policies.toLocaleString(), href: "/cases" },
+              { label: "Annual Premium", value: formatCurrencyCompact(data.book.annualPremium), full: formatCurrency(data.book.annualPremium), href: "/cases" },
+              { label: "Commissionable Premium", value: formatCurrencyCompact(data.book.commissionablePremium), full: formatCurrency(data.book.commissionablePremium), href: "/cases" },
+            ].map((c) => (
+              <Link
+                key={c.label}
+                href={c.href}
+                className="rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+              >
+                <p className="text-xs text-gray-500 dark:text-gray-400">{c.label}</p>
+                <p
+                  className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1 tabular-nums whitespace-nowrap"
+                  title={c.full ?? c.value}
+                >
+                  {c.value}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Period Summaries - MTD/QTD/YTD */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 sm:mb-8">

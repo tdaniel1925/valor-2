@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
+import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
+import { getOrgForEmail } from "@/lib/downline/service";
+
+const ADMIN_ROLES = ["ADMINISTRATOR", "EXECUTIVE"];
 
 /**
  * GET /api/dashboard - Get dashboard data
@@ -10,6 +14,7 @@ export async function GET(request: NextRequest) {
     // Require authentication and get user ID from session
     const user = await requireAuth(request);
     const userId = user.id;
+    const tenant = getTenantFromRequest(request);
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -34,6 +39,7 @@ export async function GET(request: NextRequest) {
       recentCases,
       recentCommissions,
       notifications,
+      book,
     ] = await Promise.all([
       // User info
       prisma.user.findUnique({
@@ -123,12 +129,44 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
+      // SmartOffice book of business — the SINGLE SOURCE OF TRUTH for the
+      // headline cards. Uses the SAME getOrgForEmail() that My Organization
+      // uses, scoped to this user (downline) so the totals match across pages.
+      (async () => {
+        const EMPTY = { agents: 0, policies: 0, annualPremium: 0, commissionablePremium: 0 };
+        if (!tenant) return null;
+        const dbUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { email: true, role: true },
+        });
+        const email = dbUser?.email || "";
+        const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
+        if (!email && !isAdmin) return EMPTY;
+        try {
+          const org = await getOrgForEmail(tenant.tenantId, email, { isAdmin });
+          // Mirror My Organization's empty-state fallback exactly so the numbers
+          // are identical for matched, unmatched, and admin users.
+          return org.totals ?? EMPTY;
+        } catch {
+          return EMPTY;
+        }
+      })(),
     ]);
 
     const response = NextResponse.json({
       success: true,
       data: {
         user: userInfo || { email: "", firstName: "Demo", lastName: "User" },
+        // SmartOffice book-of-business totals (single source of truth; matches
+        // My Organization + Cases). Null when the user has no matching book.
+        book: book
+          ? {
+              agents: book.agents ?? 0,
+              policies: book.policies ?? 0,
+              annualPremium: book.annualPremium ?? 0,
+              commissionablePremium: (book as { commissionablePremium?: number }).commissionablePremium ?? 0,
+            }
+          : null,
         stats: {
           casesTotal: casesCount,
           commissionsTotal: commissionsSum._sum.amount || 0,
