@@ -852,7 +852,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
   };
 
   return (
-    <div className={cn("min-h-screen flex", darkMode ? "bg-gray-900" : "bg-gray-50")}>
+    <div className={cn("h-screen overflow-hidden flex", darkMode ? "bg-gray-900" : "bg-gray-50")}>
       {/* Mobile hamburger button */}
       <button
         onClick={() => setMobileMenuOpen(true)}
@@ -1131,7 +1131,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       )}
 
       {/* Desktop Sidebar - hide on mobile */}
-      <aside className="hidden lg:flex lg:flex-shrink-0 sticky top-0 h-screen">
+      <aside className="hidden lg:flex lg:flex-shrink-0 h-full">
         <div className={cn(
           "flex flex-col border-r transition-all duration-300 h-full",
           sidebarCollapsed ? "w-16" : "w-64",
@@ -1440,7 +1440,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       </aside>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Top header bar for desktop - aligned with sidebar header height */}
         <div className={cn(
           "hidden lg:flex items-center h-16 border-b px-6",
@@ -1498,9 +1498,11 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
           </div>
         </div>
 
-        {/* Main content - add padding bottom on mobile for bottom nav */}
+        {/* Main content - add padding bottom on mobile for bottom nav.
+            flex flex-col lets full-height pages (e.g. AI chat) fill the area and
+            manage their own scroll, while normal pages still scroll via main. */}
         <main className={cn(
-          "flex-1 overflow-y-auto pb-16 lg:pb-0",
+          "flex-1 min-h-0 overflow-y-auto flex flex-col pb-16 lg:pb-0",
           darkMode ? "bg-gray-900" : "bg-gray-50"
         )}>
           {children}

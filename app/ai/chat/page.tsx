@@ -156,7 +156,7 @@ export default function AiChatPage() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col h-[calc(100vh-2rem)] p-4">
+      <div className="flex flex-col h-full p-4">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 mb-3"
