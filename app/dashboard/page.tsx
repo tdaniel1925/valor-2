@@ -21,6 +21,10 @@ interface DashboardData {
     policies: number;
     annualPremium: number;
     commissionablePremium: number;
+    production: {
+      mtd: number; qtd: number; ytd: number;
+      mtdPolicies: number; qtdPolicies: number; ytdPolicies: number;
+    };
   } | null;
   stats: {
     casesTotal: number;
@@ -173,13 +177,13 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm">Commissions</p>
-                <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.periodSummaries.mtd.commissions)}>{formatCurrencyCompact(data.periodSummaries.mtd.commissions)}</p>
-                <p className="text-blue-700 dark:text-blue-300 text-xs mt-1">{data.periodSummaries.mtd.commissionsCount} payments</p>
+                <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm">Production</p>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.book?.production.mtd ?? 0)}>{formatCurrencyCompact(data.book?.production.mtd ?? 0)}</p>
+                <p className="text-blue-700 dark:text-blue-300 text-xs mt-1">commissionable premium</p>
               </div>
               <div className="pt-3 border-t border-blue-300 dark:border-blue-700">
-                <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm">Cases</p>
-                <p className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-100">{data.periodSummaries.mtd.cases}</p>
+                <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm">New Policies</p>
+                <p className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-100">{data.book?.production.mtdPolicies ?? 0}</p>
               </div>
             </div>
           </div>
@@ -196,13 +200,13 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-purple-700 dark:text-purple-300 text-xs sm:text-sm">Commissions</p>
-                <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.periodSummaries.qtd.commissions)}>{formatCurrencyCompact(data.periodSummaries.qtd.commissions)}</p>
-                <p className="text-purple-700 dark:text-purple-300 text-xs mt-1">{data.periodSummaries.qtd.commissionsCount} payments</p>
+                <p className="text-purple-700 dark:text-purple-300 text-xs sm:text-sm">Production</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.book?.production.qtd ?? 0)}>{formatCurrencyCompact(data.book?.production.qtd ?? 0)}</p>
+                <p className="text-purple-700 dark:text-purple-300 text-xs mt-1">commissionable premium</p>
               </div>
               <div className="pt-3 border-t border-purple-300 dark:border-purple-700">
-                <p className="text-purple-700 dark:text-purple-300 text-xs sm:text-sm">Cases</p>
-                <p className="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100">{data.periodSummaries.qtd.cases}</p>
+                <p className="text-purple-700 dark:text-purple-300 text-xs sm:text-sm">New Policies</p>
+                <p className="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100">{data.book?.production.qtdPolicies ?? 0}</p>
               </div>
             </div>
           </div>
@@ -219,13 +223,13 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-green-700 dark:text-green-300 text-xs sm:text-sm">Commissions</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-900 dark:text-green-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.periodSummaries.ytd.commissions)}>{formatCurrencyCompact(data.periodSummaries.ytd.commissions)}</p>
-                <p className="text-green-700 dark:text-green-300 text-xs mt-1">{data.periodSummaries.ytd.commissionsCount} payments</p>
+                <p className="text-green-700 dark:text-green-300 text-xs sm:text-sm">Production</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-900 dark:text-green-100 tabular-nums whitespace-nowrap" title={formatCurrency(data.book?.production.ytd ?? 0)}>{formatCurrencyCompact(data.book?.production.ytd ?? 0)}</p>
+                <p className="text-green-700 dark:text-green-300 text-xs mt-1">commissionable premium</p>
               </div>
               <div className="pt-3 border-t border-green-300 dark:border-green-700">
-                <p className="text-green-700 dark:text-green-300 text-xs sm:text-sm">Cases</p>
-                <p className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-100">{data.periodSummaries.ytd.cases}</p>
+                <p className="text-green-700 dark:text-green-300 text-xs sm:text-sm">New Policies</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-100">{data.book?.production.ytdPolicies ?? 0}</p>
               </div>
             </div>
           </div>
@@ -234,8 +238,9 @@ export default function DashboardPage() {
         {/* Path to Promotion Progress Meter */}
         <div className="mb-6 sm:mb-8">
           {(() => {
-            // Calculate promotion metrics from real commission data
-            const ytdProduction = data.periodSummaries.ytd.commissions;
+            // Promotion metrics from the SmartOffice book (YTD commissionable
+            // premium), the single source of truth — not internal commissions.
+            const ytdProduction = data.book?.production.ytd ?? 0;
             const targetAmount = 90000;
             const streetMinimum = 75000;
             const preAssocThreshold = 30000;

@@ -133,7 +133,10 @@ export async function GET(request: NextRequest) {
       // headline cards. Uses the SAME getOrgForEmail() that My Organization
       // uses, scoped to this user (downline) so the totals match across pages.
       (async () => {
-        const EMPTY = { agents: 0, policies: 0, annualPremium: 0, commissionablePremium: 0 };
+        const EMPTY = {
+          totals: { agents: 0, policies: 0, annualPremium: 0, commissionablePremium: 0 },
+          production: { mtd: 0, qtd: 0, ytd: 0, mtdPolicies: 0, qtdPolicies: 0, ytdPolicies: 0 },
+        };
         if (!tenant) return null;
         const dbUser = await prisma.user.findUnique({
           where: { id: userId },
@@ -144,9 +147,30 @@ export async function GET(request: NextRequest) {
         if (!email && !isAdmin) return EMPTY;
         try {
           const org = await getOrgForEmail(tenant.tenantId, email, { isAdmin });
-          // Mirror My Organization's empty-state fallback exactly so the numbers
-          // are identical for matched, unmatched, and admin users.
-          return org.totals ?? EMPTY;
+          const totals = org.totals ?? EMPTY.totals;
+          // Period production from the SAME book policies, by statusDate.
+          // "Production" = commissionable annualized premium (commAnnualizedPrem).
+          const policies = (org.policies ?? []) as Array<{ statusDate?: Date | string | null; commAnnualizedPrem?: number | null }>;
+          const inPeriod = (since: Date) =>
+            policies.filter((p) => {
+              const d = p.statusDate ? new Date(p.statusDate) : null;
+              return d && d >= since;
+            });
+          const sum = (arr: typeof policies) => arr.reduce((s, p) => s + (Number(p.commAnnualizedPrem) || 0), 0);
+          const mtdP = inPeriod(monthStart);
+          const qtdP = inPeriod(quarterStart);
+          const ytdP = inPeriod(yearStart);
+          return {
+            totals,
+            production: {
+              mtd: sum(mtdP),
+              qtd: sum(qtdP),
+              ytd: sum(ytdP),
+              mtdPolicies: mtdP.length,
+              qtdPolicies: qtdP.length,
+              ytdPolicies: ytdP.length,
+            },
+          };
         } catch {
           return EMPTY;
         }
@@ -157,14 +181,16 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         user: userInfo || { email: "", firstName: "Demo", lastName: "User" },
-        // SmartOffice book-of-business totals (single source of truth; matches
-        // My Organization + Cases). Null when the user has no matching book.
+        // SmartOffice book-of-business (single source of truth; matches My
+        // Organization + Cases). `totals` = book size; `production` = period
+        // commissionable premium by statusDate. Null only when no tenant.
         book: book
           ? {
-              agents: book.agents ?? 0,
-              policies: book.policies ?? 0,
-              annualPremium: book.annualPremium ?? 0,
-              commissionablePremium: (book as { commissionablePremium?: number }).commissionablePremium ?? 0,
+              agents: book.totals.agents ?? 0,
+              policies: book.totals.policies ?? 0,
+              annualPremium: book.totals.annualPremium ?? 0,
+              commissionablePremium: book.totals.commissionablePremium ?? 0,
+              production: book.production,
             }
           : null,
         stats: {
