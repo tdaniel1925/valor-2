@@ -2,16 +2,21 @@ import * as jose from 'jose';
 import { v4 as uuidv4 } from 'uuid';
 
 // JWT signing secret — MUST come from the environment. A hardcoded fallback
-// would let anyone forge valid access tokens, so we fail closed instead.
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET || JWT_SECRET.length < 32) {
-  throw new Error(
-    'JWT_SECRET is missing or too short (need >=32 chars). Set a strong JWT_SECRET in the environment.'
-  );
+// would let anyone forge valid access tokens, so we fail closed. The check is
+// LAZY (only when a token is actually signed/verified) so it does not throw at
+// module-import/build time when JWT_SECRET may legitimately be absent.
+let cachedKey: Uint8Array | null = null;
+function getSecretKey(): Uint8Array {
+  if (cachedKey) return cachedKey;
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      'JWT_SECRET is missing or too short (need >=32 chars). Set a strong JWT_SECRET in the environment.'
+    );
+  }
+  cachedKey = new TextEncoder().encode(secret);
+  return cachedKey;
 }
-
-// Convert secret to Uint8Array for jose
-const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export interface JWTPayload {
   sub: string; // user ID
@@ -42,7 +47,7 @@ export async function createAccessToken(
     .setIssuedAt()
     .setExpirationTime(Math.floor(Date.now() / 1000) + expiresInSeconds)
     .setJti(uuidv4())
-    .sign(secretKey);
+    .sign(getSecretKey());
 
   return jwt;
 }
@@ -52,7 +57,7 @@ export async function createAccessToken(
  */
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jose.jwtVerify(token, secretKey);
+    const { payload } = await jose.jwtVerify(token, getSecretKey());
     return payload as unknown as JWTPayload;
   } catch (error) {
     console.error('Token verification failed:', error);
