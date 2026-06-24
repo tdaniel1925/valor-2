@@ -117,8 +117,17 @@ field + IP whitelisting). The SSO build is unblocked.
   succeeds with keys unset (lazy env).
 - REMAINING to go live: (1) load the SAML private key/cert into env
   (FIRELIGHT_SAML_PRIVATE_KEY_UAT / _CERTIFICATE_UAT — the .pem keypair whose cert
-  was sent to Hexure); (2) confirm CompanyProducerID format with Hexure (currently
-  apexContactId — one line in the route to change); (3) UAT test the round-trip.
+  was sent to Hexure); (2) UAT test the round-trip.
+
+## CompanyProducerID — RESOLVED (2026-06-24)
+Hexure (Diane, deferring to Chuck): FireLight does NOT require a specific
+identifier format — "if you require a unique contact identifier for the agent,
+then that is what you need to send." So an arbitrary stable string is accepted.
+We send `apexContactId` (e.g. `Contact.450.23527577`) — already what the route
+does, **no code change needed**. Trent emailed back two confirmations (2026-06-24):
+(a) arbitrary stable string OK / no required format, (b) whether the field is
+required or optional. Awaiting Chuck's final word, but the build already matches
+the described behavior. NOT a blocker.
 
 ## Build plan (all Hexure inputs received — ready to build)
 
