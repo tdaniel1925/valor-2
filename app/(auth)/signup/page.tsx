@@ -98,8 +98,9 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to success page
-      router.push(`/onboarding/success?slug=${data.subdomain}`);
+      // Everyone joins the existing Valor tenant — go to email verification
+      // (no per-tenant subdomain success page).
+      router.push(`/onboarding/verify-email`);
     } catch (error) {
       setServerError("Something went wrong. Please try again.");
     } finally {

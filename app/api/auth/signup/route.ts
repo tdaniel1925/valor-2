@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/db/prisma";
-import { isValidSlug } from "@/lib/tenants/slug-validator";
-import { generateInboundEmailAddress } from "@/lib/email/generate-inbound-address";
 import { applyRateLimit, RATE_LIMITS } from "@/lib/auth/rate-limit";
 import { signUpSchema } from "@/lib/validation/auth-schemas";
 import { ZodError } from "zod";
@@ -33,15 +31,16 @@ export async function POST(request: NextRequest) {
 
     logger.info('Signup attempt', { email, subdomain, agencyName });
 
-    // Check if subdomain already exists
-    const existingTenant = await prisma.tenant.findUnique({
-      where: { slug: subdomain },
+    // Reject if a user with this email already exists in the agency tenant.
+    const DEFAULT_TENANT = process.env.DEFAULT_AGENT_TENANT_ID || "valor-default-tenant";
+    const existingUser = await prisma.user.findFirst({
+      where: { email: email.toLowerCase(), tenantId: DEFAULT_TENANT },
+      select: { id: true },
     });
-
-    if (existingTenant) {
-      logger.warn('Signup failed - subdomain already exists', { subdomain });
+    if (existingUser) {
+      logger.warn('Signup failed - email already registered', { email });
       return NextResponse.json(
-        { error: "This subdomain is already taken" },
+        { error: "An account with this email already exists. Try signing in." },
         { status: 409 }
       );
     }
@@ -70,46 +69,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique inbound email address
-    const inboundEmailAddress = await generateInboundEmailAddress();
+    // Everyone signing up is a member of the SAME existing agency tenant — we do
+    // NOT create a separate tenant per signup (that left users in an empty tenant
+    // with no SmartOffice book). The agency-name/subdomain fields are accepted but
+    // only used cosmetically; the user joins the default agent tenant as an AGENT
+    // and is matched to their SmartOffice book by email on login.
+    const DEFAULT_AGENT_TENANT = process.env.DEFAULT_AGENT_TENANT_ID || "valor-default-tenant";
 
-    // Create Tenant in transaction with RLS context
-    const tenant = await prisma.$transaction(async (tx) => {
-      // Create tenant (no RLS on tenants table)
-      const newTenant = await tx.tenant.create({
-        data: {
-          slug: subdomain,
-          name: agencyName,
-          emailSlug: subdomain, // Same as slug by default
-          status: "TRIAL",
-          inboundEmailAddress,
-          inboundEmailEnabled: true,
-        },
-      });
-
-      // Set RLS context for user creation
-      await tx.$executeRawUnsafe(
-        `SET LOCAL app.current_tenant_id = '${newTenant.id}'`
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: DEFAULT_AGENT_TENANT },
+      select: { id: true, slug: true, emailSlug: true },
+    });
+    if (!tenant) {
+      logger.error('Signup failed - default tenant missing', { tenant: DEFAULT_AGENT_TENANT });
+      return NextResponse.json(
+        { error: "Signup is temporarily unavailable. Please contact your administrator." },
+        { status: 503 }
       );
+    }
 
-      // Create user with tenant context
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(`SET LOCAL app.current_tenant_id = '${tenant.id}'`);
       await tx.user.create({
         data: {
           id: authData.user.id,
-          tenantId: newTenant.id,
-          email: email,
+          tenantId: tenant.id,
+          email: email.toLowerCase(),
           firstName,
           lastName,
-          role: "ADMINISTRATOR",
+          role: "AGENT",
           status: "ACTIVE",
           emailVerified: false,
         },
       });
-
-      return newTenant;
     });
 
-    logger.info('Signup successful', {
+    logger.info('Signup successful (joined existing tenant)', {
       tenantId: tenant.id,
       slug: tenant.slug,
       email,
