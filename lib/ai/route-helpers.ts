@@ -5,12 +5,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
 import { requireAuth } from '@/lib/auth/server-auth';
+import { prisma } from '@/lib/db/prisma';
 import { aiConfigured } from '@/lib/ai/claude';
+import type { BookScope } from '@/lib/ai/valor-data-adapter';
+
+const ADMIN_ROLES = ['ADMINISTRATOR', 'EXECUTIVE'];
 
 export interface AiContext {
   tenantId: string;
   userId: string;
   email: string;
+  isAdmin: boolean;
+  /** Pass this to every adapter call so AI tools see only the user's book. */
+  scope: BookScope;
 }
 
 /** Resolve tenant + authed user, or return a NextResponse to short-circuit. */
@@ -28,7 +35,19 @@ export async function resolveAiContext(
     );
   }
   const user = await requireAuth(request);
-  return { tenantId: tenant.tenantId, userId: user.id, email: user.email ?? '' };
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { email: true, role: true },
+  });
+  const email = dbUser?.email || user.email || '';
+  const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
+  return {
+    tenantId: tenant.tenantId,
+    userId: user.id,
+    email,
+    isAdmin,
+    scope: { tenantId: tenant.tenantId, email, isAdmin },
+  };
 }
 
 export function aiErrorResponse(error: unknown, fallback = 'AI request failed'): NextResponse {

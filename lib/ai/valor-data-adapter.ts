@@ -22,7 +22,7 @@ import {
   type PolicyWithMetadata,
   type AgentWithMetadata,
 } from '@/lib/smartoffice/data-service';
-import { findAgentsByEmail } from '@/lib/downline/service';
+import { findAgentsByEmail, getScopedPolicies } from '@/lib/downline/service';
 
 // ---------------------------------------------------------------------------
 // Status mapping — SmartOffice string statuses → coarse buckets the AI reasons over.
@@ -114,37 +114,75 @@ export function toLite(p: PolicyWithMetadata): PolicyLite {
 }
 
 // ---------------------------------------------------------------------------
-// Core fetchers (all tenant-scoped through data-service).
+// Book scope — EVERY AI tool operates on the logged-in user's own + downline
+// book, NOT the whole tenant (admins/executives see all). A BookScope is either
+// a bare tenantId (admin/whole-tenant, back-compat) or {tenantId,email,isAdmin}.
 
-/** All policies for the tenant, as AI-friendly lite rows. */
+export type BookScope = string | { tenantId: string; email: string; isAdmin: boolean };
+
+function scopeTenant(scope: BookScope): string {
+  return typeof scope === 'string' ? scope : scope.tenantId;
+}
+
+/** All policies in the scope, as AI-friendly lite rows (filtered in-memory). */
 export async function fetchPolicies(
-  tenantId: string,
+  scope: BookScope,
   filters: { advisor?: string; carrier?: string; status?: string; search?: string } = {}
 ): Promise<PolicyLite[]> {
-  const { policies } = await getPolicies(tenantId, {
-    agent: filters.advisor,
-    carrier: filters.carrier,
-    status: filters.status,
-    search: filters.search,
-  });
-  return policies.map(toLite);
+  let rows: PolicyLite[];
+  if (typeof scope === 'string' || scope.isAdmin) {
+    // Whole tenant (admin or back-compat callers).
+    const { policies } = await getPolicies(scopeTenant(scope), {});
+    rows = policies.map(toLite);
+  } else {
+    // User-scoped: own + downline only.
+    const scoped = await getScopedPolicies(scope.tenantId, scope.email, false);
+    rows = scoped.map(toLite);
+  }
+  // Apply filters in-memory so scoping and filtering compose.
+  const norm = (s: string | null | undefined) => (s || '').toLowerCase();
+  if (filters.advisor) rows = rows.filter((p) => norm(p.advisor).includes(norm(filters.advisor)));
+  if (filters.carrier) rows = rows.filter((p) => norm(p.carrier).includes(norm(filters.carrier)));
+  if (filters.status) rows = rows.filter((p) => statusBucket(p.status) === statusBucket(filters.status) || norm(p.status).includes(norm(filters.status)));
+  if (filters.search) {
+    const q = norm(filters.search);
+    rows = rows.filter((p) => norm(p.policyNumber).includes(q) || norm(p.insured).includes(q) || norm(p.advisor).includes(q) || norm(p.carrier).includes(q) || norm(p.product).includes(q));
+  }
+  return rows;
 }
 
-export async function fetchStats(tenantId: string) {
-  return getPolicyStats(tenantId);
+/** Stats over the scope (computed from the scoped policy set). */
+export async function fetchStats(scope: BookScope) {
+  if (typeof scope === 'string' || scope.isAdmin) {
+    return getPolicyStats(scopeTenant(scope));
+  }
+  const policies = await fetchPolicies(scope);
+  const comm = policies.reduce((s, p) => s + p.commAnnualizedPrem, 0);
+  const annual = policies.reduce((s, p) => s + p.annualPremium, 0);
+  return {
+    total: policies.length,
+    inforce: policies.filter((p) => p.bucket === 'INFORCE').length,
+    pending: policies.filter((p) => p.bucket === 'PENDING').length,
+    totalPremium: comm,
+    annualPremium: annual,
+    commissionablePremium: comm,
+  };
 }
 
-export async function fetchAgents(tenantId: string, search?: string): Promise<AgentWithMetadata[]> {
-  const { agents } = await getAgents(tenantId, { search, limit: 1000 });
-  return agents;
+export async function fetchAgents(scope: BookScope, search?: string): Promise<AgentWithMetadata[]> {
+  const { agents } = await getAgents(scopeTenant(scope), { search, limit: 1000 });
+  if (typeof scope === 'string' || scope.isAdmin) return agents;
+  // Scope the roster to advisors present in the user's book.
+  const inBook = new Set((await fetchPolicies(scope)).map((p) => p.advisor.toLowerCase()));
+  return agents.filter((a) => inBook.has((a.fullName || '').toLowerCase()));
 }
 
 // ---------------------------------------------------------------------------
 // Rollups — the per-advisor / per-carrier aggregates the AI tools reason over.
 // Policies link to agents by the advisor NAME (verified to match fullName).
 
-export async function advisorRollups(tenantId: string): Promise<AdvisorRollup[]> {
-  const policies = await fetchPolicies(tenantId);
+export async function advisorRollups(scope: BookScope): Promise<AdvisorRollup[]> {
+  const policies = await fetchPolicies(scope);
   const byAdvisor = new Map<string, PolicyLite[]>();
   for (const p of policies) {
     const list = byAdvisor.get(p.advisor) ?? [];
@@ -188,8 +226,8 @@ export async function advisorRollups(tenantId: string): Promise<AdvisorRollup[]>
   return rollups.sort((a, b) => b.commissionablePremium - a.commissionablePremium);
 }
 
-export async function carrierRollups(tenantId: string): Promise<CarrierRollup[]> {
-  const policies = await fetchPolicies(tenantId);
+export async function carrierRollups(scope: BookScope): Promise<CarrierRollup[]> {
+  const policies = await fetchPolicies(scope);
   const byCarrier = new Map<string, { count: number; inforce: number; comm: number; advisors: Set<string> }>();
   for (const p of policies) {
     const c = byCarrier.get(p.carrier) ?? { count: 0, inforce: 0, comm: 0, advisors: new Set<string>() };
@@ -227,11 +265,11 @@ export async function resolveSelfAdvisor(
 }
 
 /** Single advisor's full picture (for Agent Coach / Meeting Prep). */
-export async function advisorDetail(tenantId: string, advisor: string) {
-  const policies = await fetchPolicies(tenantId, { advisor });
+export async function advisorDetail(scope: BookScope, advisor: string) {
+  const policies = await fetchPolicies(scope, { advisor });
   const exact = policies.filter((p) => p.advisor.toLowerCase() === advisor.toLowerCase());
   const list = exact.length > 0 ? exact : policies;
-  const agents = await fetchAgents(tenantId, advisor);
+  const agents = await fetchAgents(scope, advisor);
   const agent =
     agents.find((a) => (a.fullName || '').toLowerCase() === advisor.toLowerCase()) ?? agents[0] ?? null;
   return { agent, policies: list };

@@ -14,6 +14,7 @@ import {
   carrierRollups,
   advisorDetail,
   type PolicyLite,
+  type BookScope,
 } from '@/lib/ai/valor-data-adapter';
 
 function money(n: number): string {
@@ -44,13 +45,13 @@ function summarizePolicy(p: PolicyLite): string {
 export async function executeValorTool(
   toolName: string,
   input: Record<string, unknown>,
-  tenantId: string
+  scope: BookScope
 ): Promise<string> {
   try {
     switch (toolName) {
       case 'search_policies': {
         const limit = clampLimit(input.limit, 25, 100);
-        const policies = await fetchPolicies(tenantId, {
+        const policies = await fetchPolicies(scope, {
           advisor: typeof input.advisor === 'string' ? input.advisor : undefined,
           carrier: typeof input.carrier === 'string' ? input.carrier : undefined,
           status: typeof input.status === 'string' ? input.status : undefined,
@@ -66,7 +67,7 @@ export async function executeValorTool(
       }
 
       case 'get_summary_stats': {
-        const s = await fetchStats(tenantId);
+        const s = await fetchStats(scope);
         return [
           `Total policies: ${s.total.toLocaleString()}`,
           `Inforce: ${s.inforce.toLocaleString()}`,
@@ -78,7 +79,7 @@ export async function executeValorTool(
 
       case 'get_top_producers': {
         const limit = clampLimit(input.limit, 10, 50);
-        const rollups = (await advisorRollups(tenantId)).slice(0, limit);
+        const rollups = (await advisorRollups(scope)).slice(0, limit);
         if (rollups.length === 0) return 'No advisor production found.';
         return rollups
           .map(
@@ -91,7 +92,7 @@ export async function executeValorTool(
       case 'get_advisor_production': {
         const advisor = typeof input.advisor === 'string' ? input.advisor : '';
         if (!advisor) return 'Error: advisor name is required.';
-        const { agent, policies } = await advisorDetail(tenantId, advisor);
+        const { agent, policies } = await advisorDetail(scope, advisor);
         if (policies.length === 0) return `No policies found for advisor "${advisor}".`;
         const comm = policies.reduce((s, p) => s + p.commAnnualizedPrem, 0);
         const annual = policies.reduce((s, p) => s + p.annualPremium, 0);
@@ -111,7 +112,7 @@ export async function executeValorTool(
 
       case 'get_carrier_breakdown': {
         const limit = clampLimit(input.limit, 15, 50);
-        const rollups = (await carrierRollups(tenantId)).slice(0, limit);
+        const rollups = (await carrierRollups(scope)).slice(0, limit);
         if (rollups.length === 0) return 'No carrier data found.';
         return rollups
           .map(

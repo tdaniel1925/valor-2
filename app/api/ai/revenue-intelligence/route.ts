@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
     if (ctx instanceof NextResponse) return ctx;
 
     const [stats, policies, advisors] = await Promise.all([
-      fetchStats(ctx.tenantId),
-      fetchPolicies(ctx.tenantId),
-      advisorRollups(ctx.tenantId),
+      fetchStats(ctx.scope),
+      fetchPolicies(ctx.scope),
+      advisorRollups(ctx.scope),
     ]);
 
     const now = Date.now();

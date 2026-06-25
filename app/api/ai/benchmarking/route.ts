@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const advisorName = typeof body.advisor === 'string' ? body.advisor.trim() : '';
 
-    const advisors = await advisorRollups(ctx.tenantId);
+    const advisors = await advisorRollups(ctx.scope);
     if (advisors.length === 0) {
       return NextResponse.json({ error: 'No advisor data to benchmark.' }, { status: 404 });
     }

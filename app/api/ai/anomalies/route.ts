@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     if (ctx instanceof NextResponse) return ctx;
 
     const [policies, advisors] = await Promise.all([
-      fetchPolicies(ctx.tenantId),
-      advisorRollups(ctx.tenantId),
+      fetchPolicies(ctx.scope),
+      advisorRollups(ctx.scope),
     ]);
 
     // Decline counts by carrier.

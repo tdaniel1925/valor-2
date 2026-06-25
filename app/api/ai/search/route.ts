@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Could not interpret that search.' }, { status: 422 });
     }
 
-    const policies = await fetchPolicies(ctx.tenantId, {
+    const policies = await fetchPolicies(ctx.scope, {
       advisor: parsed.advisor ?? undefined,
       carrier: parsed.carrier ?? undefined,
       status: parsed.status ?? undefined,

@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
     const ask = typeof body.request === 'string' ? body.request.trim() : 'Overall book of business summary';
 
     const [stats, advisors, carriers] = await Promise.all([
-      fetchStats(ctx.tenantId),
-      advisorRollups(ctx.tenantId),
-      carrierRollups(ctx.tenantId),
+      fetchStats(ctx.scope),
+      advisorRollups(ctx.scope),
+      carrierRollups(ctx.scope),
     ]);
 
     const data = {

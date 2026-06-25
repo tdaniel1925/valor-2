@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       messages.push({ role: 'assistant', content: response.content });
       const toolResults: Anthropic.ToolResultBlockParam[] = [];
       for (const tu of toolUses) {
-        const result = await executeValorTool(tu.name, (tu.input ?? {}) as Record<string, unknown>, ctx.tenantId);
+        const result = await executeValorTool(tu.name, (tu.input ?? {}) as Record<string, unknown>, ctx.scope);
         toolResults.push({ type: 'tool_result', tool_use_id: tu.id, content: result });
       }
       messages.push({ role: 'user', content: toolResults });

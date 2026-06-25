@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const ctx = await resolveAiContext(request);
     if (ctx instanceof NextResponse) return ctx;
 
-    const [carriers, stats] = await Promise.all([carrierRollups(ctx.tenantId), fetchStats(ctx.tenantId)]);
+    const [carriers, stats] = await Promise.all([carrierRollups(ctx.scope), fetchStats(ctx.scope)]);
     if (carriers.length === 0) {
       return NextResponse.json({ carriers: [], analysis: null, note: 'No carrier data.' });
     }

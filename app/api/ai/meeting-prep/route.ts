@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const advisor = typeof body.advisor === 'string' ? body.advisor.trim() : '';
     if (!advisor) return NextResponse.json({ error: 'advisor is required' }, { status: 400 });
 
-    const { agent, policies } = await advisorDetail(ctx.tenantId, advisor);
+    const { agent, policies } = await advisorDetail(ctx.scope, advisor);
     if (policies.length === 0) {
       return NextResponse.json({ error: `No book found for "${advisor}".` }, { status: 404 });
     }

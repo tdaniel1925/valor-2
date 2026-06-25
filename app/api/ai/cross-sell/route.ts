@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const ctx = await resolveAiContext(request);
     if (ctx instanceof NextResponse) return ctx;
 
-    const advisors = await advisorRollups(ctx.tenantId);
+    const advisors = await advisorRollups(ctx.scope);
     // Only advisors with enough volume to matter.
     const candidates = advisors
       .filter((a) => a.policyCount >= 3)
