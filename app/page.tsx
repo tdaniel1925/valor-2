@@ -55,10 +55,10 @@ export default function LandingPage() {
                   Sign In
                 </Link>
                 <Link
-                  href="/login"
+                  href="/join"
                   className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Get Started
+                  Sign Up
                 </Link>
               </div>
             </div>
@@ -83,10 +83,10 @@ export default function LandingPage() {
               </p>
               <div className="flex items-center gap-4">
                 <Link
-                  href="/login"
+                  href="/join"
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
                 >
-                  Start free trial
+                  Sign Up
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
@@ -293,10 +293,10 @@ export default function LandingPage() {
                   </li>
                 </ul>
                 <Link
-                  href="/login"
+                  href="/join"
                   className="block text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Start trial
+                  Sign Up
                 </Link>
               </div>
 
@@ -328,10 +328,10 @@ export default function LandingPage() {
                   </li>
                 </ul>
                 <Link
-                  href="/login"
+                  href="/signup"
                   className="block text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Start trial
+                  Register Agency
                 </Link>
               </div>
 
@@ -379,10 +379,10 @@ export default function LandingPage() {
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link
-                href="/login"
+                href="/join"
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
               >
-                Start free trial
+                Sign Up
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
