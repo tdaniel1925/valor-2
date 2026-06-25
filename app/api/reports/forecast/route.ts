@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
-import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { prisma } from '@/lib/db/prisma';
+import { getScopedPolicies } from '@/lib/downline/service';
+
+const ADMIN_ROLES = ['ADMINISTRATOR', 'EXECUTIVE'];
 
 /**
  * GET /api/reports/forecast — commission forecast from the SmartOffice book
  * (single source of truth). Projections are based on the recent-period
  * commissionable-premium run-rate (commAnnualizedPrem) by statusDate.
+ * Scoped to the user's own + downline policies (admins/executives see all).
  * Response shape is preserved for the page.
  */
 const comm = (p: PolicyWithMetadata) => Number(p.commAnnualizedPrem) || 0;
@@ -19,7 +24,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
     }
 
-    await requireAuth(request);
+    const authUser = await requireAuth(request);
+    const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { email: true, role: true } });
+    const email = dbUser?.email || authUser.email || '';
+    const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
 
     const timeframe = request.nextUrl.searchParams.get('timeframe') || '12month';
     const monthCount = timeframe === '3month' ? 3 : timeframe === '6month' ? 6 : 12;
@@ -28,7 +36,7 @@ export async function GET(request: NextRequest) {
     const sixMonthsAgo = new Date(now);
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    const { policies: allPolicies } = await getPolicies(tenant.tenantId, {});
+    const allPolicies = (await getScopedPolicies(tenant.tenantId, email, isAdmin)) as PolicyWithMetadata[];
 
     // Historical book: policies with a statusDate in the last 6 months.
     const historical = allPolicies.filter((p) => {

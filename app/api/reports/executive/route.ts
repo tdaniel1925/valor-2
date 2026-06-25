@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
-import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { prisma } from '@/lib/db/prisma';
+import { getScopedPolicies } from '@/lib/downline/service';
 import { statusBucket } from '@/lib/ai/valor-data-adapter';
+
+const ADMIN_ROLES = ['ADMINISTRATOR', 'EXECUTIVE'];
 
 /**
  * GET /api/reports/executive — executive dashboard from the SmartOffice book
@@ -15,7 +19,10 @@ export async function GET(request: NextRequest) {
   try {
     const tenant = getTenantFromRequest(request);
     if (!tenant) return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
-    await requireAuth(request);
+    const authUser = await requireAuth(request);
+    const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { email: true, role: true } });
+    const email = dbUser?.email || authUser.email || '';
+    const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
 
     const now = new Date();
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -25,7 +32,7 @@ export async function GET(request: NextRequest) {
     const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
     const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
 
-    const { policies: allPolicies } = await getPolicies(tenant.tenantId, {});
+    const allPolicies = (await getScopedPolicies(tenant.tenantId, email, isAdmin)) as PolicyWithMetadata[];
 
     const inRange = (p: PolicyWithMetadata, start: Date, end: Date) => {
       const d = p.statusDate ? new Date(p.statusDate) : null;

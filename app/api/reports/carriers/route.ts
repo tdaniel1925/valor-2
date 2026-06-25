@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
-import { getPolicies, type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { type PolicyWithMetadata } from '@/lib/smartoffice/data-service';
+import { prisma } from '@/lib/db/prisma';
+import { getScopedPolicies } from '@/lib/downline/service';
 import { statusBucket } from '@/lib/ai/valor-data-adapter';
+
+const ADMIN_ROLES = ['ADMINISTRATOR', 'EXECUTIVE'];
 
 /**
  * GET /api/reports/carriers — carrier analytics from the SmartOffice book
  * (single source of truth). Policies are grouped by `carrierName`.
  * "premium" = targetAmount (annual), "commission" = commAnnualizedPrem.
+ * Scoped to the user's own + downline policies (admins/executives see all).
  * Period filters by statusDate. Response shape is preserved for the page.
  */
 function getDateRange(period: string) {
@@ -59,7 +64,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant context not found' }, { status: 400 });
     }
 
-    await requireAuth(request);
+    const authUser = await requireAuth(request);
+    const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { email: true, role: true } });
+    const email = dbUser?.email || authUser.email || '';
+    const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
 
     const period = request.nextUrl.searchParams.get('period') || 'ytd';
     const { startDate, endDate } = getDateRange(period);
@@ -67,7 +75,7 @@ export async function GET(request: NextRequest) {
     const periodLength = endDate.getTime() - startDate.getTime();
     const prevStartDate = new Date(startDate.getTime() - periodLength);
 
-    const { policies: allPolicies } = await getPolicies(tenant.tenantId, {});
+    const allPolicies = (await getScopedPolicies(tenant.tenantId, email, isAdmin)) as PolicyWithMetadata[];
 
     const currentPolicies = allPolicies.filter((p) => inDateRange(p, startDate, endDate));
     const prevPolicies = allPolicies.filter((p) => inDateRange(p, prevStartDate, startDate));

@@ -241,6 +241,19 @@ export async function getScopedBook(
   };
 }
 
+/**
+ * Just the policy array a user is allowed to see (own + downline; admins get
+ * the whole tenant). For reports/analytics that compute from a policy set.
+ */
+export async function getScopedPolicies(
+  tenantId: string,
+  email: string,
+  isAdmin: boolean
+): Promise<any[]> {
+  const org = await getOrgForEmail(tenantId, email, { isAdmin });
+  return (org.policies ?? []) as any[];
+}
+
 /** Full org view for a logged-in user's email. */
 export async function getOrgForEmail(tenantId: string, email: string, opts: { isAdmin?: boolean } = {}) {
   const all = await prisma.smartOfficeAgent.findMany({
