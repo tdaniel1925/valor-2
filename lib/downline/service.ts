@@ -155,6 +155,92 @@ export async function getDownlinePolicies(tenantId: string, contactIds: string[]
   return policies.filter((p: any) => idSet.has(p.additionalData?.apexAdvisorContactId));
 }
 
+export interface ScopedBookFilters {
+  agent?: string;
+  carrier?: string;
+  status?: string;
+  search?: string;
+  sortBy?: 'statusDate' | 'premium' | 'status' | 'carrier' | 'agent';
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * The Cases/Policies view, scoped to the logged-in user's OWN + downline book
+ * (admins see the whole tenant). Returns the same shape /api/cases/policies
+ * produced before — policies + filter options + total + stats — but only over
+ * the user's reachable policies, so agents never see other agents' books.
+ */
+export async function getScopedBook(
+  tenantId: string,
+  email: string,
+  isAdmin: boolean,
+  filters: ScopedBookFilters = {}
+) {
+  const org = await getOrgForEmail(tenantId, email, { isAdmin });
+  const all = (org.policies ?? []) as any[];
+
+  const norm = (s: any) => (s || '').toString().toLowerCase();
+  let rows = all;
+
+  if (filters.agent) rows = rows.filter((p) => norm(p.primaryAdvisor).includes(norm(filters.agent)));
+  if (filters.carrier) rows = rows.filter((p) => norm(p.carrierName).includes(norm(filters.carrier)));
+  if (filters.status) rows = rows.filter((p) => norm(p.status).includes(norm(filters.status)));
+  if (filters.search) {
+    const q = norm(filters.search);
+    rows = rows.filter(
+      (p) =>
+        norm(p.policyNumber).includes(q) ||
+        norm(p.primaryInsured).includes(q) ||
+        norm(p.primaryAdvisor).includes(q) ||
+        norm(p.carrierName).includes(q) ||
+        norm(p.productName).includes(q)
+    );
+  }
+
+  const order = filters.sortOrder === 'asc' ? 1 : -1;
+  const key = filters.sortBy || 'statusDate';
+  rows = [...rows].sort((a, b) => {
+    let av: any, bv: any;
+    switch (key) {
+      case 'premium': av = Number(a.commAnnualizedPrem) || 0; bv = Number(b.commAnnualizedPrem) || 0; break;
+      case 'status': av = norm(a.status); bv = norm(b.status); break;
+      case 'carrier': av = norm(a.carrierName); bv = norm(b.carrierName); break;
+      case 'agent': av = norm(a.primaryAdvisor); bv = norm(b.primaryAdvisor); break;
+      default: av = a.statusDate ? new Date(a.statusDate).getTime() : 0; bv = b.statusDate ? new Date(b.statusDate).getTime() : 0;
+    }
+    return av < bv ? -order : av > bv ? order : 0;
+  });
+
+  // Stats over the user's FULL scoped book (not the filtered subset).
+  const bucket = (s: any) => {
+    const v = norm(s);
+    if (v.includes('inforce') || v.includes('issued') || v.includes('approved')) return 'INFORCE';
+    if (v.includes('pending') || v.includes('submitted') || v.includes('await') || v.includes('incomplete')) return 'PENDING';
+    return 'OTHER';
+  };
+  const annual = all.reduce((s, p) => s + (Number(p.targetAmount) || 0), 0);
+  const comm = all.reduce((s, p) => s + (Number(p.commAnnualizedPrem) || 0), 0);
+
+  return {
+    policies: rows,
+    filters: {
+      agents: [...new Set(all.map((p) => p.primaryAdvisor).filter(Boolean))].sort() as string[],
+      agencies: [] as string[],
+      carriers: [...new Set(all.map((p) => p.carrierName).filter(Boolean))].sort() as string[],
+      statuses: [...new Set(all.map((p) => p.status).filter(Boolean))].sort() as string[],
+    },
+    total: rows.length,
+    stats: {
+      total: all.length,
+      inforce: all.filter((p) => bucket(p.status) === 'INFORCE').length,
+      pending: all.filter((p) => bucket(p.status) === 'PENDING').length,
+      totalPremium: comm,
+      annualPremium: annual,
+      commissionablePremium: comm,
+    },
+  };
+}
+
 /** Full org view for a logged-in user's email. */
 export async function getOrgForEmail(tenantId: string, email: string, opts: { isAdmin?: boolean } = {}) {
   const all = await prisma.smartOfficeAgent.findMany({

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withVerifiedTenant } from '@/lib/auth/require-tenant-access';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
-import { getPolicies, getPolicyStats } from '@/lib/smartoffice/data-service';
+import { requireAuth } from '@/lib/auth/server-auth';
+import { prisma } from '@/lib/db/prisma';
+import { getScopedBook } from '@/lib/downline/service';
 import { z } from 'zod';
+
+const ADMIN_ROLES = ['ADMINISTRATOR', 'EXECUTIVE'];
 
 // Query parameter validation schema
 const policiesQuerySchema = z.object({
@@ -55,26 +59,25 @@ export async function GET(request: NextRequest) {
 
       const { agent, agency, carrier, status, search, sortBy, sortOrder } = queryParams;
 
-      // Use unified data service - single source of truth from SmartOfficePolicy
-      const [result, stats] = await Promise.all([
-        getPolicies(tenantContext.tenantId, {
-          agent,
-          carrier,
-          status,
-          search,
-          sortBy,
-          sortOrder,
-        }),
-        getPolicyStats(tenantContext.tenantId),
-      ]);
-
-      return NextResponse.json({
-        success: true,
-        policies: result.policies,
-        filters: result.filters,
-        total: result.total,
-        stats,
+      // Scope to the logged-in user's own + downline book (admins see all).
+      const authUser = await requireAuth(request);
+      const dbUser = await prisma.user.findUnique({
+        where: { id: authUser.id },
+        select: { email: true, role: true },
       });
+      const email = dbUser?.email || authUser.email || '';
+      const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
+
+      const book = await getScopedBook(tenantContext.tenantId, email, isAdmin, {
+        agent,
+        carrier,
+        status,
+        search,
+        sortBy,
+        sortOrder,
+      });
+
+      return NextResponse.json({ success: true, ...book });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return NextResponse.json(
@@ -91,7 +94,7 @@ export async function GET(request: NextRequest) {
   }
 
   // PRODUCTION MODE: Require authentication
-  return await withVerifiedTenant(request, async ({ tenantId }, prisma) => {
+  return await withVerifiedTenant(request, async ({ tenantId, user }, prisma) => {
     try {
       // Get and validate query parameters
       const { searchParams } = new URL(request.url);
@@ -107,26 +110,23 @@ export async function GET(request: NextRequest) {
 
       const { agent, agency, carrier, status, search, sortBy, sortOrder } = queryParams;
 
-      // Use unified data service - single source of truth from SmartOfficePolicy
-      const [result, stats] = await Promise.all([
-        getPolicies(tenantId, {
-          agent,
-          carrier,
-          status,
-          search,
-          sortBy,
-          sortOrder,
-        }),
-        getPolicyStats(tenantId),
-      ]);
-
-      return NextResponse.json({
-        success: true,
-        policies: result.policies,
-        filters: result.filters,
-        total: result.total,
-        stats,
+      // Scope to the logged-in user's own + downline book (admins see all).
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { role: true },
       });
+      const isAdmin = !!dbUser && ADMIN_ROLES.includes(dbUser.role);
+
+      const book = await getScopedBook(tenantId, user.email, isAdmin, {
+        agent,
+        carrier,
+        status,
+        search,
+        sortBy,
+        sortOrder,
+      });
+
+      return NextResponse.json({ success: true, ...book });
 
     } catch (error: any) {
       if (error instanceof z.ZodError) {
