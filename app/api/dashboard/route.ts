@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
-import { getOrgForEmail } from "@/lib/downline/service";
+import { getOrgForEmail, findAgentsByEmail } from "@/lib/downline/service";
 
 const ADMIN_ROLES = ["ADMINISTRATOR", "EXECUTIVE"];
 
@@ -136,6 +136,8 @@ export async function GET(request: NextRequest) {
         const EMPTY = {
           totals: { agents: 0, policies: 0, annualPremium: 0, commissionablePremium: 0, inforce: 0, pending: 0 },
           production: { mtd: 0, qtd: 0, ytd: 0, mtdPolicies: 0, qtdPolicies: 0, ytdPolicies: 0 },
+          personalYtd: null as number | null,
+          personalYtdPolicies: null as number | null,
         };
         if (!tenant) return null;
         const dbUser = await prisma.user.findUnique({
@@ -168,6 +170,29 @@ export async function GET(request: NextRequest) {
           const mtdP = inPeriod(monthStart);
           const qtdP = inPeriod(quarterStart);
           const ytdP = inPeriod(yearStart);
+
+          // PERSONAL production = only policies the logged-in user wrote
+          // themselves (primaryAdvisor matches their own advisor name), NOT
+          // their whole downline. This is what the promotion meter uses, since
+          // promotion targets are per-agent. null when the user has no own book.
+          const myAgents = await findAgentsByEmail(tenant.tenantId, email);
+          const myNames = new Set(
+            myAgents.map((a) => (a.fullName || "").trim().toLowerCase()).filter(Boolean)
+          );
+          const ownPolicies = (org.policies ?? []) as Array<{
+            statusDate?: Date | string | null;
+            commAnnualizedPrem?: number | null;
+            primaryAdvisor?: string | null;
+          }>;
+          const mine = myNames.size
+            ? ownPolicies.filter((p) => myNames.has((p.primaryAdvisor || "").trim().toLowerCase()))
+            : [];
+          const mineYtd = mine.filter((p) => {
+            const d = p.statusDate ? new Date(p.statusDate) : null;
+            return d && d >= yearStart;
+          });
+          const personalYtd = mineYtd.reduce((s, p) => s + (Number(p.commAnnualizedPrem) || 0), 0);
+
           return {
             totals: { ...totals, inforce: inforceCount, pending: pendingCount },
             production: {
@@ -178,6 +203,10 @@ export async function GET(request: NextRequest) {
               qtdPolicies: qtdP.length,
               ytdPolicies: ytdP.length,
             },
+            // null when the user has no personal book (admins/managers without
+            // their own writing record) → meter hides for them.
+            personalYtd: myNames.size ? personalYtd : null,
+            personalYtdPolicies: myNames.size ? mineYtd.length : null,
           };
         } catch {
           return EMPTY;
@@ -201,6 +230,8 @@ export async function GET(request: NextRequest) {
               inforce: (book.totals as { inforce?: number }).inforce ?? 0,
               pending: (book.totals as { pending?: number }).pending ?? 0,
               production: book.production,
+              personalYtd: book.personalYtd ?? null,
+              personalYtdPolicies: book.personalYtdPolicies ?? null,
             }
           : null,
         stats: {

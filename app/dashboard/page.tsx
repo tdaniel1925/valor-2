@@ -27,6 +27,8 @@ interface DashboardData {
       mtd: number; qtd: number; ytd: number;
       mtdPolicies: number; qtdPolicies: number; ytdPolicies: number;
     };
+    personalYtd: number | null;
+    personalYtdPolicies: number | null;
   } | null;
   stats: {
     casesTotal: number;
@@ -233,12 +235,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Path to Promotion Progress Meter */}
+        {/* Path to Promotion Progress Meter — only for users with their OWN
+            book (a personal writing record). Admins/managers viewing the agency
+            rollup have personalYtd === null, so the per-agent meter is hidden. */}
+        {data.book?.personalYtd != null && (
         <div className="mb-6 sm:mb-8">
           {(() => {
-            // Promotion metrics from the SmartOffice book (YTD commissionable
-            // premium), the single source of truth — not internal commissions.
-            const ytdProduction = data.book?.production.ytd ?? 0;
+            // PERSONAL YTD production (this agent's own policies), the single
+            // source of truth — the promotion track is per-agent.
+            const ytdProduction = data.book?.personalYtd ?? 0;
             const targetAmount = 90000;
             const streetMinimum = 75000;
             const preAssocThreshold = 30000;
@@ -290,7 +295,6 @@ export default function DashboardPage() {
                         {status}
                       </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300">2 months remaining</p>
                   </div>
                 </div>
 
@@ -426,6 +430,7 @@ export default function DashboardPage() {
             );
           })()}
         </div>
+        )}
 
         <style jsx>{`
           @keyframes progress-stripes {
