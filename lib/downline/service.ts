@@ -155,6 +155,40 @@ export async function getDownlinePolicies(tenantId: string, contactIds: string[]
   return policies.filter((p: any) => idSet.has(p.additionalData?.apexAdvisorContactId));
 }
 
+/**
+ * Given the user's already-scoped policy set and a header "focus" (an agency or
+ * rep name picked in BookSearch), return just that focus's policies.
+ *  - rep   → policies written under that exact advisor name
+ *  - agency→ policies of that agency's whole downline branch (the agency entity
+ *            row + everyone under it in the supervisor tree)
+ * Returns the input unchanged when focus is empty or doesn't resolve.
+ */
+export async function filterPoliciesByFocus(
+  tenantId: string,
+  policies: any[],
+  focusName: string
+): Promise<any[]> {
+  const focus = (focusName || '').trim();
+  if (!focus) return policies;
+  const fl = focus.toLowerCase();
+
+  // Direct rep match first (cheap, covers most cases).
+  const direct = policies.filter((p) => (p.primaryAdvisor || '').toLowerCase() === fl);
+  // An agency entity row may not write policies itself — expand to its branch.
+  const all = await prisma.smartOfficeAgent.findMany({
+    where: { tenantId },
+    select: { id: true, email: true, fullName: true, supervisor: true, additionalData: true },
+  });
+  const focusAgent = all.find((a) => (a.fullName || '').toLowerCase() === fl);
+  if (focusAgent) {
+    const branch = await getDownline(all, [cid(focusAgent)].filter(Boolean) as string[]);
+    const names = new Set(branch.map((d) => (d.name || '').toLowerCase()));
+    const branchPolicies = policies.filter((p) => names.has((p.primaryAdvisor || '').toLowerCase()));
+    if (branchPolicies.length > direct.length) return branchPolicies;
+  }
+  return direct.length ? direct : policies.filter((p) => (p.primaryAdvisor || '').toLowerCase().includes(fl));
+}
+
 export interface ScopedBookFilters {
   agent?: string;
   carrier?: string;

@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/server-auth';
 import { getTenantFromRequest } from '@/lib/auth/get-tenant-context';
-import { getOrgForEmail } from '@/lib/downline/service';
+import { getOrgForEmail, filterPoliciesByFocus } from '@/lib/downline/service';
 import { prisma } from '@/lib/db/prisma';
 
 const ADMIN_ROLES = ['ADMINISTRATOR', 'EXECUTIVE'];
@@ -40,6 +40,24 @@ export async function GET(request: NextRequest) {
         downline: [], policies: [], totals: { agents: 0, policies: 0, annualPremium: 0 },
       });
     }
+
+    // Header book filter: narrow to a chosen agency/rep within the user's scope.
+    const focus = (request.nextUrl.searchParams.get('focus') || '').trim();
+    if (focus) {
+      const policies = await filterPoliciesByFocus(tenant.tenantId, org.policies ?? [], focus);
+      const advisors = new Set(policies.map((p: any) => (p.primaryAdvisor || '').toLowerCase()));
+      const downline = (org.downline ?? []).filter((d: any) => advisors.has((d.name || '').toLowerCase()));
+      const annualPremium = policies.reduce((s: number, p: any) => s + (Number(p.targetAmount) || 0), 0);
+      const commissionablePremium = policies.reduce((s: number, p: any) => s + (Number(p.commAnnualizedPrem) || 0), 0);
+      return NextResponse.json({
+        ...org,
+        downline,
+        policies,
+        totals: { agents: downline.length, policies: policies.length, annualPremium, commissionablePremium },
+        focus,
+      });
+    }
+
     return NextResponse.json(org);
   } catch (e: any) {
     if (e?.message === 'Unauthorized') return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

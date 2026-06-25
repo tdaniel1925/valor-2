@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import NotificationCenter from "./NotificationCenter";
 import QuickActions from "./QuickActions";
+import BookSearch from "./BookSearch";
 import OrganizationSwitcher from "./OrganizationSwitcher";
 import Chatbot from "./Chatbot";
 
@@ -1526,6 +1527,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                   </svg>
                 </button>
               </div>
+              <BookSearch />
               <QuickActions />
               <NotificationCenter />
             </div>

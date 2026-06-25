@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/server-auth";
 import { getTenantFromRequest } from "@/lib/auth/get-tenant-context";
-import { getOrgForEmail, findAgentsByEmail } from "@/lib/downline/service";
+import { getOrgForEmail, findAgentsByEmail, filterPoliciesByFocus } from "@/lib/downline/service";
 
 const ADMIN_ROLES = ["ADMINISTRATOR", "EXECUTIVE"];
 
@@ -149,10 +149,23 @@ export async function GET(request: NextRequest) {
         if (!email && !isAdmin) return EMPTY;
         try {
           const org = await getOrgForEmail(tenant.tenantId, email, { isAdmin });
-          const totals = org.totals ?? EMPTY.totals;
+          // Header book filter: narrow the dashboard to a chosen agency/rep.
+          const focus = (request.nextUrl.searchParams.get('focus') || '').trim();
+          let orgPolicies = (org.policies ?? []) as any[];
+          let totals = org.totals ?? EMPTY.totals;
+          if (focus) {
+            orgPolicies = await filterPoliciesByFocus(tenant.tenantId, orgPolicies, focus);
+            const advisors = new Set(orgPolicies.map((p: any) => (p.primaryAdvisor || '').toLowerCase()));
+            totals = {
+              agents: advisors.size,
+              policies: orgPolicies.length,
+              annualPremium: orgPolicies.reduce((s: number, p: any) => s + (Number(p.targetAmount) || 0), 0),
+              commissionablePremium: orgPolicies.reduce((s: number, p: any) => s + (Number(p.commAnnualizedPrem) || 0), 0),
+            };
+          }
           // Period production from the SAME book policies, by statusDate.
           // "Production" = commissionable annualized premium (commAnnualizedPrem).
-          const policies = (org.policies ?? []) as Array<{ statusDate?: Date | string | null; commAnnualizedPrem?: number | null; status?: string | null }>;
+          const policies = orgPolicies as Array<{ statusDate?: Date | string | null; commAnnualizedPrem?: number | null; status?: string | null }>;
           const bucket = (s: string | null | undefined) => {
             const v = (s || '').toLowerCase();
             if (v.includes('inforce') || v.includes('issued') || v.includes('approved')) return 'INFORCE';

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatCurrency, formatCurrencyCompact, formatDate } from "@/lib/utils";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import AppLayout from "@/components/layout/AppLayout";
+import { useBookFilter } from "@/components/layout/useBookFilter";
 import PerformanceCharts from "@/components/dashboard/PerformanceCharts";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
@@ -89,11 +90,11 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
+  const bookFilter = useBookFilter();
   const { data, isLoading, error } = useQuery<DashboardData>({
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", bookFilter?.name ?? ""],
     queryFn: async () => {
-      console.log("Fetching dashboard data...");
-      const res = await fetch("/api/dashboard");
+      const res = await fetch(bookFilter ? `/api/dashboard?focus=${encodeURIComponent(bookFilter.name)}` : "/api/dashboard");
       if (!res.ok) {
         console.error("Dashboard API error:", res.status, res.statusText);
         throw new Error("Failed to fetch dashboard data");

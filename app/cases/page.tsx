@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { formatCurrency, formatCurrencyCompact, formatDate } from '@/lib/utils';
 import { Badge, Card, CardHeader, CardContent } from '@/components/ui';
 import AppLayout from '@/components/layout/AppLayout';
+import { useBookFilter } from '@/components/layout/useBookFilter';
 import { Search, Filter, X } from 'lucide-react';
 
 interface Policy {
@@ -72,11 +73,17 @@ export default function CasesPage() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Global header book filter (agency/rep drill-down). When set, scope to it.
+  const bookFilter = useBookFilter();
+
   // Build query params
   const buildQueryParams = () => {
     const params = new URLSearchParams();
     if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
-    if (selectedAgent) params.append('agent', selectedAgent);
+    // The header filter narrows to one agency/rep (by advisor name); it takes
+    // precedence over the in-page agent filter.
+    if (bookFilter) params.append('agent', bookFilter.name);
+    else if (selectedAgent) params.append('agent', selectedAgent);
     if (selectedAgency) params.append('agency', selectedAgency);
     if (selectedCarrier) params.append('carrier', selectedCarrier);
     if (selectedStatus) params.append('status', selectedStatus);
@@ -84,7 +91,7 @@ export default function CasesPage() {
   };
 
   const { data, isLoading, error, refetch } = useQuery<PoliciesData>({
-    queryKey: ['policies', debouncedSearchTerm, selectedAgent, selectedAgency, selectedCarrier, selectedStatus],
+    queryKey: ['policies', debouncedSearchTerm, selectedAgent, selectedAgency, selectedCarrier, selectedStatus, bookFilter?.name ?? ''],
     queryFn: async () => {
       const queryString = buildQueryParams();
       const url = `/api/cases/policies${queryString ? `?${queryString}` : ''}`;

@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/utils";
 import { Badge, Card, CardContent } from "@/components/ui";
+import { useBookFilter } from "@/components/layout/useBookFilter";
 import AppLayout from "@/components/layout/AppLayout";
 
 interface DownlineAgent {
@@ -29,10 +30,12 @@ interface OrgResponse {
 }
 
 export default function MyOrganizationPage() {
+  const bookFilter = useBookFilter();
   const { data, isLoading, error } = useQuery<OrgResponse>({
-    queryKey: ["my-organization"],
+    queryKey: ["my-organization", bookFilter?.name ?? ""],
     queryFn: async () => {
-      const res = await fetch("/api/downline");
+      const url = bookFilter ? `/api/downline?focus=${encodeURIComponent(bookFilter.name)}` : "/api/downline";
+      const res = await fetch(url);
       if (!res.ok) throw new Error((await res.json()).error || "Failed to load");
       return res.json();
     },
